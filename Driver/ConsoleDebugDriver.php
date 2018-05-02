@@ -1,41 +1,42 @@
 <?php
 
-namespace App\Bundle\SwooleBundle\Server;
+namespace App\Bundle\SwooleBundle\Driver;
 
+use App\Bundle\SwooleBundle\Server\ServerUtils;
 use App\Kernel;
-use Psr\Log\LoggerInterface;
 use Swoole\Http\Request as SwooleRequest;
 use Swoole\Http\Response as SwooleResponse;
+use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\HttpFoundation\ParameterBag;
 use Symfony\Component\HttpFoundation\Request as SymfonyRequest;
 
 /**
- * Driver for running Symfony with Swoole.
- *
- * @see https://github.com/php-pm/php-pm-httpkernel/blob/master/Bootstraps/Symfony.php
+ * Driver for running Symfony with Swoole as Symfony/Console command.
  */
-class Driver
+class ConsoleDebugDriver implements ProfilingDriverInterface
 {
     private $kernel;
-    private $logger;
+    private $output;
+    private $profilingEnabled;
     private $trustAllProxies = false;
-    private $profilingEnabled = false;
 
     /**
      * Driver constructor.
      *
-     * @param \App\Kernel              $kernel
-     * @param \Psr\Log\LoggerInterface $logger
+     * @param \App\Kernel     $kernel
+     * @param OutputInterface $output
+     * @param bool            $profilingEnabled
      */
-    public function __construct(Kernel $kernel, LoggerInterface $logger)
+    public function __construct(Kernel $kernel, OutputInterface $output, bool $profilingEnabled = false)
     {
-        $this->logger = $logger;
+        $this->output = $output;
         $this->kernel = $kernel;
+        $this->profilingEnabled = $profilingEnabled;
     }
 
-    public function enableProfiling(): void
+    public function profilingEnabled(): bool
     {
-        $this->profilingEnabled = true;
+        return $this->profilingEnabled;
     }
 
     /**
@@ -49,10 +50,8 @@ class Driver
     public function boot(array $trustedHosts = [], array $trustedProxies = []): void
     {
         if ($this->profilingEnabled && !\gc_enabled()) {
-            $this->logger->alert('Garbage Collector is disabled!');
+            $this->output->writeln('<error>Garbage Collector is disabled!</error>');
         }
-
-        $app = $this->kernel;
 
         if ([] !== $trustedHosts) {
             SymfonyRequest::setTrustedHosts($trustedHosts);
@@ -61,17 +60,20 @@ class Driver
         if ([] !== $trustedProxies) {
             if (\in_array('*', $trustedProxies, true)) {
                 $this->trustAllProxies = true;
-                if ($this->profilingEnabled) {
-                    $this->logger->debug('Trusting all proxies');
+                if ($this->kernel->isDebug()) {
+                    $this->output->writeln('<comment>Trusting all proxies</comment>');
                 }
             } else {
                 SymfonyRequest::setTrustedProxies($trustedProxies, SymfonyRequest::HEADER_X_FORWARDED_ALL);
             }
         }
 
+        $app = $this->kernel;
         ServerUtils::bindAndCall(function () use ($app) {
             $app->boot();
         }, $app);
+
+        $this->profile('after driver boot');
     }
 
     /**
@@ -83,7 +85,7 @@ class Driver
      */
     private function preHandle(): void
     {
-        $this->logServerMetrics('before handling request');
+        $this->profile('before handling request');
 
         // Reset Kernel startTime, so Symfony can correctly calculate the execution time
         $this->kernel->resetStartTime();
@@ -168,7 +170,7 @@ class Driver
             }
         }
 
-        $this->logServerMetrics('after sending response');
+        $this->profile('after sending response');
     }
 
     /**
@@ -191,7 +193,7 @@ class Driver
 
         $symfonyResponse = $this->kernel->handle($symfonyRequest);
 
-        $this->logServerMetrics('during handling request');
+        $this->profile('during handling request');
 
         $this->kernel->terminate($symfonyRequest, $symfonyResponse);
 
@@ -244,13 +246,21 @@ class Driver
         return $symfonyRequest;
     }
 
-    public function logServerMetrics(string $when): void
+    /**
+     * {@inheritdoc}
+     */
+    public function profile(string $when = null): void
     {
         if ($this->profilingEnabled) {
-            $this->logger->info(\sprintf('Server metrics %s', $when), [
-                'memory_usage' => ServerUtils::formatBytes(ServerUtils::getMemoryUsage()),
-                'memory_peak_usage' => ServerUtils::formatBytes(ServerUtils::getPeakMemoryUsage()),
-            ]);
+            $messages = [];
+            if (null !== $when) {
+                $messages[] = \sprintf('<info>Profile occurred %s</info>', $when);
+            }
+
+            $messages[] = \sprintf('<info>Current memory usage: %s</info>', ServerUtils::formatBytes(ServerUtils::getMemoryUsage()));
+            $messages[] = \sprintf('<info>Peak memory usage: %s</info>', ServerUtils::formatBytes(ServerUtils::getPeakMemoryUsage()));
+
+            $this->output->writeln($messages);
         }
     }
 }

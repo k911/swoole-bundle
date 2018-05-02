@@ -4,12 +4,8 @@ declare(strict_types=1);
 
 namespace App\Bundle\SwooleBundle\Command;
 
-use App\Bundle\SwooleBundle\Server\Driver;
+use App\Bundle\SwooleBundle\Driver\ConsoleDebugDriver;
 use App\Bundle\SwooleBundle\Server\ServerUtils;
-use App\Kernel;
-use Monolog\Handler\StreamHandler;
-use Monolog\Logger;
-use Psr\Log\LoggerInterface;
 use Swoole\Http\Request;
 use Swoole\Http\Response;
 use Swoole\Http\Server;
@@ -17,6 +13,7 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\HttpKernel\KernelInterface;
 
 class SwooleServerRun extends Command
@@ -31,6 +28,7 @@ class SwooleServerRun extends Command
     public function __construct(KernelInterface $kernel)
     {
         parent::__construct();
+
         $this->kernel = $kernel;
     }
 
@@ -45,8 +43,8 @@ class SwooleServerRun extends Command
             ->setDescription('Runs a local swoole server')
             ->addOption('host', null, InputOption::VALUE_REQUIRED, 'Host of the server', '127.0.0.1')
             ->addOption('port', null, InputOption::VALUE_REQUIRED, 'Port of the server', 9501)
-            ->addOption('log-output', null, InputOption::VALUE_REQUIRED, 'Log output location', 'php://stdout')
-            ->addOption('enable-profiling', null, InputOption::VALUE_NONE, 'Enables server profiling');
+            ->addOption('enable-profiling', null, InputOption::VALUE_NONE, 'Enables server profiling')
+            ->addOption('enable-static', null, InputOption::VALUE_NONE, 'Enables static files serving');
     }
 
     /**
@@ -55,19 +53,24 @@ class SwooleServerRun extends Command
      * @throws \Psr\Container\NotFoundExceptionInterface
      * @throws \Psr\Container\ContainerExceptionInterface
      * @throws \Symfony\Component\Console\Exception\InvalidArgumentException
+     * @throws \InvalidArgumentException
      * @throws \Exception
      */
     protected function execute(InputInterface $input, OutputInterface $output): void
     {
-        $logger = $this->makeLogger($input->getOption('log-output'));
+        $io = new SymfonyStyle($input, $output);
         $host = $input->getOption('host');
         $port = (int) $input->getOption('port');
-        $server = $this->makeServer($host, $port);
-        $driver = $this->makeDriver($this->kernel, $logger);
-
+        $server = new Server($host, $port, SWOOLE_BASE, SWOOLE_SOCK_TCP);
         $profilingEnabled = (bool) $input->getOption('enable-profiling');
-        if ($profilingEnabled) {
-            $driver->enableProfiling();
+        $staticFilesServingEnabled = (bool) $input->getOption('enable-static');
+        $driver = new ConsoleDebugDriver($this->kernel, $output, $profilingEnabled);
+
+        if ($staticFilesServingEnabled) {
+            $server->set([
+                'enable_static_handler' => true,
+                'document_root' => $this->kernel->getRootDir().'/public',
+            ]);
         }
 
         $server->on('request', function (Request $request, Response $response) use ($driver) {
@@ -76,53 +79,27 @@ class SwooleServerRun extends Command
 
         $trustedHosts = ServerUtils::decodeStringAsSet($_SERVER['APP_TRUSTED_HOSTS']);
         $trustedProxies = ServerUtils::decodeStringAsSet($_SERVER['APP_TRUSTED_PROXIES']);
-
-        $logger->info(\sprintf('Swoole HTTP Server started on http://%s:%d', $host, $port), [
-            'env' => $this->kernel->getEnvironment(),
-            'debug' => $this->kernel->isDebug() ? 'true' : 'false',
-            'profiling' => $profilingEnabled ? 'true' : 'false',
-            'memory_limit' => ServerUtils::formatBytes(ServerUtils::getMaxMemory()),
-            'memory_usage' => ServerUtils::formatBytes(ServerUtils::getMemoryUsage()),
-            'memory_peak_usage' => ServerUtils::formatBytes(ServerUtils::getPeakMemoryUsage()),
-            'trusted_hosts' => $trustedHosts,
-            'trusted_proxies' => $trustedProxies,
-        ]);
-
         $driver->boot($trustedHosts, $trustedProxies);
+        $output->writeln(\sprintf('<info>Swoole HTTP Server started on http://%s:%d</info>', $host, $port));
+
+        if ($profilingEnabled) {
+            $io->newLine();
+            $rows = [
+                ['env', $this->kernel->getEnvironment()],
+                ['debug', \var_export($this->kernel->isDebug(), true)],
+                ['profiling', \var_export($profilingEnabled, true)],
+                ['memory_limit', ServerUtils::formatBytes(ServerUtils::getMaxMemory())],
+                ['trusted_hosts', \implode(', ', $trustedHosts)],
+                ['trusted_proxies', \implode(', ', $trustedProxies)],
+            ];
+
+            if ($staticFilesServingEnabled) {
+                $rows[] = ['document_root', $this->kernel->getRootDir().'/public'];
+            }
+
+            $io->table(['Configuration', 'Values'], $rows);
+        }
+
         $server->start();
-    }
-
-    /**
-     * @param string $output
-     *
-     * @throws \Exception
-     *
-     * @return LoggerInterface
-     */
-    private function makeLogger(string $output): LoggerInterface
-    {
-        return new Logger('swoole', [new StreamHandler($output)]);
-    }
-
-    /**
-     * @param string $host
-     * @param int    $port
-     *
-     * @return Server
-     */
-    private function makeServer(string $host, int $port): Server
-    {
-        return new Server($host, $port, SWOOLE_BASE);
-    }
-
-    /**
-     * @param Kernel          $kernel
-     * @param LoggerInterface $logger
-     *
-     * @return Driver
-     */
-    private function makeDriver(Kernel $kernel, LoggerInterface $logger): Driver
-    {
-        return new Driver($kernel, $logger);
     }
 }
