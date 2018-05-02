@@ -103,23 +103,21 @@ class SwooleServerHandle extends Command
         $driver->boot($trustedHosts, $trustedProxies);
         $output->writeln(\sprintf('<info>Swoole HTTP Server started on http://%s:%d for %d requests</info>', $host, $port, $requestLimit));
 
-        if ($profilingEnabled) {
-            $io->newLine();
-            $rows = [
-                ['env', $this->kernel->getEnvironment()],
-                ['debug', \var_export($this->kernel->isDebug(), true)],
-                ['profiling', \var_export($profilingEnabled, true)],
-                ['memory_limit', ServerUtils::formatBytes(ServerUtils::getMaxMemory())],
-                ['trusted_hosts', \implode(', ', $trustedHosts)],
-                ['trusted_proxies', \implode(', ', $trustedProxies)],
-            ];
+        $rows = [
+            ['env', $this->kernel->getEnvironment()],
+            ['debug', \var_export($this->kernel->isDebug(), true)],
+            ['profiling', \var_export($profilingEnabled, true)],
+            ['memory_limit', ServerUtils::formatBytes(ServerUtils::getMaxMemory())],
+            ['trusted_hosts', \implode(', ', $trustedHosts)],
+            ['trusted_proxies', \implode(', ', $trustedProxies)],
+        ];
 
-            if ($staticFilesServingEnabled) {
-                $rows[] = ['document_root', $this->kernel->getRootDir().'/public'];
-            }
-
-            $io->table(['Configuration', 'Values'], $rows);
+        if ($staticFilesServingEnabled) {
+            $rows[] = ['document_root', $this->kernel->getRootDir().'/public'];
         }
+
+        $io->newLine();
+        $io->table(['Configuration', 'Values'], $rows);
 
         $server->start();
     }
