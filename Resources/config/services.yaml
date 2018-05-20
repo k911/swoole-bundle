@@ -1,14 +1,25 @@
 services:
-
-    # default configuration for services in *this* file
     _defaults:
-        # automatically injects dependencies in your services
         autowire: true
-        # automatically registers your services as commands, event subscribers, etc.
         autoconfigure: true
-        # this means you cannot fetch services directly from the container via $container->get()
-        # if you need to do this, you can override this setting on individual services
         public: false
 
-    App\Bundle\SwooleBundle\Server\Counter:
-        factory: [App\Bundle\SwooleBundle\Server\Counter, fromZero]
+    swoole.counter.atomic:
+        class: App\Bundle\SwooleBundle\Server\AtomicCounter
+        factory: [App\Bundle\SwooleBundle\Server\AtomicCounter, fromZero]
+
+    swoole.server.http:
+        class: Swoole\Http\Server
+
+    swoole.server.run_command:
+        class: App\Bundle\SwooleBundle\Command\ServerRunCommand
+        arguments:
+            $server: '@swoole.server.http'
+        tags: ['console.command']
+
+    swoole.server.profile_command:
+        class: App\Bundle\SwooleBundle\Command\ServerProfileCommand
+        arguments:
+            $counter: '@swoole.counter.atomic'
+            $server: '@swoole.server.http'
+        tags: ['console.command']

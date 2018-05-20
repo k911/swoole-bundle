@@ -6,7 +6,7 @@ namespace App\Bundle\SwooleBundle\Server;
 
 use Swoole\Atomic;
 
-final class Counter
+final class AtomicCounter
 {
     private $counter;
 

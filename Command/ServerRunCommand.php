@@ -16,20 +16,23 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\HttpKernel\KernelInterface;
 
-class SwooleServerRun extends Command
+class ServerRunCommand extends Command
 {
     private $kernel;
+    private $server;
 
     /**
      * @param KernelInterface $kernel
+     * @param Server          $server
      *
      * @throws \Symfony\Component\Console\Exception\LogicException
      */
-    public function __construct(KernelInterface $kernel)
+    public function __construct(KernelInterface $kernel, Server $server)
     {
         parent::__construct();
 
         $this->kernel = $kernel;
+        $this->server = $server;
     }
 
     /**
@@ -41,9 +44,8 @@ class SwooleServerRun extends Command
     {
         $this->setName('swoole:server:run')
             ->setDescription('Runs a local swoole server')
-            ->addOption('host', null, InputOption::VALUE_REQUIRED, 'Host of the server', '127.0.0.1')
-            ->addOption('port', null, InputOption::VALUE_REQUIRED, 'Port of the server', 9501)
-            ->addOption('enable-profiling', null, InputOption::VALUE_NONE, 'Enables server profiling')
+            ->addOption('host', null, InputOption::VALUE_OPTIONAL, 'Host of the server')
+            ->addOption('port', null, InputOption::VALUE_OPTIONAL, 'Port of the server')
             ->addOption('enable-static', null, InputOption::VALUE_NONE, 'Enables static files serving');
     }
 
@@ -59,21 +61,24 @@ class SwooleServerRun extends Command
     protected function execute(InputInterface $input, OutputInterface $output): void
     {
         $io = new SymfonyStyle($input, $output);
-        $host = $input->getOption('host');
-        $port = (int) $input->getOption('port');
-        $server = new Server($host, $port, SWOOLE_BASE, SWOOLE_SOCK_TCP);
-        $profilingEnabled = (bool) $input->getOption('enable-profiling');
+
+        $host = (string) ($input->getOption('host') ?? $this->server->host);
+        $port = (int) ($input->getOption('port') ?? $this->server->port);
+        $this->server->host = $host;
+        $this->server->port = $port;
+
+//        $profilingEnabled = (bool) $input->getOption('enable-profiling');
         $staticFilesServingEnabled = (bool) $input->getOption('enable-static');
-        $driver = new ConsoleDebugDriver($this->kernel, $output, $profilingEnabled);
+        $driver = new ConsoleDebugDriver($this->kernel, $output, false);
 
         if ($staticFilesServingEnabled) {
-            $server->set([
+            $this->server->set([
                 'enable_static_handler' => true,
                 'document_root' => $this->kernel->getRootDir().'/public',
             ]);
         }
 
-        $server->on('request', function (Request $request, Response $response) use ($driver) {
+        $this->server->on('request', function (Request $request, Response $response) use ($driver) {
             $driver->handle($request, $response);
         });
 
@@ -84,7 +89,7 @@ class SwooleServerRun extends Command
         $rows = [
             ['env', $this->kernel->getEnvironment()],
             ['debug', \var_export($this->kernel->isDebug(), true)],
-            ['profiling', \var_export($profilingEnabled, true)],
+//            ['profiling', \var_export($profilingEnabled, true)],
             ['memory_limit', ServerUtils::formatBytes(ServerUtils::getMaxMemory())],
             ['trusted_hosts', \implode(', ', $trustedHosts)],
             ['trusted_proxies', \implode(', ', $trustedProxies)],
@@ -98,6 +103,6 @@ class SwooleServerRun extends Command
         $io->newLine();
         $io->table(['Configuration', 'Values'], $rows);
 
-        $server->start();
+        $this->server->start();
     }
 }

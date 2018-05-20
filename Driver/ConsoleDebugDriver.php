@@ -13,7 +13,7 @@ use Symfony\Component\HttpFoundation\Request as SymfonyRequest;
 /**
  * Driver for running Symfony with Swoole as Symfony/Console command.
  */
-class ConsoleDebugDriver implements ProfilingDriverInterface
+final class ConsoleDebugDriver implements ProfilingDriverInterface
 {
     private $kernel;
     private $output;
