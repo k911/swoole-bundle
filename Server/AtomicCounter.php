@@ -25,11 +25,6 @@ final class AtomicCounter
         return $this->counter->get();
     }
 
-    public function reset(): void
-    {
-        $this->counter->set(0);
-    }
-
     public static function fromZero(): self
     {
         return new self(new Atomic(0));
