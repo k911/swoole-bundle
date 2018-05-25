@@ -4,22 +4,39 @@ services:
         autoconfigure: true
         public: false
 
-    swoole.counter.atomic:
-        class: App\Bundle\SwooleBundle\Server\AtomicCounter
+    'App\Bundle\SwooleBundle\Server\AtomicCounter':
         factory: [App\Bundle\SwooleBundle\Server\AtomicCounter, fromZero]
 
-    swoole.server.http:
-        class: Swoole\Http\Server
+    'App\Bundle\SwooleBundle\Bridge\Symfony\HttpFoundation\HttpFoundationRequestFactoryInterface':
+        class: App\Bundle\SwooleBundle\Bridge\Symfony\HttpFoundation\HttpFoundationRequestFactory
 
-    swoole.server.run_command:
-        class: App\Bundle\SwooleBundle\Command\ServerRunCommand
-        arguments:
-            $server: '@swoole.server.http'
+    'App\Bundle\SwooleBundle\Bridge\Symfony\HttpFoundation\CloudFrontHttpFoundationRequestFactory':
+        decorates: App\Bundle\SwooleBundle\Bridge\Symfony\HttpFoundation\HttpFoundationRequestFactoryInterface
+        decoration_priority: -10
+        arguments: ['@App\Bundle\SwooleBundle\Bridge\Symfony\HttpFoundation\CloudFrontHttpFoundationRequestFactory.inner']
+        autoconfigure: false
+
+    'App\Bundle\SwooleBundle\Bridge\Symfony\HttpFoundation\HttpFoundationResponseHandlerInterface':
+        class: App\Bundle\SwooleBundle\Bridge\Symfony\HttpFoundation\HttpFoundationResponseHandler
+
+    'App\Bundle\SwooleBundle\Driver\DriverInterface':
+        class: App\Bundle\SwooleBundle\Bridge\Symfony\HttpKernel\HttpKernelDriver
+
+    'App\Bundle\SwooleBundle\Bridge\Symfony\HttpKernel\TrustAllProxiesHttpKernelDriver':
+        decorates: App\Bundle\SwooleBundle\Driver\DriverInterface
+        decoration_priority: -10
+        arguments: ['@App\Bundle\SwooleBundle\Bridge\Symfony\HttpKernel\TrustAllProxiesHttpKernelDriver.inner']
+        autoconfigure: false
+
+    'App\Bundle\SwooleBundle\Bridge\Symfony\HttpKernel\DebugHttpKernelDriver':
+        decorates: App\Bundle\SwooleBundle\Driver\DriverInterface
+        decoration_priority: -20
+        arguments: ['@App\Bundle\SwooleBundle\Bridge\Symfony\HttpKernel\DebugHttpKernelDriver.inner']
+        autoconfigure: false
+
+    'Swoole\Http\Server':
+
+    'App\Bundle\SwooleBundle\Command\ServerRunCommand':
         tags: ['console.command']
-
-    swoole.server.profile_command:
-        class: App\Bundle\SwooleBundle\Command\ServerProfileCommand
-        arguments:
-            $counter: '@swoole.counter.atomic'
-            $server: '@swoole.server.http'
+    'App\Bundle\SwooleBundle\Command\ServerProfileCommand':
         tags: ['console.command']

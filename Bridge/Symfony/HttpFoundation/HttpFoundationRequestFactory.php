@@ -31,7 +31,7 @@ final class HttpFoundationRequestFactory implements HttpFoundationRequestFactory
             $request->rawContent()
         );
 
-        if (0 === \mb_strpos($httpFoundationRequest->headers->get('content_type'), 'application/x-www-form-urlencoded')
+        if (0 === \mb_strpos($httpFoundationRequest->headers->get('content-type', ''), 'application/x-www-form-urlencoded')
             && \in_array(\mb_strtoupper($httpFoundationRequest->server->get('REQUEST_METHOD', 'GET')), ['PUT', 'DELETE', 'PATCH'])
         ) {
             \parse_str($httpFoundationRequest->getContent(), $data);

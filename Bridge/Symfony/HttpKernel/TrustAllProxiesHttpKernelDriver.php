@@ -40,7 +40,7 @@ final class TrustAllProxiesHttpKernelDriver implements DriverInterface
             }
         }
 
-        $this->boot($configuration);
+        $this->decorated->boot($configuration);
     }
 
     /**
@@ -49,7 +49,7 @@ final class TrustAllProxiesHttpKernelDriver implements DriverInterface
     public function handle(SwooleRequest $request, SwooleResponse $response): void
     {
         if ($this->trustAllProxies) {
-            SymfonyRequest::setTrustedProxies(['127.0.0.1', $request->server['REMOTE_ADDR']], SymfonyRequest::HEADER_X_FORWARDED_ALL);
+            SymfonyRequest::setTrustedProxies(['127.0.0.1', $request->server['remote_addr']], SymfonyRequest::HEADER_X_FORWARDED_ALL);
         }
 
         $this->decorated->handle($request, $response);

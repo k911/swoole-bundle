@@ -10,7 +10,8 @@ use App\Bundle\SwooleBundle\Driver\DriverInterface;
 use Swoole\Http\Request as SwooleRequest;
 use Swoole\Http\Response as SwooleResponse;
 use Symfony\Component\HttpFoundation\Request as SymfonyRequest;
-use Symfony\Component\HttpKernel\Kernel;
+use Symfony\Component\HttpKernel\KernelInterface;
+use Symfony\Component\HttpKernel\TerminableInterface;
 
 final class HttpKernelDriver implements DriverInterface
 {
@@ -18,7 +19,7 @@ final class HttpKernelDriver implements DriverInterface
     private $requestFactory;
     private $responseHandler;
 
-    public function __construct(Kernel $kernel, HttpFoundationRequestFactoryInterface $requestFactory, HttpFoundationResponseHandlerInterface $responseHandler)
+    public function __construct(KernelInterface $kernel, HttpFoundationRequestFactoryInterface $requestFactory, HttpFoundationResponseHandlerInterface $responseHandler)
     {
         $this->kernel = $kernel;
         $this->requestFactory = $requestFactory;
@@ -52,6 +53,8 @@ final class HttpKernelDriver implements DriverInterface
 
         $this->responseHandler->handle($httpFoundationResponse, $response);
 
-        $this->kernel->terminate($httpFoundationRequest, $httpFoundationResponse);
+        if ($this->kernel instanceof TerminableInterface) {
+            $this->kernel->terminate($httpFoundationRequest, $httpFoundationResponse);
+        }
     }
 }
