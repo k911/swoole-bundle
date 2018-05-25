@@ -28,7 +28,7 @@ final class HttpFoundationRequestFactory implements HttpFoundationRequestFactory
             [], $request->cookie ?? [],
             $request->files ?? [],
             $server,
-            $request->rawContent()
+            $request->rawcontent()
         );
 
         if (0 === \mb_strpos($httpFoundationRequest->headers->get('content-type', ''), 'application/x-www-form-urlencoded')

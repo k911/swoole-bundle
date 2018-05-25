@@ -22,9 +22,9 @@ final class HttpFoundationResponseHandler implements HttpFoundationResponseHandl
         }
 
         foreach ($httpFoundationResponse->headers->allPreserveCaseWithoutCookies() as $name => $values) {
-            /** @var string[] $values */
+            /** @var array $values */
             foreach ($values as $value) {
-                $swooleResponse->header($name, $value);
+                $swooleResponse->header($name, (string) $value);
             }
         }
 
