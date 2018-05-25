@@ -4,16 +4,12 @@ declare(strict_types=1);
 
 namespace App\Bundle\SwooleBundle\Driver;
 
-use Swoole\Http\Request;
-use Swoole\Http\Response;
-
-interface DriverInterface
+interface DriverInterface extends RequestHandlerInterface
 {
     /**
-     * Handles swoole request and modifies swoole response accordingly.
+     * Override configuration at runtime.
      *
-     * @param Request  $request
-     * @param Response $response
+     * @param array $configuration
      */
-    public function handle(Request $request, Response $response): void;
+    public function boot(array $configuration = []): void;
 }

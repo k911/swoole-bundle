@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Bundle\SwooleBundle\Command;
 
-use App\Bundle\SwooleBundle\Driver\ConsoleDebugDriver;
+use App\Bundle\SwooleBundle\Driver\DriverInterface;
 use App\Bundle\SwooleBundle\Server\ServerUtils;
 use Swoole\Http\Request;
 use Swoole\Http\Response;
@@ -20,19 +20,20 @@ class ServerRunCommand extends Command
 {
     private $kernel;
     private $server;
+    private $driver;
 
     /**
      * @param KernelInterface $kernel
      * @param Server          $server
-     *
-     * @throws \Symfony\Component\Console\Exception\LogicException
+     * @param DriverInterface $driver
      */
-    public function __construct(KernelInterface $kernel, Server $server)
+    public function __construct(KernelInterface $kernel, Server $server, DriverInterface $driver)
     {
         parent::__construct();
 
         $this->kernel = $kernel;
         $this->server = $server;
+        $this->driver = $driver;
     }
 
     /**
@@ -67,9 +68,7 @@ class ServerRunCommand extends Command
         $this->server->host = $host;
         $this->server->port = $port;
 
-//        $profilingEnabled = (bool) $input->getOption('enable-profiling');
         $staticFilesServingEnabled = (bool) $input->getOption('enable-static');
-        $driver = new ConsoleDebugDriver($this->kernel, $output, false);
 
         if ($staticFilesServingEnabled) {
             $this->server->set([
@@ -78,21 +77,19 @@ class ServerRunCommand extends Command
             ]);
         }
 
-        $this->server->on('request', function (Request $request, Response $response) use ($driver) {
-            $driver->handle($request, $response);
+        $this->server->on('request', function (Request $request, Response $response) {
+            $this->driver->handle($request, $response);
         });
 
-        $trustedHosts = ServerUtils::decodeStringAsSet($_SERVER['APP_TRUSTED_HOSTS']);
-        $trustedProxies = ServerUtils::decodeStringAsSet($_SERVER['APP_TRUSTED_PROXIES']);
-        $driver->boot($trustedHosts, $trustedProxies);
+        $this->driver->boot([
+            'trustedHosts' => ServerUtils::decodeStringAsSet($_SERVER['APP_TRUSTED_HOSTS']),
+            'trustedProxies' => ServerUtils::decodeStringAsSet($_SERVER['APP_TRUSTED_PROXIES']),
+        ]);
 
         $rows = [
             ['env', $this->kernel->getEnvironment()],
             ['debug', \var_export($this->kernel->isDebug(), true)],
-//            ['profiling', \var_export($profilingEnabled, true)],
             ['memory_limit', ServerUtils::formatBytes(ServerUtils::getMaxMemory())],
-            ['trusted_hosts', \implode(', ', $trustedHosts)],
-            ['trusted_proxies', \implode(', ', $trustedProxies)],
         ];
 
         if ($staticFilesServingEnabled) {
