@@ -9,7 +9,6 @@ use App\Bundle\SwooleBundle\Server\ServerUtils;
 use Swoole\Http\Request;
 use Swoole\Http\Response;
 use Symfony\Component\DependencyInjection\ContainerInterface;
-use Symfony\Component\HttpKernel\Kernel;
 use Symfony\Component\HttpKernel\KernelInterface;
 
 final class DebugHttpKernelDriver implements DriverInterface
@@ -39,7 +38,7 @@ final class DebugHttpKernelDriver implements DriverInterface
     public function handle(Request $request, Response $response): void
     {
         if ($this->kernel->isDebug()) {
-            ServerUtils::hijackProperty($this->container->get('kernel'), 'startTime', \microtime(true));
+            ServerUtils::hijackProperty($this->kernel, 'startTime', \microtime(true));
         }
 
         $this->decorated->handle($request, $response);
@@ -53,43 +52,6 @@ final class DebugHttpKernelDriver implements DriverInterface
                 $profiler = $this->container->get('profiler');
                 $profiler->reset();
                 $profiler->enable();
-
-//            // Doctrine
-//            // Doctrine\Bundle\DoctrineBundle\DataCollector\DoctrineDataCollector
-//            if ($profiler->has('db')) {
-//                ServerUtils::bindAndCall(function () {
-//                    //$logger: \Doctrine\DBAL\Logging\DebugStack
-//                    foreach ($this->loggers as $logger) {
-//                        ServerUtils::hijackProperty($logger, 'queries', []);
-//                    }
-//                }, $profiler->get('db'), [], 'Symfony\Bridge\Doctrine\DataCollector\DoctrineDataCollector');
-//            }
-//
-//            // EventDataCollector
-//            if ($profiler->has('events')) {
-//                ServerUtils::hijackProperty($profiler->get('events'), 'data', [
-//                    'called_listeners' => [],
-//                    'not_called_listeners' => [],
-//                ]);
-//            }
-//
-//            // TwigDataCollector
-//            if ($profiler->has('twig')) {
-//                ServerUtils::bindAndCall(function () {
-//                    ServerUtils::hijackProperty($this->profile, 'profiles', []);
-//                }, $profiler->get('twig'));
-//            }
-//
-//            // Logger
-//            if ($this->container->has('logger')) {
-//                $logger = $this->container->get('logger');
-//                ServerUtils::bindAndCall(function () {
-//                    if (\method_exists($this, 'getDebugLogger') && $debugLogger = $this->getDebugLogger()) {
-//                        //DebugLogger
-//                        ServerUtils::hijackProperty($debugLogger, 'records', []);
-//                    }
-//                }, $logger);
-//            }
             }
         }
     }

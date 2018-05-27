@@ -4,13 +4,13 @@ declare(strict_types=1);
 
 namespace App\Bundle\SwooleBundle\Command;
 
-use App\Bundle\SwooleBundle\Driver\ConsoleDebugDriver;
-use App\Bundle\SwooleBundle\Server\AtomicCounter;
+use App\Bundle\SwooleBundle\Driver\DriverInterface;
 use App\Bundle\SwooleBundle\Server\ServerUtils;
 use Swoole\Http\Request;
 use Swoole\Http\Response;
 use Swoole\Http\Server;
 use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Exception\InvalidArgumentException;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -20,24 +20,17 @@ use Symfony\Component\HttpKernel\KernelInterface;
 
 class ServerProfileCommand extends Command
 {
-    private $requestCounter;
     private $kernel;
     private $server;
+    private $driver;
 
-    /**
-     * @param KernelInterface $kernel
-     * @param Server          $server
-     * @param AtomicCounter   $counter
-     *
-     * @throws \Symfony\Component\Console\Exception\LogicException
-     */
-    public function __construct(KernelInterface $kernel, Server $server, AtomicCounter $counter)
+    public function __construct(KernelInterface $kernel, Server $server, DriverInterface $driver)
     {
         parent::__construct();
 
-        $this->requestCounter = $counter;
         $this->kernel = $kernel;
         $this->server = $server;
+        $this->driver = $driver;
     }
 
     /**
@@ -50,8 +43,8 @@ class ServerProfileCommand extends Command
         $this->setName('swoole:server:profile')
             ->setDescription('Handles specified amount of requests to a local swoole server. Useful for debug or benchmarking.')
             ->addArgument('requests', InputArgument::REQUIRED, 'Number of requests to handle by the server')
-            ->addOption('host', null, InputOption::VALUE_REQUIRED, 'Host of the server', '127.0.0.1')
-            ->addOption('port', null, InputOption::VALUE_REQUIRED, 'Port of the server', 9501)
+            ->addOption('host', null, InputOption::VALUE_OPTIONAL, 'Host of the server')
+            ->addOption('port', null, InputOption::VALUE_OPTIONAL, 'Port of the server')
             ->addOption('enable-static', null, InputOption::VALUE_NONE, 'Enables static files serving');
     }
 
@@ -75,8 +68,10 @@ class ServerProfileCommand extends Command
         $this->server->port = $port;
 
         $staticFilesServingEnabled = (bool) $input->getOption('enable-static');
-        $driver = new ConsoleDebugDriver($this->kernel, $output, true);
         $requestLimit = (int) $input->getArgument('requests');
+        if ($requestLimit <= 0) {
+            throw new InvalidArgumentException('Request limit must be greater than 0');
+        }
 
         if ($staticFilesServingEnabled) {
             $this->server->set([
@@ -85,31 +80,26 @@ class ServerProfileCommand extends Command
             ]);
         }
 
-        $this->server->on('request', function (Request $request, Response $response) use ($driver, $requestLimit, $output) {
-            $driver->handle($request, $response);
-
-            $this->requestCounter->increment();
-            $current = $this->requestCounter->get();
-
-            if (1 === $current) {
-                $output->writeln('<comment>First response has been sent</comment>');
-            }
-
-            if ($requestLimit === $current) {
-                $output->writeln('<comment>Request limit has been hit</comment>');
-                $this->server->stop();
-            }
+        $this->server->on('request', function (Request $request, Response $response) {
+            $this->driver->handle($request, $response);
         });
 
         $trustedHosts = ServerUtils::decodeStringAsSet($_SERVER['APP_TRUSTED_HOSTS']);
         $trustedProxies = ServerUtils::decodeStringAsSet($_SERVER['APP_TRUSTED_PROXIES']);
-        $driver->boot($trustedHosts, $trustedProxies);
-        $output->writeln(\sprintf('<info>Swoole HTTP Server started on http://%s:%d for %d requests</info>', $host, $port, $requestLimit));
+        $this->driver->boot([
+            'symfonyStyle' => $io,
+            'requestLimit' => $requestLimit,
+            'trustedHosts' => $trustedHosts,
+            'trustedProxies' => $trustedProxies,
+        ]);
+
+        $output->writeln(\sprintf('<info>Swoole HTTP Server started on http://%s:%d</info>', $host, $port));
 
         $rows = [
             ['env', $this->kernel->getEnvironment()],
             ['debug', \var_export($this->kernel->isDebug(), true)],
             ['memory_limit', ServerUtils::formatBytes(ServerUtils::getMaxMemory())],
+            ['request_limit', $requestLimit > 0 ? $requestLimit : -1],
             ['trusted_hosts', \implode(', ', $trustedHosts)],
             ['trusted_proxies', \implode(', ', $trustedProxies)],
         ];

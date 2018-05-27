@@ -34,9 +34,13 @@ services:
         arguments: ['@App\Bundle\SwooleBundle\Bridge\Symfony\HttpKernel\DebugHttpKernelDriver.inner']
         autoconfigure: false
 
+    'App\Bundle\SwooleBundle\Driver\LimitedDriver':
+
     'Swoole\Http\Server':
 
     'App\Bundle\SwooleBundle\Command\ServerRunCommand':
         tags: ['console.command']
     'App\Bundle\SwooleBundle\Command\ServerProfileCommand':
         tags: ['console.command']
+        arguments:
+          $driver: '@App\Bundle\SwooleBundle\Driver\LimitedDriver'
