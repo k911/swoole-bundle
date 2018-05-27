@@ -18,7 +18,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\HttpKernel\KernelInterface;
 
-class ServerProfileCommand extends Command
+final class ServerProfileCommand extends Command
 {
     private $kernel;
     private $server;

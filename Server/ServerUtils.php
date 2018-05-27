@@ -10,7 +10,7 @@ use Closure;
  *
  * @see https://github.com/php-pm/php-pm/blob/master/src/Utils.php
  */
-class ServerUtils
+final class ServerUtils
 {
     /**
      * Executes a function in the context of an object. This basically bypasses the private/protected check of PHP.
@@ -98,5 +98,9 @@ class ServerUtils
         $stringSet = \str_replace(['\'', '[', ']'], '', $stringSet);
 
         return \explode(',', $stringSet);
+    }
+
+    private function __construct()
+    {
     }
 }

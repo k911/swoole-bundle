@@ -28,9 +28,15 @@ services:
         arguments: ['@App\Bundle\SwooleBundle\Bridge\Symfony\HttpFoundation\TrustAllProxiesHttpDriver.inner']
         autoconfigure: false
 
-    'App\Bundle\SwooleBundle\Bridge\Symfony\HttpKernel\DebugHttpKernelHttpDriver':
+    'App\Bundle\SwooleBundle\Bridge\Doctrine\ORM\EntityManagerHttpDriver':
         decorates: App\Bundle\SwooleBundle\Driver\HttpDriverInterface
         decoration_priority: -20
+        arguments: ['@App\Bundle\SwooleBundle\Bridge\Doctrine\ORM\EntityManagerHttpDriver.inner']
+        autoconfigure: false
+
+    'App\Bundle\SwooleBundle\Bridge\Symfony\HttpKernel\DebugHttpKernelHttpDriver':
+        decorates: App\Bundle\SwooleBundle\Driver\HttpDriverInterface
+        decoration_priority: -50
         arguments: ['@App\Bundle\SwooleBundle\Bridge\Symfony\HttpKernel\DebugHttpKernelHttpDriver.inner']
         autoconfigure: false
 
