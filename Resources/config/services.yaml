@@ -7,34 +7,34 @@ services:
     'App\Bundle\SwooleBundle\Server\AtomicCounter':
         factory: [App\Bundle\SwooleBundle\Server\AtomicCounter, fromZero]
 
-    'App\Bundle\SwooleBundle\Bridge\Symfony\HttpFoundation\HttpFoundationRequestFactoryInterface':
-        class: App\Bundle\SwooleBundle\Bridge\Symfony\HttpFoundation\HttpFoundationRequestFactory
+    'App\Bundle\SwooleBundle\Bridge\Symfony\HttpFoundation\RequestFactoryInterface':
+        class: App\Bundle\SwooleBundle\Bridge\Symfony\HttpFoundation\RequestFactory
 
-    'App\Bundle\SwooleBundle\Bridge\Symfony\HttpFoundation\CloudFrontHttpFoundationRequestFactory':
-        decorates: App\Bundle\SwooleBundle\Bridge\Symfony\HttpFoundation\HttpFoundationRequestFactoryInterface
+    'App\Bundle\SwooleBundle\Bridge\Symfony\HttpFoundation\CloudFrontRequestFactory':
+        decorates: App\Bundle\SwooleBundle\Bridge\Symfony\HttpFoundation\RequestFactoryInterface
         decoration_priority: -10
-        arguments: ['@App\Bundle\SwooleBundle\Bridge\Symfony\HttpFoundation\CloudFrontHttpFoundationRequestFactory.inner']
+        arguments: ['@App\Bundle\SwooleBundle\Bridge\Symfony\HttpFoundation\CloudFrontRequestFactory.inner']
         autoconfigure: false
 
-    'App\Bundle\SwooleBundle\Bridge\Symfony\HttpFoundation\HttpFoundationResponseHandlerInterface':
-        class: App\Bundle\SwooleBundle\Bridge\Symfony\HttpFoundation\HttpFoundationResponseHandler
+    'App\Bundle\SwooleBundle\Bridge\Symfony\HttpFoundation\ResponseProcessorInterface':
+        class: App\Bundle\SwooleBundle\Bridge\Symfony\HttpFoundation\ResponseProcessor
 
-    'App\Bundle\SwooleBundle\Driver\DriverInterface':
-        class: App\Bundle\SwooleBundle\Bridge\Symfony\HttpKernel\HttpKernelDriver
+    'App\Bundle\SwooleBundle\Driver\HttpDriverInterface':
+        class: App\Bundle\SwooleBundle\Bridge\Symfony\HttpKernel\HttpKernelHttpDriver
 
-    'App\Bundle\SwooleBundle\Bridge\Symfony\HttpKernel\TrustAllProxiesHttpKernelDriver':
-        decorates: App\Bundle\SwooleBundle\Driver\DriverInterface
+    'App\Bundle\SwooleBundle\Bridge\Symfony\HttpFoundation\TrustAllProxiesHttpDriver':
+        decorates: App\Bundle\SwooleBundle\Driver\HttpDriverInterface
         decoration_priority: -10
-        arguments: ['@App\Bundle\SwooleBundle\Bridge\Symfony\HttpKernel\TrustAllProxiesHttpKernelDriver.inner']
+        arguments: ['@App\Bundle\SwooleBundle\Bridge\Symfony\HttpFoundation\TrustAllProxiesHttpDriver.inner']
         autoconfigure: false
 
-    'App\Bundle\SwooleBundle\Bridge\Symfony\HttpKernel\DebugHttpKernelDriver':
-        decorates: App\Bundle\SwooleBundle\Driver\DriverInterface
+    'App\Bundle\SwooleBundle\Bridge\Symfony\HttpKernel\DebugHttpKernelHttpDriver':
+        decorates: App\Bundle\SwooleBundle\Driver\HttpDriverInterface
         decoration_priority: -20
-        arguments: ['@App\Bundle\SwooleBundle\Bridge\Symfony\HttpKernel\DebugHttpKernelDriver.inner']
+        arguments: ['@App\Bundle\SwooleBundle\Bridge\Symfony\HttpKernel\DebugHttpKernelHttpDriver.inner']
         autoconfigure: false
 
-    'App\Bundle\SwooleBundle\Driver\LimitedDriver':
+    'App\Bundle\SwooleBundle\Driver\LimitedHttpDriver':
 
     'Swoole\Http\Server':
 
@@ -43,4 +43,4 @@ services:
     'App\Bundle\SwooleBundle\Command\ServerProfileCommand':
         tags: ['console.command']
         arguments:
-          $driver: '@App\Bundle\SwooleBundle\Driver\LimitedDriver'
+          $driver: '@App\Bundle\SwooleBundle\Driver\LimitedHttpDriver'

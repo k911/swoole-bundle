@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Bundle\SwooleBundle\Command;
 
-use App\Bundle\SwooleBundle\Driver\DriverInterface;
+use App\Bundle\SwooleBundle\Driver\HttpDriverInterface;
 use App\Bundle\SwooleBundle\Server\ServerUtils;
 use Swoole\Http\Request;
 use Swoole\Http\Response;
@@ -24,7 +24,7 @@ class ServerProfileCommand extends Command
     private $server;
     private $driver;
 
-    public function __construct(KernelInterface $kernel, Server $server, DriverInterface $driver)
+    public function __construct(KernelInterface $kernel, Server $server, HttpDriverInterface $driver)
     {
         parent::__construct();
 

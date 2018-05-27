@@ -8,7 +8,7 @@ use Swoole\Http\Request as SwooleRequest;
 use Symfony\Component\HttpFoundation\ParameterBag;
 use Symfony\Component\HttpFoundation\Request as HttpFoundationRequest;
 
-final class HttpFoundationRequestFactory implements HttpFoundationRequestFactoryInterface
+final class RequestFactory implements RequestFactoryInterface
 {
     /**
      * {@inheritdoc}

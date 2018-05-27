@@ -7,8 +7,15 @@ namespace App\Bundle\SwooleBundle\Driver;
 use Swoole\Http\Request;
 use Swoole\Http\Response;
 
-interface RequestHandlerInterface
+interface HttpDriverInterface
 {
+    /**
+     * Override configuration at runtime.
+     *
+     * @param array $configuration
+     */
+    public function boot(array $configuration = []): void;
+
     /**
      * Handles swoole request and modifies swoole response accordingly.
      *

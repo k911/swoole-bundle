@@ -11,7 +11,7 @@ use Swoole\Http\Response;
 use Swoole\Http\Server;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
-final class LimitedDriver implements DriverInterface
+final class LimitedHttpDriver implements HttpDriverInterface
 {
     private $requestLimit;
     private $server;
@@ -19,7 +19,7 @@ final class LimitedDriver implements DriverInterface
     private $decorated;
     private $symfonyStyle;
 
-    public function __construct(DriverInterface $decorated, Server $server, AtomicCounter $counter)
+    public function __construct(HttpDriverInterface $decorated, Server $server, AtomicCounter $counter)
     {
         $this->decorated = $decorated;
         $this->server = $server;

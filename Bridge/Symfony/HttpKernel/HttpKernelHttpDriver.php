@@ -4,22 +4,26 @@ declare(strict_types=1);
 
 namespace App\Bundle\SwooleBundle\Bridge\Symfony\HttpKernel;
 
-use App\Bundle\SwooleBundle\Driver\DriverInterface;
-use App\Bundle\SwooleBundle\Driver\RequestHandlerInterface;
+use App\Bundle\SwooleBundle\Bridge\Symfony\HttpFoundation\RequestFactoryInterface;
+use App\Bundle\SwooleBundle\Bridge\Symfony\HttpFoundation\ResponseProcessorInterface;
+use App\Bundle\SwooleBundle\Driver\HttpDriverInterface;
 use Swoole\Http\Request as SwooleRequest;
 use Swoole\Http\Response as SwooleResponse;
 use Symfony\Component\HttpFoundation\Request as SymfonyRequest;
 use Symfony\Component\HttpKernel\KernelInterface;
+use Symfony\Component\HttpKernel\TerminableInterface;
 
-final class HttpKernelDriver implements DriverInterface
+final class HttpKernelHttpDriver implements HttpDriverInterface
 {
     private $kernel;
-    private $requestHandler;
+    private $requestFactory;
+    private $responseProcessor;
 
-    public function __construct(KernelInterface $kernel, RequestHandlerInterface $requestHandler)
+    public function __construct(KernelInterface $kernel, RequestFactoryInterface $requestFactory, ResponseProcessorInterface $responseHandler)
     {
         $this->kernel = $kernel;
-        $this->requestHandler = $requestHandler;
+        $this->requestFactory = $requestFactory;
+        $this->responseProcessor = $responseHandler;
     }
 
     /**
@@ -44,6 +48,12 @@ final class HttpKernelDriver implements DriverInterface
      */
     public function handle(SwooleRequest $request, SwooleResponse $response): void
     {
-        $this->requestHandler->handle($request, $response);
+        $httpFoundationRequest = $this->requestFactory->make($request);
+        $httpFoundationResponse = $this->kernel->handle($httpFoundationRequest);
+        $this->responseProcessor->process($httpFoundationResponse, $response);
+
+        if ($this->kernel instanceof TerminableInterface) {
+            $this->kernel->terminate($httpFoundationRequest, $httpFoundationResponse);
+        }
     }
 }

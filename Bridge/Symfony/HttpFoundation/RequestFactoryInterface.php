@@ -7,7 +7,7 @@ namespace App\Bundle\SwooleBundle\Bridge\Symfony\HttpFoundation;
 use Swoole\Http\Request as SwooleRequest;
 use Symfony\Component\HttpFoundation\Request as HttpFoundationRequest;
 
-interface HttpFoundationRequestFactoryInterface
+interface RequestFactoryInterface
 {
     /**
      * @param \Swoole\Http\Request $request

@@ -7,11 +7,11 @@ namespace App\Bundle\SwooleBundle\Bridge\Symfony\HttpFoundation;
 use Swoole\Http\Request as SwooleRequest;
 use Symfony\Component\HttpFoundation\Request as HttpFoundationRequest;
 
-final class CloudFrontHttpFoundationRequestFactory implements HttpFoundationRequestFactoryInterface
+final class CloudFrontRequestFactory implements RequestFactoryInterface
 {
     private $decorated;
 
-    public function __construct(HttpFoundationRequestFactoryInterface $decorated)
+    public function __construct(RequestFactoryInterface $decorated)
     {
         $this->decorated = $decorated;
     }

@@ -4,20 +4,20 @@ declare(strict_types=1);
 
 namespace App\Bundle\SwooleBundle\Bridge\Symfony\HttpKernel;
 
-use App\Bundle\SwooleBundle\Driver\DriverInterface;
+use App\Bundle\SwooleBundle\Driver\HttpDriverInterface;
 use App\Bundle\SwooleBundle\Server\ServerUtils;
 use Swoole\Http\Request;
 use Swoole\Http\Response;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpKernel\KernelInterface;
 
-final class DebugHttpKernelDriver implements DriverInterface
+final class DebugHttpKernelHttpDriver implements HttpDriverInterface
 {
     private $decorated;
     private $container;
     private $kernel;
 
-    public function __construct(DriverInterface $decorated, KernelInterface $kernel, ContainerInterface $container)
+    public function __construct(HttpDriverInterface $decorated, KernelInterface $kernel, ContainerInterface $container)
     {
         $this->decorated = $decorated;
         $this->container = $container;
