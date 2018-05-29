@@ -19,11 +19,11 @@ final class HttpKernelHttpDriver implements HttpDriverInterface
     private $requestFactory;
     private $responseProcessor;
 
-    public function __construct(KernelInterface $kernel, RequestFactoryInterface $requestFactory, ResponseProcessorInterface $responseHandler)
+    public function __construct(KernelInterface $kernel, RequestFactoryInterface $requestFactory, ResponseProcessorInterface $responseProcessor)
     {
         $this->kernel = $kernel;
         $this->requestFactory = $requestFactory;
-        $this->responseProcessor = $responseHandler;
+        $this->responseProcessor = $responseProcessor;
     }
 
     /**
