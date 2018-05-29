@@ -25,7 +25,8 @@ final class RequestFactory implements RequestFactoryInterface
         $httpFoundationRequest = new HttpFoundationRequest(
             $request->get ?? [],
             $request->post ?? [],
-            [], $request->cookie ?? [],
+            [],
+            $request->cookie ?? [],
             $request->files ?? [],
             $server,
             $request->rawcontent()
