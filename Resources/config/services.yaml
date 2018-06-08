@@ -43,6 +43,7 @@ services:
     'App\Bundle\SwooleBundle\Driver\LimitedHttpDriver':
 
     'Swoole\Http\Server':
+        lazy: true
 
     'App\Bundle\SwooleBundle\Command\ServerRunCommand':
         tags: ['console.command']
