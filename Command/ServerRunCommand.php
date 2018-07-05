@@ -53,8 +53,6 @@ final class ServerRunCommand extends Command
     /**
      * {@inheritdoc}
      *
-     * @throws \Psr\Container\NotFoundExceptionInterface
-     * @throws \Psr\Container\ContainerExceptionInterface
      * @throws \Symfony\Component\Console\Exception\InvalidArgumentException
      * @throws \InvalidArgumentException
      * @throws \Exception

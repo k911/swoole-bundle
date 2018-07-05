@@ -52,8 +52,6 @@ final class ServerProfileCommand extends Command
      * {@inheritdoc}
      *
      * @throws \OutOfRangeException
-     * @throws \Psr\Container\NotFoundExceptionInterface
-     * @throws \Psr\Container\ContainerExceptionInterface
      * @throws \Symfony\Component\Console\Exception\InvalidArgumentException
      * @throws \InvalidArgumentException
      * @throws \Exception
