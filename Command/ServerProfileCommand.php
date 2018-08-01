@@ -6,6 +6,7 @@ namespace App\Bundle\SwooleBundle\Command;
 
 use App\Bundle\SwooleBundle\Driver\HttpDriverInterface;
 use App\Bundle\SwooleBundle\Server\ServerUtils;
+use Assert\Assertion;
 use Swoole\Http\Request;
 use Swoole\Http\Response;
 use Swoole\Http\Server;
@@ -55,6 +56,7 @@ final class ServerProfileCommand extends Command
      * @throws \Symfony\Component\Console\Exception\InvalidArgumentException
      * @throws \InvalidArgumentException
      * @throws \Exception
+     * @throws \Assert\AssertionFailedException
      */
     protected function execute(InputInterface $input, OutputInterface $output): void
     {
@@ -71,10 +73,13 @@ final class ServerProfileCommand extends Command
             throw new InvalidArgumentException('Request limit must be greater than 0');
         }
 
+        $publicDir = \dirname($this->kernel->getRootDir()).'/public';
         if ($staticFilesServingEnabled) {
+            Assertion::directory($publicDir, 'Public directory does not exists. Tried "%s".');
+
             $this->server->set([
                 'enable_static_handler' => true,
-                'document_root' => $this->kernel->getRootDir().'/public',
+                'document_root' => $publicDir,
             ]);
         }
 
@@ -103,7 +108,7 @@ final class ServerProfileCommand extends Command
         ];
 
         if ($staticFilesServingEnabled) {
-            $rows[] = ['document_root', $this->kernel->getRootDir().'/public'];
+            $rows[] = ['document_root', $publicDir];
         }
 
         $io->newLine();

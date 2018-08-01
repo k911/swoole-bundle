@@ -6,6 +6,7 @@ namespace App\Bundle\SwooleBundle\Command;
 
 use App\Bundle\SwooleBundle\Driver\HttpDriverInterface;
 use App\Bundle\SwooleBundle\Server\ServerUtils;
+use Assert\Assertion;
 use Swoole\Http\Request;
 use Swoole\Http\Response;
 use Swoole\Http\Server;
@@ -56,6 +57,7 @@ final class ServerRunCommand extends Command
      * @throws \Symfony\Component\Console\Exception\InvalidArgumentException
      * @throws \InvalidArgumentException
      * @throws \Exception
+     * @throws \Assert\AssertionFailedException
      */
     protected function execute(InputInterface $input, OutputInterface $output): void
     {
@@ -68,10 +70,13 @@ final class ServerRunCommand extends Command
 
         $staticFilesServingEnabled = (bool) $input->getOption('enable-static');
 
+        $publicDir = \dirname($this->kernel->getRootDir()).'/public';
         if ($staticFilesServingEnabled) {
+            Assertion::directory($publicDir, 'Public directory does not exists. Tried "%s".');
+
             $this->server->set([
                 'enable_static_handler' => true,
-                'document_root' => $this->kernel->getRootDir().'/public',
+                'document_root' => $publicDir,
             ]);
         }
 
@@ -91,7 +96,7 @@ final class ServerRunCommand extends Command
         ];
 
         if ($staticFilesServingEnabled) {
-            $rows[] = ['document_root', $this->kernel->getRootDir().'/public'];
+            $rows[] = ['document_root', $publicDir];
         }
 
         $output->writeln(\sprintf('<info>Swoole HTTP Server started on http://%s:%d</info>', $host, $port));
