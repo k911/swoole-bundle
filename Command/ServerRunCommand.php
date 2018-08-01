@@ -7,6 +7,7 @@ namespace App\Bundle\SwooleBundle\Command;
 use App\Bundle\SwooleBundle\Driver\HttpDriverInterface;
 use App\Bundle\SwooleBundle\Server\ServerUtils;
 use Assert\Assertion;
+use Composer\XdebugHandler\XdebugHandler;
 use Swoole\Http\Request;
 use Swoole\Http\Response;
 use Swoole\Http\Server;
@@ -61,6 +62,10 @@ final class ServerRunCommand extends Command
      */
     protected function execute(InputInterface $input, OutputInterface $output): void
     {
+        $xdebug = new XdebugHandler('swoole');
+        $xdebug->check();
+        unset($xdebug);
+
         $io = new SymfonyStyle($input, $output);
 
         $host = (string) ($input->getOption('host') ?? $this->server->host);
