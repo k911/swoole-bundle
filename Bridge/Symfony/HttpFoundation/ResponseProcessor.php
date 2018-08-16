@@ -28,6 +28,18 @@ final class ResponseProcessor implements ResponseProcessorInterface
             }
         }
 
+        foreach ($httpFoundationResponse->headers->getCookies() as $cookie) {
+            $swooleResponse->cookie(
+                $cookie->getName(),
+                $cookie->getValue() ?? '',
+                $cookie->getExpiresTime(),
+                $cookie->getPath(),
+                $cookie->getDomain() ?? '',
+                $cookie->isSecure(),
+                $cookie->isHttpOnly()
+            );
+        }
+
         $swooleResponse->status($httpFoundationResponse->getStatusCode());
 
         if ($httpFoundationResponse instanceof BinaryFileResponse) {
