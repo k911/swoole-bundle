@@ -75,7 +75,7 @@ final class ServerRunCommand extends Command
             ]);
         }
 
-        $this->server->on('request', function (Request $request, Response $response) {
+        $this->server->on('request', function (Request $request, Response $response): void {
             $this->driver->handle($request, $response);
         });
 

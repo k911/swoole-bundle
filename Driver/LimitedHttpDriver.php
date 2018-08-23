@@ -52,13 +52,13 @@ final class LimitedHttpDriver implements HttpDriverInterface
 
             $requestNo = $this->requestCounter->get();
             if (1 === $requestNo) {
-                $this->console(function (SymfonyStyle $io) {
+                $this->console(function (SymfonyStyle $io): void {
                     $io->success('First response has been sent!');
                 });
             }
 
             if ($this->requestLimit === $this->requestCounter->get()) {
-                $this->console(function (SymfonyStyle $io) {
+                $this->console(function (SymfonyStyle $io): void {
                     $io->caution([
                         'Request limit has been hit!',
                         'Stopping server..',

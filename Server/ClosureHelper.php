@@ -22,7 +22,7 @@ final class ClosureHelper
      */
     public function getPropertyAccessor(string $propertyName, $newValue): callable
     {
-        return function () use ($propertyName, $newValue) {
+        return function () use ($propertyName, $newValue): void {
             $this->$propertyName = $newValue;
         };
     }
