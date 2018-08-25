@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace App\Tests\Bundle\SwooleBundle\Server;
+namespace App\Tests\Bundle\SwooleBundle\Memory\Atomic;
 
-use App\Bundle\SwooleBundle\Server\AtomicCounter;
+use App\Bundle\SwooleBundle\Memory\Atomic\AtomicCounter;
 use Generator;
 use PHPUnit\Framework\TestCase;
 
