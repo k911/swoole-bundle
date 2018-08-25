@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Bundle\SwooleBundle\Driver;
 
-use App\Bundle\SwooleBundle\Server\AtomicCounter;
+use App\Bundle\SwooleBundle\Memory\Atomic\AtomicCounter;
 use InvalidArgumentException;
 use Swoole\Http\Request;
 use Swoole\Http\Response;

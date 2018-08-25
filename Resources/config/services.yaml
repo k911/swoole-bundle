@@ -4,8 +4,8 @@ services:
         autoconfigure: true
         public: false
 
-    'App\Bundle\SwooleBundle\Server\AtomicCounter':
-        factory: [App\Bundle\SwooleBundle\Server\AtomicCounter, fromZero]
+    'App\Bundle\SwooleBundle\Memory\Atomic\AtomicCounter':
+        factory: ['App\Bundle\SwooleBundle\Memory\Atomic\AtomicCounter', fromZero]
 
     'App\Bundle\SwooleBundle\Bridge\Symfony\HttpFoundation\RequestFactoryInterface':
         class: App\Bundle\SwooleBundle\Bridge\Symfony\HttpFoundation\RequestFactory
@@ -47,6 +47,7 @@ services:
 
     'App\Bundle\SwooleBundle\Command\ServerRunCommand':
         tags: ['console.command']
+
     'App\Bundle\SwooleBundle\Command\ServerProfileCommand':
         tags: ['console.command']
         arguments:

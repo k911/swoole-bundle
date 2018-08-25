@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Bundle\SwooleBundle\Server;
+namespace App\Bundle\SwooleBundle\Memory\Atomic;
 
 use Swoole\Atomic;
 
