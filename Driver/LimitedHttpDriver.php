@@ -65,7 +65,7 @@ final class LimitedHttpDriver implements HttpDriverInterface
                     ]);
                 });
 
-                $this->server->stop();
+                $this->server->shutdown();
             }
         }
     }

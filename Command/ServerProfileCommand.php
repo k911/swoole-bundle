@@ -78,14 +78,19 @@ final class ServerProfileCommand extends Command
             throw new InvalidArgumentException('Request limit must be greater than 0');
         }
 
-        $publicDir = \dirname($this->kernel->getRootDir()).'/public';
+        $workerCount = \swoole_cpu_num() * 2;
+        $settings = [
+            'reactor_num' => $workerCount,
+            'worker_num' => $workerCount,
+//            'task_worker_num' => $workerCount,
+        ];
+
         if ($staticFilesServingEnabled) {
+            $publicDir = \dirname($this->kernel->getRootDir()).'/public';
             Assertion::directory($publicDir, 'Public directory does not exists. Tried "%s".');
 
-            $this->server->set([
-                'enable_static_handler' => true,
-                'document_root' => $publicDir,
-            ]);
+            $settings['enable_static_handler'] = true;
+            $settings['document_root'] = $publicDir;
         }
 
         $this->server->on('request', function (Request $request, Response $response): void {
@@ -101,24 +106,25 @@ final class ServerProfileCommand extends Command
             'trustedProxies' => $trustedProxies,
         ]);
 
-        $output->writeln(\sprintf('<info>Swoole HTTP Server started on http://%s:%d</info>', $host, $port));
-
         $rows = [
             ['env', $this->kernel->getEnvironment()],
             ['debug', \var_export($this->kernel->isDebug(), true)],
+            ['worker_count', $workerCount],
             ['memory_limit', ServerUtils::formatBytes(ServerUtils::getMaxMemory())],
             ['request_limit', $requestLimit > 0 ? $requestLimit : -1],
             ['trusted_hosts', \implode(', ', $trustedHosts)],
             ['trusted_proxies', \implode(', ', $trustedProxies)],
         ];
 
-        if ($staticFilesServingEnabled) {
+        if (isset($publicDir)) {
             $rows[] = ['document_root', $publicDir];
         }
 
+        $output->writeln(\sprintf('<info>Swoole HTTP Server started on http://%s:%d</info>', $host, $port));
         $io->newLine();
         $io->table(['Configuration', 'Values'], $rows);
 
+        $this->server->set($settings);
         $this->server->start();
     }
 }

@@ -75,14 +75,19 @@ final class ServerRunCommand extends Command
 
         $staticFilesServingEnabled = (bool) $input->getOption('enable-static');
 
-        $publicDir = \dirname($this->kernel->getRootDir()).'/public';
+        $workerCount = \swoole_cpu_num() * 2;
+        $settings = [
+            'reactor_num' => $workerCount,
+            'worker_num' => $workerCount,
+//            'task_worker_num' => $workerCount,
+        ];
+
         if ($staticFilesServingEnabled) {
+            $publicDir = \dirname($this->kernel->getRootDir()).'/public';
             Assertion::directory($publicDir, 'Public directory does not exists. Tried "%s".');
 
-            $this->server->set([
-                'enable_static_handler' => true,
-                'document_root' => $publicDir,
-            ]);
+            $settings['enable_static_handler'] = true;
+            $settings['document_root'] = $publicDir;
         }
 
         $this->server->on('request', function (Request $request, Response $response): void {
@@ -97,10 +102,11 @@ final class ServerRunCommand extends Command
         $rows = [
             ['env', $this->kernel->getEnvironment()],
             ['debug', \var_export($this->kernel->isDebug(), true)],
+            ['worker_count', $workerCount],
             ['memory_limit', ServerUtils::formatBytes(ServerUtils::getMaxMemory())],
         ];
 
-        if ($staticFilesServingEnabled) {
+        if (isset($publicDir)) {
             $rows[] = ['document_root', $publicDir];
         }
 
@@ -108,6 +114,7 @@ final class ServerRunCommand extends Command
         $io->newLine();
         $io->table(['Configuration', 'Values'], $rows);
 
+        $this->server->set($settings);
         $this->server->start();
     }
 }
