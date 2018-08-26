@@ -4,8 +4,8 @@ services:
         autoconfigure: true
         public: false
 
-    'App\Bundle\SwooleBundle\Memory\Atomic\AtomicCounter':
-        factory: ['App\Bundle\SwooleBundle\Memory\Atomic\AtomicCounter', fromZero]
+    'App\Bundle\SwooleBundle\Component\AtomicCounter':
+        factory: ['App\Bundle\SwooleBundle\Component\AtomicCounter', fromZero]
 
     'App\Bundle\SwooleBundle\Bridge\Symfony\HttpFoundation\RequestFactoryInterface':
         class: App\Bundle\SwooleBundle\Bridge\Symfony\HttpFoundation\RequestFactory
@@ -19,31 +19,38 @@ services:
     'App\Bundle\SwooleBundle\Bridge\Symfony\HttpFoundation\ResponseProcessorInterface':
         class: App\Bundle\SwooleBundle\Bridge\Symfony\HttpFoundation\ResponseProcessor
 
-    'App\Bundle\SwooleBundle\Driver\HttpDriverInterface':
-        class: App\Bundle\SwooleBundle\Bridge\Symfony\HttpKernel\HttpKernelHttpDriver
+    'App\Bundle\SwooleBundle\Server\HttpServerDriverInterface':
+        class: App\Bundle\SwooleBundle\Bridge\Symfony\HttpKernel\HttpKernelHttpServerDriver
 
-    'App\Bundle\SwooleBundle\Bridge\Symfony\HttpFoundation\TrustAllProxiesHttpDriver':
-        decorates: App\Bundle\SwooleBundle\Driver\HttpDriverInterface
+    'App\Bundle\SwooleBundle\Bridge\Symfony\HttpFoundation\TrustAllProxiesHttpServerDriver':
+        decorates: App\Bundle\SwooleBundle\Server\HttpServerDriverInterface
         decoration_priority: -10
-        arguments: ['@App\Bundle\SwooleBundle\Bridge\Symfony\HttpFoundation\TrustAllProxiesHttpDriver.inner']
+        arguments: ['@App\Bundle\SwooleBundle\Bridge\Symfony\HttpFoundation\TrustAllProxiesHttpServerDriver.inner']
         autoconfigure: false
 
-    'App\Bundle\SwooleBundle\Bridge\Doctrine\ORM\EntityManagerHttpDriver':
-        decorates: App\Bundle\SwooleBundle\Driver\HttpDriverInterface
+    'App\Bundle\SwooleBundle\Bridge\Doctrine\ORM\EntityManagerHttpServerDriver':
+        decorates: App\Bundle\SwooleBundle\Server\HttpServerDriverInterface
         decoration_priority: -20
-        arguments: ['@App\Bundle\SwooleBundle\Bridge\Doctrine\ORM\EntityManagerHttpDriver.inner']
+        arguments: ['@App\Bundle\SwooleBundle\Bridge\Doctrine\ORM\EntityManagerHttpServerDriver.inner']
         autoconfigure: false
 
-    'App\Bundle\SwooleBundle\Bridge\Symfony\HttpKernel\DebugHttpKernelHttpDriver':
-        decorates: App\Bundle\SwooleBundle\Driver\HttpDriverInterface
+    'App\Bundle\SwooleBundle\Bridge\Symfony\HttpKernel\DebugHttpKernelHttpServerDriver':
+        decorates: App\Bundle\SwooleBundle\Server\HttpServerDriverInterface
         decoration_priority: -50
-        arguments: ['@App\Bundle\SwooleBundle\Bridge\Symfony\HttpKernel\DebugHttpKernelHttpDriver.inner']
+        arguments: ['@App\Bundle\SwooleBundle\Bridge\Symfony\HttpKernel\DebugHttpKernelHttpServerDriver.inner']
         autoconfigure: false
 
-    'App\Bundle\SwooleBundle\Driver\LimitedHttpDriver':
+    'App\Bundle\SwooleBundle\Server\LimitedHttpServerDriver':
 
-    'Swoole\Http\Server':
+
+    'App\Bundle\SwooleBundle\Server\HttpServerConfiguration':
+
+    'app.swoole.server.http_server.server_instance':
+        class: Swoole\Http\Server
         lazy: true
+
+    'App\Bundle\SwooleBundle\Server\HttpServer':
+        arguments: ['@app.swoole.server.http_server.server_instance']
 
     'App\Bundle\SwooleBundle\Command\ServerRunCommand':
         tags: ['console.command']
@@ -51,4 +58,4 @@ services:
     'App\Bundle\SwooleBundle\Command\ServerProfileCommand':
         tags: ['console.command']
         arguments:
-          $driver: '@App\Bundle\SwooleBundle\Driver\LimitedHttpDriver'
+          $driver: '@App\Bundle\SwooleBundle\Server\LimitedHttpServerDriver'

@@ -4,17 +4,17 @@ declare(strict_types=1);
 
 namespace App\Bundle\SwooleBundle\Bridge\Symfony\HttpFoundation;
 
-use App\Bundle\SwooleBundle\Driver\HttpDriverInterface;
+use App\Bundle\SwooleBundle\Server\HttpServerDriverInterface;
 use Swoole\Http\Request as SwooleRequest;
 use Swoole\Http\Response as SwooleResponse;
 use Symfony\Component\HttpFoundation\Request as SymfonyRequest;
 
-final class TrustAllProxiesHttpDriver implements HttpDriverInterface
+final class TrustAllProxiesHttpServerDriver implements HttpServerDriverInterface
 {
     private $decorated;
     private $trustAllProxies;
 
-    public function __construct(HttpDriverInterface $decorated)
+    public function __construct(HttpServerDriverInterface $decorated)
     {
         $this->decorated = $decorated;
         $this->trustAllProxies = false;
@@ -23,16 +23,16 @@ final class TrustAllProxiesHttpDriver implements HttpDriverInterface
     /**
      * {@inheritdoc}
      */
-    public function boot(array $configuration = []): void
+    public function boot(array $runtimeConfiguration = []): void
     {
-        if (isset($configuration['trustedProxies']) && \in_array('*', $configuration['trustedProxies'], true)) {
+        if (isset($runtimeConfiguration['trustedProxies']) && \in_array('*', $runtimeConfiguration['trustedProxies'], true)) {
             $this->trustAllProxies = true;
-            $configuration['trustedProxies'] = \array_filter($configuration['trustedProxies'], function (string $trustedProxy) {
+            $runtimeConfiguration['trustedProxies'] = \array_filter($runtimeConfiguration['trustedProxies'], function (string $trustedProxy) {
                 return '*' !== $trustedProxy;
             });
         }
 
-        $this->decorated->boot($configuration);
+        $this->decorated->boot($runtimeConfiguration);
     }
 
     /**

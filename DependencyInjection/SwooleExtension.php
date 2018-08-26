@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Bundle\SwooleBundle\DependencyInjection;
 
-use Swoole\Http\Server;
+use App\Bundle\SwooleBundle\Server\HttpServerConfiguration;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Extension\PrependExtensionInterface;
@@ -44,11 +44,16 @@ final class SwooleExtension extends Extension implements PrependExtensionInterfa
      */
     private function registerServer(array $config, ContainerBuilder $container): void
     {
-        $container->getDefinition(Server::class)
+        $container->getDefinition('app.swoole.server.http_server.server_instance')
             ->addArgument($config['host'])
             ->addArgument($config['port'])
             ->addArgument(SWOOLE_BASE)
             ->addArgument(SWOOLE_TCP);
+
+        $container->getDefinition(HttpServerConfiguration::class)
+            ->addArgument($config['host'])
+            ->addArgument($config['port'])
+            ->addArgument($config['settings'] ?? []);
     }
 
     /**

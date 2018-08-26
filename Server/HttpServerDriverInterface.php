@@ -2,19 +2,19 @@
 
 declare(strict_types=1);
 
-namespace App\Bundle\SwooleBundle\Driver;
+namespace App\Bundle\SwooleBundle\Server;
 
 use Swoole\Http\Request;
 use Swoole\Http\Response;
 
-interface HttpDriverInterface
+interface HttpServerDriverInterface
 {
     /**
-     * Override configuration at runtime.
+     * Override driver configuration at runtime.
      *
-     * @param array $configuration
+     * @param array $runtimeConfiguration
      */
-    public function boot(array $configuration = []): void;
+    public function boot(array $runtimeConfiguration = []): void;
 
     /**
      * Handles swoole request and modifies swoole response accordingly.

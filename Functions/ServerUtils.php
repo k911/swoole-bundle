@@ -2,8 +2,9 @@
 
 declare(strict_types=1);
 
-namespace App\Bundle\SwooleBundle\Server;
+namespace App\Bundle\SwooleBundle\Functions;
 
+use App\Bundle\SwooleBundle\Component\ClosureHelper;
 use Closure;
 
 /**

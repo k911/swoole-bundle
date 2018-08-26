@@ -2,16 +2,15 @@
 
 declare(strict_types=1);
 
-namespace App\Bundle\SwooleBundle\Driver;
+namespace App\Bundle\SwooleBundle\Server;
 
-use App\Bundle\SwooleBundle\Memory\Atomic\AtomicCounter;
+use App\Bundle\SwooleBundle\Component\AtomicCounter;
 use InvalidArgumentException;
 use Swoole\Http\Request;
 use Swoole\Http\Response;
-use Swoole\Http\Server;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
-final class LimitedHttpDriver implements HttpDriverInterface
+final class LimitedHttpServerDriver implements HttpServerDriverInterface
 {
     private $requestLimit;
     private $server;
@@ -19,7 +18,7 @@ final class LimitedHttpDriver implements HttpDriverInterface
     private $decorated;
     private $symfonyStyle;
 
-    public function __construct(HttpDriverInterface $decorated, Server $server, AtomicCounter $counter)
+    public function __construct(HttpServerDriverInterface $decorated, HttpServer $server, AtomicCounter $counter)
     {
         $this->decorated = $decorated;
         $this->server = $server;
@@ -29,12 +28,12 @@ final class LimitedHttpDriver implements HttpDriverInterface
     /**
      * {@inheritdoc}
      */
-    public function boot(array $configuration = []): void
+    public function boot(array $runtimeConfiguration = []): void
     {
-        $this->requestLimit = (int) ($configuration['requestLimit'] ?? -1);
-        $this->symfonyStyle = $configuration['symfonyStyle'] ?? null;
+        $this->requestLimit = (int) ($runtimeConfiguration['requestLimit'] ?? -1);
+        $this->symfonyStyle = $runtimeConfiguration['symfonyStyle'] ?? null;
 
-        $this->decorated->boot($configuration);
+        $this->decorated->boot($runtimeConfiguration);
     }
 
     /**
