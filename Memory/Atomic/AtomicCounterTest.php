@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Tests\Bundle\SwooleBundle\Memory\Atomic;
 
-use App\Bundle\SwooleBundle\Memory\Atomic\AtomicCounter;
+use App\Bundle\SwooleBundle\Component\AtomicCounter;
 use Generator;
 use PHPUnit\Framework\TestCase;
 

@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Tests\Bundle\SwooleBundle\Bridge\Doctrine\ORM;
 
-use App\Bundle\SwooleBundle\Bridge\Doctrine\ORM\EntityManagerHttpDriver;
-use App\Bundle\SwooleBundle\Driver\HttpDriverInterface;
+use App\Bundle\SwooleBundle\Bridge\Doctrine\ORM\EntityManagerHttpServerDriver;
+use App\Bundle\SwooleBundle\Server\HttpServerDriverInterface;
 use Doctrine\DBAL\Connection;
 use Doctrine\ORM\EntityManagerInterface;
 use PHPUnit\Framework\TestCase;
@@ -16,12 +16,12 @@ use Swoole\Http\Response;
 class EntityManagerHttpDriverTest extends TestCase
 {
     /**
-     * @var EntityManagerHttpDriver
+     * @var EntityManagerHttpServerDriver
      */
     private $httpDriver;
 
     /**
-     * @var HttpDriverInterface|ObjectProphecy
+     * @var HttpServerDriverInterface|ObjectProphecy
      */
     private $decoratedProphecy;
 
@@ -38,17 +38,17 @@ class EntityManagerHttpDriverTest extends TestCase
     protected function setUp(): void
     {
         $this->entityManagerProphecy = $this->prophesize(EntityManagerInterface::class);
-        $this->decoratedProphecy = $this->prophesize(HttpDriverInterface::class);
+        $this->decoratedProphecy = $this->prophesize(HttpServerDriverInterface::class);
         $this->connectionProphecy = $this->prophesize(Connection::class);
 
-        /** @var HttpDriverInterface $decoratedMock */
+        /** @var HttpServerDriverInterface $decoratedMock */
         $decoratedMock = $this->decoratedProphecy->reveal();
 
         /** @var EntityManagerInterface $emMock */
         $emMock = $this->entityManagerProphecy->reveal();
 
         $this->setUpEntityManagerConnection();
-        $this->httpDriver = new EntityManagerHttpDriver($decoratedMock, $emMock);
+        $this->httpDriver = new EntityManagerHttpServerDriver($decoratedMock, $emMock);
     }
 
     public function testBoot(): void

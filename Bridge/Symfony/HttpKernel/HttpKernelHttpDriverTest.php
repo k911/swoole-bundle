@@ -6,7 +6,7 @@ namespace App\Tests\Bundle\SwooleBundle\Bridge\Symfony\HttpKernel;
 
 use App\Bundle\SwooleBundle\Bridge\Symfony\HttpFoundation\RequestFactoryInterface;
 use App\Bundle\SwooleBundle\Bridge\Symfony\HttpFoundation\ResponseProcessorInterface;
-use App\Bundle\SwooleBundle\Bridge\Symfony\HttpKernel\HttpKernelHttpDriver;
+use App\Bundle\SwooleBundle\Bridge\Symfony\HttpKernel\HttpKernelHttpServerDriver;
 use PHPUnit\Framework\TestCase;
 use Prophecy\Prophecy\ObjectProphecy;
 use Swoole\Http\Request as SwooleRequest;
@@ -20,7 +20,7 @@ use Symfony\Component\HttpKernel\TerminableInterface;
 class HttpKernelHttpDriverTest extends TestCase
 {
     /**
-     * @var HttpKernelHttpDriver
+     * @var HttpKernelHttpServerDriver
      */
     private $httpDriver;
 
@@ -52,7 +52,7 @@ class HttpKernelHttpDriverTest extends TestCase
         /** @var ResponseProcessorInterface $responseProcessorMock */
         $responseProcessorMock = $this->responseProcessor->reveal();
 
-        $this->httpDriver = new HttpKernelHttpDriver($kernelMock, $requestFactoryMock, $responseProcessorMock);
+        $this->httpDriver = new HttpKernelHttpServerDriver($kernelMock, $requestFactoryMock, $responseProcessorMock);
     }
 
     public function testBoot(): void
@@ -123,6 +123,6 @@ class HttpKernelHttpDriverTest extends TestCase
         /** @var ResponseProcessorInterface $responseProcessorMock */
         $responseProcessorMock = $this->responseProcessor->reveal();
 
-        $this->httpDriver = new HttpKernelHttpDriver($kernelMock, $requestFactoryMock, $responseProcessorMock);
+        $this->httpDriver = new HttpKernelHttpServerDriver($kernelMock, $requestFactoryMock, $responseProcessorMock);
     }
 }
