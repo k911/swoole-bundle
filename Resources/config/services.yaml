@@ -42,7 +42,6 @@ services:
 
     'App\Bundle\SwooleBundle\Server\LimitedHttpServerDriver':
 
-
     'App\Bundle\SwooleBundle\Server\HttpServerConfiguration':
 
     'app.swoole.server.http_server.server_instance':

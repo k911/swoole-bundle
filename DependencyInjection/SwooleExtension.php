@@ -4,11 +4,14 @@ declare(strict_types=1);
 
 namespace App\Bundle\SwooleBundle\DependencyInjection;
 
+use App\Bundle\SwooleBundle\Server\AdvancedStaticFilesHandler;
 use App\Bundle\SwooleBundle\Server\HttpServerConfiguration;
+use App\Bundle\SwooleBundle\Server\HttpServerDriverInterface;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Extension\PrependExtensionInterface;
 use Symfony\Component\DependencyInjection\Loader\YamlFileLoader;
+use Symfony\Component\DependencyInjection\Reference;
 use Symfony\Component\HttpKernel\DependencyInjection\Extension;
 
 final class SwooleExtension extends Extension implements PrependExtensionInterface
@@ -54,6 +57,14 @@ final class SwooleExtension extends Extension implements PrependExtensionInterfa
             ->addArgument($config['host'])
             ->addArgument($config['port'])
             ->addArgument($config['settings'] ?? []);
+
+        if (true === $config['use_advanced_static_handler']) {
+            $container->register(AdvancedStaticFilesHandler::class)
+                ->addArgument(new Reference(AdvancedStaticFilesHandler::class.'.inner'))
+                ->setAutowired(true)
+                ->setPublic(false)
+                ->setDecoratedService(HttpServerDriverInterface::class, null, -60);
+        }
     }
 
     /**
