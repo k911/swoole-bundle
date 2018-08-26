@@ -8,8 +8,6 @@ use App\Bundle\SwooleBundle\Driver\HttpDriverInterface;
 use App\Bundle\SwooleBundle\Server\ServerUtils;
 use Assert\Assertion;
 use Composer\XdebugHandler\XdebugHandler;
-use Swoole\Http\Request;
-use Swoole\Http\Response;
 use Swoole\Http\Server;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Exception\InvalidArgumentException;
@@ -78,11 +76,11 @@ final class ServerProfileCommand extends Command
             throw new InvalidArgumentException('Request limit must be greater than 0');
         }
 
-        $workerCount = \swoole_cpu_num() * 2;
+        $cpuCount = \swoole_cpu_num();
+        $workerCount = $cpuCount * 2;
         $settings = [
-            'reactor_num' => $workerCount,
+            'reactor_num' => $cpuCount,
             'worker_num' => $workerCount,
-//            'task_worker_num' => $workerCount,
         ];
 
         if ($staticFilesServingEnabled) {
@@ -93,9 +91,7 @@ final class ServerProfileCommand extends Command
             $settings['document_root'] = $publicDir;
         }
 
-        $this->server->on('request', function (Request $request, Response $response): void {
-            $this->driver->handle($request, $response);
-        });
+        $this->server->on('request', [$this->driver, 'handle']);
 
         $trustedHosts = ServerUtils::decodeStringAsSet($_SERVER['APP_TRUSTED_HOSTS']);
         $trustedProxies = ServerUtils::decodeStringAsSet($_SERVER['APP_TRUSTED_PROXIES']);
