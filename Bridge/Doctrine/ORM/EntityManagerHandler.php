@@ -9,7 +9,7 @@ use Doctrine\ORM\EntityManagerInterface;
 use Swoole\Http\Request;
 use Swoole\Http\Response;
 
-final class EntityManagerHttpServerDriver implements HttpServerDriverInterface
+final class EntityManagerHandler implements HttpServerDriverInterface
 {
     private $decorated;
     private $connection;

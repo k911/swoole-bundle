@@ -4,9 +4,14 @@ declare(strict_types=1);
 
 namespace App\Bundle\SwooleBundle\DependencyInjection;
 
+use App\Bundle\SwooleBundle\Bridge\Doctrine\ORM\EntityManagerHandler;
+use App\Bundle\SwooleBundle\Bridge\Symfony\HttpFoundation\TrustAllProxiesHttpServerDriver;
+use App\Bundle\SwooleBundle\Bridge\Symfony\HttpKernel\DebugHttpKernelHttpServerDriver;
 use App\Bundle\SwooleBundle\Server\AdvancedStaticFilesHandler;
 use App\Bundle\SwooleBundle\Server\HttpServerConfiguration;
 use App\Bundle\SwooleBundle\Server\HttpServerDriverInterface;
+use Doctrine\ORM\EntityManager;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Extension\PrependExtensionInterface;
@@ -36,7 +41,7 @@ final class SwooleExtension extends Extension implements PrependExtensionInterfa
         $configuration = Configuration::fromTreeBuilder();
         $config = $this->processConfiguration($configuration, $configs);
 
-        $this->registerServer($config['server'], $container);
+        $this->registerHttpServer($config['http_server'], $container);
     }
 
     /**
@@ -45,7 +50,7 @@ final class SwooleExtension extends Extension implements PrependExtensionInterfa
      *
      * @throws \Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException
      */
-    private function registerServer(array $config, ContainerBuilder $container): void
+    private function registerHttpServer(array $config, ContainerBuilder $container): void
     {
         $container->getDefinition('app.swoole.server.http_server.server_instance')
             ->addArgument($config['host'])
@@ -58,7 +63,45 @@ final class SwooleExtension extends Extension implements PrependExtensionInterfa
             ->addArgument($config['port'])
             ->addArgument($config['settings'] ?? []);
 
-        if (true === $config['use_advanced_static_handler']) {
+        if (!empty($config['drivers'])) {
+            $this->registerHttpServerDrivers($config['drivers'], $container);
+        }
+    }
+
+    /**
+     * @param array            $config
+     * @param ContainerBuilder $container
+     */
+    private function registerHttpServerDrivers(array $config, ContainerBuilder $container): void
+    {
+        if ($config['trust_all_proxies']) {
+            $container->register(TrustAllProxiesHttpServerDriver::class)
+                ->addArgument(new Reference(TrustAllProxiesHttpServerDriver::class.'.inner'))
+                ->setAutowired(true)
+                ->setPublic(false)
+                ->setDecoratedService(HttpServerDriverInterface::class, null, -10);
+        }
+
+        if (
+            $config['entity_manager_handler'] ||
+            (null === $config['entity_manager_handler'] && \class_exists(EntityManager::class) && $container->has(EntityManagerInterface::class))
+        ) {
+            $container->register(EntityManagerHandler::class)
+                ->addArgument(new Reference(EntityManagerHandler::class.'.inner'))
+                ->setAutowired(true)
+                ->setPublic(false)
+                ->setDecoratedService(HttpServerDriverInterface::class, null, -20);
+        }
+
+        if ($config['debug']) {
+            $container->register(DebugHttpKernelHttpServerDriver::class)
+                ->addArgument(new Reference(DebugHttpKernelHttpServerDriver::class.'.inner'))
+                ->setAutowired(true)
+                ->setPublic(false)
+                ->setDecoratedService(HttpServerDriverInterface::class, null, -50);
+        }
+
+        if ($config['advanced_static_handler']) {
             $container->register(AdvancedStaticFilesHandler::class)
                 ->addArgument(new Reference(AdvancedStaticFilesHandler::class.'.inner'))
                 ->setAutowired(true)
