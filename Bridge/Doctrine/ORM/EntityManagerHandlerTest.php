@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Tests\Bundle\SwooleBundle\Bridge\Doctrine\ORM;
 
 use App\Bundle\SwooleBundle\Bridge\Doctrine\ORM\EntityManagerHandler;
-use App\Bundle\SwooleBundle\Server\HttpServerDriverInterface;
+use App\Bundle\SwooleBundle\Server\RequestHandlerInterface;
 use Doctrine\DBAL\Connection;
 use Doctrine\ORM\EntityManagerInterface;
 use PHPUnit\Framework\TestCase;
@@ -21,7 +21,7 @@ class EntityManagerHandlerTest extends TestCase
     private $httpDriver;
 
     /**
-     * @var HttpServerDriverInterface|ObjectProphecy
+     * @var RequestHandlerInterface|ObjectProphecy
      */
     private $decoratedProphecy;
 
@@ -38,10 +38,10 @@ class EntityManagerHandlerTest extends TestCase
     protected function setUp(): void
     {
         $this->entityManagerProphecy = $this->prophesize(EntityManagerInterface::class);
-        $this->decoratedProphecy = $this->prophesize(HttpServerDriverInterface::class);
+        $this->decoratedProphecy = $this->prophesize(RequestHandlerInterface::class);
         $this->connectionProphecy = $this->prophesize(Connection::class);
 
-        /** @var HttpServerDriverInterface $decoratedMock */
+        /** @var RequestHandlerInterface $decoratedMock */
         $decoratedMock = $this->decoratedProphecy->reveal();
 
         /** @var EntityManagerInterface $emMock */
