@@ -7,7 +7,7 @@ namespace App\Bundle\SwooleBundle\Command;
 use App\Bundle\SwooleBundle\Functions\ServerUtils;
 use App\Bundle\SwooleBundle\Server\HttpServer;
 use App\Bundle\SwooleBundle\Server\HttpServerConfiguration;
-use App\Bundle\SwooleBundle\Server\HttpServerDriverInterface;
+use App\Bundle\SwooleBundle\Server\RequestHandlerInterface;
 use Composer\XdebugHandler\XdebugHandler;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
@@ -24,12 +24,12 @@ final class ServerRunCommand extends Command
     private $driver;
 
     /**
-     * @param KernelInterface           $kernel
-     * @param HttpServer                $server
-     * @param HttpServerConfiguration   $configuration
-     * @param HttpServerDriverInterface $driver
+     * @param KernelInterface         $kernel
+     * @param HttpServer              $server
+     * @param HttpServerConfiguration $configuration
+     * @param RequestHandlerInterface $driver
      */
-    public function __construct(KernelInterface $kernel, HttpServer $server, HttpServerConfiguration $configuration, HttpServerDriverInterface $driver)
+    public function __construct(KernelInterface $kernel, HttpServer $server, HttpServerConfiguration $configuration, RequestHandlerInterface $driver)
     {
         parent::__construct();
 

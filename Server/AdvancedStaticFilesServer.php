@@ -9,13 +9,13 @@ use Swoole\Http\Request;
 use Swoole\Http\Response;
 
 /**
- * Advanced static files handler simplifies serving static content directly by swoole server.
+ * Advanced static files server simplifies serving static content directly by swoole server.
  *
  * Code mostly ported from `zendframework/zend-expressive-swoole` package.
  *
  * @see https://github.com/zendframework/zend-expressive-swoole/blob/8b33edb50732961cce9e980c10a5948636b98e4e/src/RequestHandlerSwooleRunner.php
  */
-final class AdvancedStaticFilesHandler implements HttpServerDriverInterface
+final class AdvancedStaticFilesServer implements RequestHandlerInterface
 {
     /**
      * Default static file extensions supported.
@@ -93,7 +93,7 @@ final class AdvancedStaticFilesHandler implements HttpServerDriverInterface
      */
     private $publicDir;
 
-    public function __construct(HttpServerDriverInterface $decorated, HttpServerConfiguration $configuration)
+    public function __construct(RequestHandlerInterface $decorated, HttpServerConfiguration $configuration)
     {
         $this->decorated = $decorated;
         $this->cachedMimeTypes = [];

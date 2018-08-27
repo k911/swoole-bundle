@@ -7,7 +7,7 @@ namespace App\Bundle\SwooleBundle\Server;
 use Swoole\Http\Request;
 use Swoole\Http\Response;
 
-interface HttpServerDriverInterface
+interface RequestHandlerInterface
 {
     /**
      * Override driver configuration at runtime.

@@ -5,11 +5,13 @@ declare(strict_types=1);
 namespace App\Bundle\SwooleBundle\DependencyInjection;
 
 use App\Bundle\SwooleBundle\Bridge\Doctrine\ORM\EntityManagerHandler;
-use App\Bundle\SwooleBundle\Bridge\Symfony\HttpFoundation\TrustAllProxiesHttpServerDriver;
-use App\Bundle\SwooleBundle\Bridge\Symfony\HttpKernel\DebugHttpKernelHttpServerDriver;
-use App\Bundle\SwooleBundle\Server\AdvancedStaticFilesHandler;
+use App\Bundle\SwooleBundle\Bridge\Symfony\HttpFoundation\CloudFrontRequestFactory;
+use App\Bundle\SwooleBundle\Bridge\Symfony\HttpFoundation\RequestFactoryInterface;
+use App\Bundle\SwooleBundle\Bridge\Symfony\HttpFoundation\TrustAllProxiesRequestHandler;
+use App\Bundle\SwooleBundle\Bridge\Symfony\HttpKernel\DebugHttpKernelRequestHandler;
+use App\Bundle\SwooleBundle\Server\AdvancedStaticFilesServer;
 use App\Bundle\SwooleBundle\Server\HttpServerConfiguration;
-use App\Bundle\SwooleBundle\Server\HttpServerDriverInterface;
+use App\Bundle\SwooleBundle\Server\RequestHandlerInterface;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Config\FileLocator;
@@ -58,55 +60,92 @@ final class SwooleExtension extends Extension implements PrependExtensionInterfa
             ->addArgument(SWOOLE_BASE)
             ->addArgument(SWOOLE_TCP);
 
-        $container->getDefinition(HttpServerConfiguration::class)
-            ->addArgument($config['host'])
-            ->addArgument($config['port'])
-            ->addArgument($config['settings'] ?? []);
-
-        if (!empty($config['drivers'])) {
-            $this->registerHttpServerDrivers($config['drivers'], $container);
+        if (!empty($config['services'])) {
+            $this->registerHttpServerServices($config['services'], $container);
         }
+
+        $this->registerHttpServerConfiguration($config, $container);
+    }
+
+    private function registerHttpServerConfiguration(array $config, ContainerBuilder $container): void
+    {
+        [
+            'static' => $static,
+            'host' => $host,
+            'port' => $port,
+            'settings' => $settings,
+        ] = $config;
+
+        $staticFileServingStrategy = $static['strategy'];
+
+        if ($this->enableAdvancedStaticHandler($container, $staticFileServingStrategy)) {
+            $container->register(AdvancedStaticFilesServer::class)
+                ->addArgument(new Reference(AdvancedStaticFilesServer::class.'.inner'))
+                ->setAutowired(true)
+                ->setPublic(false)
+                ->setDecoratedService(RequestHandlerInterface::class, null, -60);
+
+            $settings['serve_static_files'] = false;
+            $settings['public_dir'] = $static['public_dir'];
+        }
+
+        if ('default' === $staticFileServingStrategy) {
+            $settings['serve_static_files'] = true;
+            $settings['public_dir'] = $static['public_dir'];
+        }
+
+        if ('auto' === $settings['log_level']) {
+            $settings['log_level'] = $container->getParameter('kernel.debug') ? 'debug' : 'notice';
+        }
+
+        $container->getDefinition(HttpServerConfiguration::class)
+            ->addArgument($host)
+            ->addArgument($port)
+            ->addArgument($settings);
     }
 
     /**
+     * Registers optional http server dependencies providing various features.
+     *
      * @param array            $config
      * @param ContainerBuilder $container
      */
-    private function registerHttpServerDrivers(array $config, ContainerBuilder $container): void
+    private function registerHttpServerServices(array $config, ContainerBuilder $container): void
     {
-        if ($config['trust_all_proxies']) {
-            $container->register(TrustAllProxiesHttpServerDriver::class)
-                ->addArgument(new Reference(TrustAllProxiesHttpServerDriver::class.'.inner'))
+        // RequestFactoryInterface
+        // -----------------------
+        if ($config['cloudfront_proto_header_handler']) {
+            $container->register(CloudFrontRequestFactory::class)
+                ->addArgument(new Reference(CloudFrontRequestFactory::class.'.inner'))
                 ->setAutowired(true)
                 ->setPublic(false)
-                ->setDecoratedService(HttpServerDriverInterface::class, null, -10);
+                ->setDecoratedService(RequestFactoryInterface::class, null, -10);
         }
 
-        if (
-            $config['entity_manager_handler'] ||
-            (null === $config['entity_manager_handler'] && \class_exists(EntityManager::class) && $container->has(EntityManagerInterface::class))
-        ) {
+        // RequestHandlerInterface
+        // -------------------------
+        if ($config['trust_all_proxies']) {
+            $container->register(TrustAllProxiesRequestHandler::class)
+                ->addArgument(new Reference(TrustAllProxiesRequestHandler::class.'.inner'))
+                ->setAutowired(true)
+                ->setPublic(false)
+                ->setDecoratedService(RequestHandlerInterface::class, null, -10);
+        }
+
+        if ($config['entity_manager_handler'] || (null === $config['entity_manager_handler'] && \class_exists(EntityManager::class) && $container->has(EntityManagerInterface::class))) {
             $container->register(EntityManagerHandler::class)
                 ->addArgument(new Reference(EntityManagerHandler::class.'.inner'))
                 ->setAutowired(true)
                 ->setPublic(false)
-                ->setDecoratedService(HttpServerDriverInterface::class, null, -20);
+                ->setDecoratedService(RequestHandlerInterface::class, null, -20);
         }
 
-        if ($config['debug']) {
-            $container->register(DebugHttpKernelHttpServerDriver::class)
-                ->addArgument(new Reference(DebugHttpKernelHttpServerDriver::class.'.inner'))
+        if ($config['debug'] || (null === $config['debug'] && $container->getParameter('kernal.debug'))) {
+            $container->register(DebugHttpKernelRequestHandler::class)
+                ->addArgument(new Reference(DebugHttpKernelRequestHandler::class.'.inner'))
                 ->setAutowired(true)
                 ->setPublic(false)
-                ->setDecoratedService(HttpServerDriverInterface::class, null, -50);
-        }
-
-        if ($config['advanced_static_handler']) {
-            $container->register(AdvancedStaticFilesHandler::class)
-                ->addArgument(new Reference(AdvancedStaticFilesHandler::class.'.inner'))
-                ->setAutowired(true)
-                ->setPublic(false)
-                ->setDecoratedService(HttpServerDriverInterface::class, null, -60);
+                ->setDecoratedService(RequestHandlerInterface::class, null, -50);
         }
     }
 
@@ -124,5 +163,19 @@ final class SwooleExtension extends Extension implements PrependExtensionInterfa
     public function getConfiguration(array $config, ContainerBuilder $container): Configuration
     {
         return Configuration::fromTreeBuilder();
+    }
+
+    /**
+     * Determines whether advanced static handler should be enabled.
+     *
+     * @param ContainerBuilder $container
+     * @param string           $strategy
+     *
+     * @return bool
+     */
+    private function enableAdvancedStaticHandler(ContainerBuilder $container, string $strategy): bool
+    {
+        return 'advanced' === $strategy ||
+            ('auto' === $strategy && ($container->getParameter('kernel.debug') && 'prod' !== $container->getParameter('kernel.environment')));
     }
 }

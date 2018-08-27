@@ -4,18 +4,18 @@ declare(strict_types=1);
 
 namespace App\Bundle\SwooleBundle\Bridge\Doctrine\ORM;
 
-use App\Bundle\SwooleBundle\Server\HttpServerDriverInterface;
+use App\Bundle\SwooleBundle\Server\RequestHandlerInterface;
 use Doctrine\ORM\EntityManagerInterface;
 use Swoole\Http\Request;
 use Swoole\Http\Response;
 
-final class EntityManagerHandler implements HttpServerDriverInterface
+final class EntityManagerHandler implements RequestHandlerInterface
 {
     private $decorated;
     private $connection;
     private $entityManager;
 
-    public function __construct(HttpServerDriverInterface $decorated, EntityManagerInterface $entityManager)
+    public function __construct(RequestHandlerInterface $decorated, EntityManagerInterface $entityManager)
     {
         $this->decorated = $decorated;
         $this->entityManager = $entityManager;

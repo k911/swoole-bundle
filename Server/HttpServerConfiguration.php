@@ -19,6 +19,18 @@ final class HttpServerConfiguration
         'worker_count' => 'worker_num',
         'serve_static_files' => 'enable_static_handler',
         'public_dir' => 'document_root',
+        'log_file' => 'log_file',
+        'log_level' => 'log_level',
+        'pid_file' => 'pid_file',
+    ];
+
+    private const SWOOLE_LOG_LEVELS = [
+        'debug' => 0,
+        'trace' => 1,
+        'info' => 2,
+        'notice' => 3,
+        'warning' => 4,
+        'error' => 5,
     ];
 
     private $host;
@@ -87,6 +99,10 @@ final class HttpServerConfiguration
             Assertion::directory($value, 'Public directory does not exists. Tried "%s".');
         }
 
+        if ('log_level' === $key) {
+            Assertion::inArray($value, \array_keys(self::SWOOLE_LOG_LEVELS));
+        }
+
         if (\in_array($key, ['reactor_count', 'worker_count'], true)) {
             Assertion::integer($value, \sprintf('Setting "%s" must be an integer.', $key));
             Assertion::greaterThan($value, 0, 'Count value cannot be negative, "%s" provided.');
@@ -125,7 +141,6 @@ final class HttpServerConfiguration
             $init['worker_count'] = 2 * $cpuCores;
         }
 
-        $this->validateSettings($init);
         $this->setSettings($init);
     }
 
@@ -138,7 +153,9 @@ final class HttpServerConfiguration
     {
         $this->validateSettings($settings);
         foreach ($settings as $name => $setting) {
-            $this->settings[$name] = $setting;
+            if (null !== $setting) {
+                $this->settings[$name] = $setting;
+            }
         }
     }
 
@@ -195,9 +212,21 @@ final class HttpServerConfiguration
     {
         $swooleSettings = [];
         foreach ($this->settings as $key => $setting) {
-            $swooleSettings[self::SWOOLE_HTTP_SERVER_SETTINGS_MAPPING[$key]] = $setting;
+            $swooleSettingKey = self::SWOOLE_HTTP_SERVER_SETTINGS_MAPPING[$key];
+            $swooleGetter = \sprintf('getSwoole%s', \str_replace('_', '', $swooleSettingKey));
+            $swooleSettings[$swooleSettingKey] = \method_exists($this, $swooleGetter) ? $this->{$swooleGetter}() : $setting;
         }
 
         return $swooleSettings;
+    }
+
+    /**
+     * @see getSwooleSettings()
+     *
+     * @return int
+     */
+    private function getSwooleLogLevel(): int
+    {
+        return self::SWOOLE_LOG_LEVELS[$this->settings['log_level']];
     }
 }

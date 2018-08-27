@@ -27,7 +27,7 @@ final class HttpServer
         $this->symfonyStyle = $symfonyStyle;
     }
 
-    public function start(HttpServerDriverInterface $driver, HttpServerConfiguration $configuration): void
+    public function start(RequestHandlerInterface $driver, HttpServerConfiguration $configuration): void
     {
         $this->server->port = $configuration->getPort();
         $this->server->host = $configuration->getHost();

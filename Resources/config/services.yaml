@@ -10,19 +10,13 @@ services:
     'App\Bundle\SwooleBundle\Bridge\Symfony\HttpFoundation\RequestFactoryInterface':
         class: App\Bundle\SwooleBundle\Bridge\Symfony\HttpFoundation\RequestFactory
 
-    'App\Bundle\SwooleBundle\Bridge\Symfony\HttpFoundation\CloudFrontRequestFactory':
-        decorates: App\Bundle\SwooleBundle\Bridge\Symfony\HttpFoundation\RequestFactoryInterface
-        decoration_priority: -10
-        arguments: ['@App\Bundle\SwooleBundle\Bridge\Symfony\HttpFoundation\CloudFrontRequestFactory.inner']
-        autoconfigure: false
-
     'App\Bundle\SwooleBundle\Bridge\Symfony\HttpFoundation\ResponseProcessorInterface':
         class: App\Bundle\SwooleBundle\Bridge\Symfony\HttpFoundation\ResponseProcessor
 
-    'App\Bundle\SwooleBundle\Server\HttpServerDriverInterface':
-        class: App\Bundle\SwooleBundle\Bridge\Symfony\HttpKernel\HttpKernelHttpServerDriver
+    'App\Bundle\SwooleBundle\Server\RequestHandlerInterface':
+        class: App\Bundle\SwooleBundle\Bridge\Symfony\HttpKernel\HttpKernelRequestHandler
 
-    'App\Bundle\SwooleBundle\Server\LimitedHttpServerDriver':
+    'App\Bundle\SwooleBundle\Server\LimitedRequestHandler':
 
     'App\Bundle\SwooleBundle\Server\HttpServerConfiguration':
 
@@ -39,4 +33,4 @@ services:
     'App\Bundle\SwooleBundle\Command\ServerProfileCommand':
         tags: ['console.command']
         arguments:
-            $driver: '@App\Bundle\SwooleBundle\Server\LimitedHttpServerDriver'
+            $driver: '@App\Bundle\SwooleBundle\Server\LimitedRequestHandler'
