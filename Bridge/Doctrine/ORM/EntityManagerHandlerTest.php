@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Tests\Bundle\SwooleBundle\Bridge\Doctrine\ORM;
 
-use App\Bundle\SwooleBundle\Bridge\Doctrine\ORM\EntityManagerHttpServerDriver;
+use App\Bundle\SwooleBundle\Bridge\Doctrine\ORM\EntityManagerHandler;
 use App\Bundle\SwooleBundle\Server\HttpServerDriverInterface;
 use Doctrine\DBAL\Connection;
 use Doctrine\ORM\EntityManagerInterface;
@@ -13,10 +13,10 @@ use Prophecy\Prophecy\ObjectProphecy;
 use Swoole\Http\Request;
 use Swoole\Http\Response;
 
-class EntityManagerHttpDriverTest extends TestCase
+class EntityManagerHandlerTest extends TestCase
 {
     /**
-     * @var EntityManagerHttpServerDriver
+     * @var EntityManagerHandler
      */
     private $httpDriver;
 
@@ -48,7 +48,7 @@ class EntityManagerHttpDriverTest extends TestCase
         $emMock = $this->entityManagerProphecy->reveal();
 
         $this->setUpEntityManagerConnection();
-        $this->httpDriver = new EntityManagerHttpServerDriver($decoratedMock, $emMock);
+        $this->httpDriver = new EntityManagerHandler($decoratedMock, $emMock);
     }
 
     public function testBoot(): void
