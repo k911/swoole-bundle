@@ -54,12 +54,6 @@ final class SwooleExtension extends Extension implements PrependExtensionInterfa
      */
     private function registerHttpServer(array $config, ContainerBuilder $container): void
     {
-        $container->getDefinition('app.swoole.server.http_server.server_instance')
-            ->addArgument($config['host'])
-            ->addArgument($config['port'])
-            ->addArgument(SWOOLE_BASE)
-            ->addArgument(SWOOLE_TCP);
-
         if (!empty($config['services'])) {
             $this->registerHttpServerServices($config['services'], $container);
         }
@@ -73,6 +67,9 @@ final class SwooleExtension extends Extension implements PrependExtensionInterfa
             'static' => $static,
             'host' => $host,
             'port' => $port,
+            'runningMode' => $runningMode,
+            'socketType' => $socketType,
+            'sslEnabled' => $sslEnabled,
             'settings' => $settings,
         ] = $config;
 
@@ -101,6 +98,9 @@ final class SwooleExtension extends Extension implements PrependExtensionInterfa
         $container->getDefinition(HttpServerConfiguration::class)
             ->addArgument($host)
             ->addArgument($port)
+            ->addArgument($runningMode)
+            ->addArgument($socketType)
+            ->addArgument($sslEnabled)
             ->addArgument($settings);
     }
 

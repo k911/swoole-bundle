@@ -47,10 +47,10 @@ final class ServerRunCommand extends Command
     protected function configure(): void
     {
         $this->setName('swoole:server:run')
-            ->setDescription('Runs a local swoole server')
-            ->addOption('host', null, InputOption::VALUE_OPTIONAL, 'Host of the server')
-            ->addOption('port', null, InputOption::VALUE_OPTIONAL, 'Port of the server')
-            ->addOption('enable-static', null, InputOption::VALUE_NONE, 'Enables static files serving');
+            ->setDescription('Runs a local swoole http server')
+            ->addOption('host', null, InputOption::VALUE_REQUIRED, 'Host name to listen to.')
+            ->addOption('port', null, InputOption::VALUE_REQUIRED, 'Range 0-65535. When 0 random available port is chosen.')
+            ->addOption('enable-static', null, InputOption::VALUE_NONE, 'Enables static files serving. Uses configured public directory or symfony default one.');
     }
 
     /**
@@ -69,19 +69,23 @@ final class ServerRunCommand extends Command
 
         $io = new SymfonyStyle($input, $output);
 
-        $host = (string) ($input->getOption('host') ?? $this->configuration->getHost());
-        $port = (int) ($input->getOption('port') ?? $this->configuration->getPort());
+        $this->configuration->changeSocket(
+            (string) ($input->getOption('host') ?? $this->configuration->getHost()),
+            (int) ($input->getOption('port') ?? $this->configuration->getPort())
+        );
 
-        $this->configuration->changeSocket($host, $port);
-
-        if ((bool) $input->getOption('enable-static')) {
-            $this->configuration->enableServingStaticFiles(\dirname($this->kernel->getRootDir()).'/public');
+        if (\filter_var($input->getOption('enable-static'), FILTER_VALIDATE_BOOLEAN)) {
+            $this->configuration->enableServingStaticFiles(
+                $this->configuration->hasPublicDir() ? $this->configuration->getPublicDir() : \dirname($this->kernel->getRootDir()).'/public'
+            );
         }
 
         $this->driver->boot([
             'trustedHosts' => ServerUtils::decodeStringAsSet($_SERVER['APP_TRUSTED_HOSTS']),
             'trustedProxies' => ServerUtils::decodeStringAsSet($_SERVER['APP_TRUSTED_PROXIES']),
         ]);
+
+        $this->server->setup($this->configuration);
 
         $rows = [
             ['env', $this->kernel->getEnvironment()],
@@ -94,10 +98,13 @@ final class ServerRunCommand extends Command
             $rows[] = ['public_dir', $this->configuration->getPublicDir()];
         }
 
-        $io->success(\sprintf('Swoole HTTP Server started on http://%s:%d', $host, $port));
+        $io->success(\sprintf('Swoole HTTP Server started on http://%s:%d', $this->configuration->getHost(), $this->configuration->getPort()));
         $io->table(['Configuration', 'Values'], $rows);
 
-        $this->server->setSymfonyStyle($io);
-        $this->server->start($this->driver, $this->configuration);
+        if ($this->server->start($this->driver)) {
+            $io->success('Swoole HTTP Server has been successfully shutdown.');
+        } else {
+            $io->error('Failure during starting Swoole HTTP Server.');
+        }
     }
 }

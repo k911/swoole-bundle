@@ -49,10 +49,10 @@ final class ServerProfileCommand extends Command
     protected function configure(): void
     {
         $this->setName('swoole:server:profile')
-            ->setDescription('Handles specified amount of requests to a local swoole server. Useful for debug or benchmarking.')
+            ->setDescription('Handles specified amount of requests to a local swoole server. Useful for profiling.')
             ->addArgument('requests', InputArgument::REQUIRED, 'Number of requests to handle by the server')
-            ->addOption('host', null, InputOption::VALUE_OPTIONAL, 'Host of the server')
-            ->addOption('port', null, InputOption::VALUE_OPTIONAL, 'Port of the server')
+            ->addOption('host', null, InputOption::VALUE_REQUIRED, 'Host name to listen to.')
+            ->addOption('port', null, InputOption::VALUE_REQUIRED, 'Range 0-65535. When 0 random available port is chosen.')
             ->addOption('enable-static', null, InputOption::VALUE_NONE, 'Enables static files serving');
     }
 
@@ -73,13 +73,15 @@ final class ServerProfileCommand extends Command
 
         $io = new SymfonyStyle($input, $output);
 
-        $host = (string) ($input->getOption('host') ?? $this->configuration->getHost());
-        $port = (int) ($input->getOption('port') ?? $this->configuration->getPort());
+        $this->configuration->changeSocket(
+            (string) ($input->getOption('host') ?? $this->configuration->getHost()),
+            (int) ($input->getOption('port') ?? $this->configuration->getPort())
+        );
 
-        $this->configuration->changeSocket($host, $port);
-
-        if ((bool) $input->getOption('enable-static')) {
-            $this->configuration->enableServingStaticFiles(\dirname($this->kernel->getRootDir()).'/public');
+        if (\filter_var($input->getOption('enable-static'), FILTER_VALIDATE_BOOLEAN)) {
+            $this->configuration->enableServingStaticFiles(
+                $this->configuration->hasPublicDir() ? $this->configuration->getPublicDir() : \dirname($this->kernel->getRootDir()).'/public'
+            );
         }
 
         $requestLimit = (int) $input->getArgument('requests');
@@ -89,12 +91,15 @@ final class ServerProfileCommand extends Command
 
         $trustedHosts = ServerUtils::decodeStringAsSet($_SERVER['APP_TRUSTED_HOSTS']);
         $trustedProxies = ServerUtils::decodeStringAsSet($_SERVER['APP_TRUSTED_PROXIES']);
+
         $this->driver->boot([
             'symfonyStyle' => $io,
             'requestLimit' => $requestLimit,
             'trustedHosts' => $trustedHosts,
             'trustedProxies' => $trustedProxies,
         ]);
+
+        $this->server->setup($this->configuration);
 
         $rows = [
             ['env', $this->kernel->getEnvironment()],
@@ -110,7 +115,7 @@ final class ServerProfileCommand extends Command
             $rows[] = ['public_dir', $this->configuration->getPublicDir()];
         }
 
-        $io->success(\sprintf('Swoole HTTP Server started on http://%s:%d', $host, $port));
+        $io->success(\sprintf('Swoole HTTP Server started on http://%s:%d', $this->configuration->getHost(), $this->configuration->getPort()));
         $io->table(['Configuration', 'Values'], $rows);
 
         if ($this->kernel->isDebug()) {
@@ -118,7 +123,10 @@ final class ServerProfileCommand extends Command
             dump($this->configuration->getSwooleSettings());
         }
 
-        $this->server->setSymfonyStyle($io);
-        $this->server->start($this->driver, $this->configuration);
+        if ($this->server->start($this->driver)) {
+            $io->success('Swoole HTTP Server has been successfully shutdown.');
+        } else {
+            $io->error('Failure during starting Swoole HTTP Server.');
+        }
     }
 }

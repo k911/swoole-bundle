@@ -20,12 +20,11 @@ services:
 
     'App\Bundle\SwooleBundle\Server\HttpServerConfiguration':
 
-    'app.swoole.server.http_server.server_instance':
-        class: Swoole\Http\Server
-        lazy: true
+    'app.swoole.server.http_server.factory':
+        class: App\Bundle\SwooleBundle\Server\HttpServerFactory
 
     'App\Bundle\SwooleBundle\Server\HttpServer':
-        arguments: ['@app.swoole.server.http_server.server_instance']
+        arguments: ['@app.swoole.server.http_server.factory']
 
     'App\Bundle\SwooleBundle\Command\ServerRunCommand':
         tags: ['console.command']

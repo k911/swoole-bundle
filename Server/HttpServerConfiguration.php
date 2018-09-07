@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace App\Bundle\SwooleBundle\Server;
 
 use Assert\Assertion;
+use DomainException;
+use InvalidArgumentException;
 
 final class HttpServerConfiguration
 {
@@ -14,7 +16,7 @@ final class HttpServerConfiguration
      * @see https://github.com/swoole/swoole-docs/blob/master/modules/swoole-server/configuration.md
      * @see https://github.com/swoole/swoole-docs/blob/master/modules/swoole-http-server/configuration.md
      */
-    private const SWOOLE_HTTP_SERVER_SETTINGS_MAPPING = [
+    private const SWOOLE_HTTP_SERVER_CONFIGURATION = [
         'reactor_count' => 'reactor_num',
         'worker_count' => 'worker_num',
         'serve_static_files' => 'enable_static_handler',
@@ -25,46 +27,109 @@ final class HttpServerConfiguration
     ];
 
     private const SWOOLE_LOG_LEVELS = [
-        'debug' => 0,
-        'trace' => 1,
-        'info' => 2,
-        'notice' => 3,
-        'warning' => 4,
-        'error' => 5,
+        'debug' => SWOOLE_LOG_DEBUG,
+        'trace' => SWOOLE_LOG_TRACE,
+        'info' => SWOOLE_LOG_INFO,
+        'notice' => SWOOLE_LOG_NOTICE,
+        'warning' => SWOOLE_LOG_WARNING,
+        'error' => SWOOLE_LOG_ERROR,
     ];
 
+    private const SWOOLE_RUNNING_MODE = [
+        'reactor' => SWOOLE_BASE,
+        'thread' => SWOOLE_THREAD,
+        'process' => SWOOLE_PROCESS,
+    ];
+
+    private const SWOOLE_SOCKET_TYPE = [
+        'sock_tcp_ipv4' => SWOOLE_SOCK_TCP,
+        'sock_tcp_ipv6' => SWOOLE_SOCK_TCP6,
+        'sock_udp_ipv4' => SWOOLE_SOCK_UDP,
+        'sock_udp_ipv6' => SWOOLE_SOCK_UDP6,
+        'sock_unix_dgram' => SWOOLE_SOCK_UNIX_DGRAM,
+        'sock_unix_stream' => SWOOLE_SOCK_UNIX_STREAM,
+    ];
+
+    private const PORT_MAX_VALUE = 65535;
+    private const PORT_MIN_VALUE = 0;
+
+    /**
+     * @see https://github.com/swoole/swoole-docs/blob/master/modules/swoole-server/methods/construct.md#parameter
+     *
+     * @var string
+     * @var int    $port
+     * @var string $runningMode
+     * @var string $socketType
+     * @var bool   $sslEnabled
+     */
     private $host;
     private $port;
+    private $runningMode;
+    private $socketType;
+    private $sslEnabled;
+
+    // Container for SWOOLE_HTTP_SERVER_CONFIGURATION values
     private $settings;
 
     /**
      * @param string $host
      * @param int    $port
-     * @param array  $settings settings available:
-     *                         - reactor_count (default: number of cpu cores)
-     *                         - worker_count (default: 2 * number of cpu cores)
-     *                         - serve_static_files (default: false)
-     *                         - public_dir (default: '%kernel.root_dir%/public')
+     * @param string $runningMode
+     * @param string $socketType
+     * @param bool   $sslEnabled
+     * @param array  $settings    settings available:
+     *                            - reactor_count (default: number of cpu cores)
+     *                            - worker_count (default: 2 * number of cpu cores)
+     *                            - serve_static_files (default: false)
+     *                            - public_dir (default: '%kernel.root_dir%/public')
      *
      * @throws \Assert\AssertionFailedException
      */
-    public function __construct(string $host = 'localhost', int $port = 9501, array $settings = [])
-    {
-        $this->changeSocket($host, $port);
+    public function __construct(
+        string $host = 'localhost',
+        int $port = 9501,
+        string $runningMode = 'process',
+        string $socketType = 'sock_tcp',
+        bool $sslEnabled = false,
+        array $settings = []
+    ) {
         $this->initializeSettings($settings);
+        $this->changeSocket($host, $port, $runningMode, $socketType, $sslEnabled);
     }
 
     /**
      * @param string $host
      * @param int    $port
+     * @param string $runningMode
+     * @param string $socketType
+     * @param bool   $sslEnabled
      *
      * @throws \Assert\AssertionFailedException
      */
-    public function changeSocket(string $host, int $port): void
+    public function changeSocket(string $host, int $port, string $runningMode = 'process', string $socketType = 'sock_tcp_ipv4', bool $sslEnabled = false): void
     {
-        Assertion::notBlank($host, 'Host cannot be blank');
-        Assertion::greaterThan($port, 0, 'Port cannot be negative');
+        Assertion::notBlank($host, 'Host cannot be blank.');
+        Assertion::between($port, self::PORT_MIN_VALUE, self::PORT_MAX_VALUE, 'Provided port value "%s" is not between 0 and 65535.');
+        Assertion::inArray($runningMode, \array_keys(self::SWOOLE_RUNNING_MODE));
+        Assertion::inArray($socketType, \array_keys(self::SWOOLE_SOCKET_TYPE));
+
+        if ($sslEnabled) {
+            Assertion::defined('SWOOLE_SSL', 'Swoole SSL support is disabled. You must install php extension with SSL support enabled.');
+        }
+
         $this->host = $host;
+        $this->runningMode = $runningMode;
+        $this->port = $port;
+        $this->socketType = $socketType;
+        $this->sslEnabled = $sslEnabled;
+    }
+
+    public function changePort(int $port): void
+    {
+        if (0 !== $this->port || $port <= self::PORT_MIN_VALUE || $port > self::PORT_MAX_VALUE) {
+            throw new DomainException('Method changePort() can be used directly, only if port originally was set to 0, which means random available port. Use changeSocket() instead.');
+        }
+
         $this->port = $port;
     }
 
@@ -89,7 +154,7 @@ final class HttpServerConfiguration
      */
     private function validateSetting(string $key, $value): void
     {
-        Assertion::keyExists(self::SWOOLE_HTTP_SERVER_SETTINGS_MAPPING, $key, 'There is no configuration mapping for setting "%s".');
+        Assertion::keyExists(self::SWOOLE_HTTP_SERVER_CONFIGURATION, $key, 'There is no configuration mapping for setting "%s".');
 
         if ('serve_static_files' === $key) {
             Assertion::boolean($value, 'Serve static files setting must be a boolean');
@@ -169,6 +234,34 @@ final class HttpServerConfiguration
         return $this->port;
     }
 
+    public function getSwooleRunningMode(): int
+    {
+        return self::SWOOLE_RUNNING_MODE[$this->runningMode];
+    }
+
+    /**
+     * @return int
+     */
+    public function getSwooleSocketType(): int
+    {
+        $type = self::SWOOLE_SOCKET_TYPE[$this->socketType];
+
+        if (!$this->isSslEnabled()) {
+            return $type;
+        }
+
+        if (!\defined('SWOOLE_SSL')) {
+            throw new InvalidArgumentException('Swoole SSL support is disabled. You must install php extension with SSL support enabled.');
+        }
+
+        return $type | SWOOLE_SSL;
+    }
+
+    public function isSslEnabled(): bool
+    {
+        return $this->sslEnabled;
+    }
+
     public function hasPublicDir(): bool
     {
         return isset($this->settings['public_dir']);
@@ -212,7 +305,7 @@ final class HttpServerConfiguration
     {
         $swooleSettings = [];
         foreach ($this->settings as $key => $setting) {
-            $swooleSettingKey = self::SWOOLE_HTTP_SERVER_SETTINGS_MAPPING[$key];
+            $swooleSettingKey = self::SWOOLE_HTTP_SERVER_CONFIGURATION[$key];
             $swooleGetter = \sprintf('getSwoole%s', \str_replace('_', '', $swooleSettingKey));
             $swooleSettings[$swooleSettingKey] = \method_exists($this, $swooleGetter) ? $this->{$swooleGetter}() : $setting;
         }
@@ -225,7 +318,7 @@ final class HttpServerConfiguration
      *
      * @return int
      */
-    private function getSwooleLogLevel(): int
+    public function getSwooleLogLevel(): int
     {
         return self::SWOOLE_LOG_LEVELS[$this->settings['log_level']];
     }

@@ -4,66 +4,68 @@ declare(strict_types=1);
 
 namespace App\Bundle\SwooleBundle\Server;
 
-use RuntimeException;
+use Assert\Assertion;
 use Swoole\Http\Server;
-use Symfony\Component\Console\Style\SymfonyStyle;
 
 final class HttpServer
 {
+    /**
+     * @var Server|null
+     */
     private $server;
 
     /**
-     * @var SymfonyStyle|null
+     * @var HttpServerFactory
      */
-    private $symfonyStyle;
+    private $serverFactory;
 
-    public function __construct(Server $server)
+    public function __construct(HttpServerFactory $serverFactory)
     {
-        $this->server = $server;
-    }
-
-    public function setSymfonyStyle(SymfonyStyle $symfonyStyle): void
-    {
-        $this->symfonyStyle = $symfonyStyle;
-    }
-
-    public function start(RequestHandlerInterface $driver, HttpServerConfiguration $configuration): void
-    {
-        $this->server->port = $configuration->getPort();
-        $this->server->host = $configuration->getHost();
-        $this->server->on('request', [$driver, 'handle']);
-        $this->server->set($configuration->getSwooleSettings());
-
-        $this->havingSymfonyStyle(function (SymfonyStyle $io): void {
-            if (!$this->server->start()) {
-                $io->error('Failure during starting Swoole HTTP Server.');
-            } else {
-                $io->success('Swoole HTTP Server has been successfully shutdown.');
-            }
-        }, function (): void {
-            if (!$this->server->start()) {
-                throw new RuntimeException('Failure during starting Swoole HTTP Server.');
-            }
-        });
-    }
-
-    public function shutdown(): void
-    {
-        $this->server->shutdown();
+        $this->serverFactory = $serverFactory;
     }
 
     /**
-     * @param callable $having    executes function if symfony style is available
-     * @param callable $notHaving executes function if symfony style is unavailable
+     * @param HttpServerConfiguration $configuration
      *
-     * @return mixed
+     * @throws \Assert\AssertionFailedException
      */
-    private function havingSymfonyStyle(callable $having, callable $notHaving)
+    public function setup(HttpServerConfiguration $configuration): void
     {
-        if ($this->symfonyStyle instanceof SymfonyStyle) {
-            return $having($this->symfonyStyle);
+        Assertion::null($this->server, 'Cannot setup swoole http server multiple times.');
+        $server = $this->serverFactory->make($configuration);
+
+        $server->set($configuration->getSwooleSettings());
+
+        if (0 === $configuration->getPort()) {
+            $configuration->changePort($server->port);
         }
 
-        return $notHaving();
+        $this->server = $server;
+    }
+
+    /**
+     * @param RequestHandlerInterface $driver
+     *
+     * @throws \Assert\AssertionFailedException
+     *
+     * @return bool
+     */
+    public function start(RequestHandlerInterface $driver): bool
+    {
+        Assertion::isInstanceOf($this->server, Server::class, 'Swoole HTTP Server has not been setup yet. Please use setup() method.');
+
+        $this->server->on('request', [$driver, 'handle']);
+
+        return $this->server->start();
+    }
+
+    /**
+     * @throws \Assert\AssertionFailedException
+     */
+    public function shutdown(): void
+    {
+        Assertion::isInstanceOf($this->server, Server::class, 'Swoole HTTP Server has not been setup yet. Please use setup() method.');
+
+        $this->server->shutdown();
     }
 }
