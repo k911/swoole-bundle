@@ -19,11 +19,17 @@ final class HttpServerConfiguration
     private const SWOOLE_HTTP_SERVER_CONFIGURATION = [
         'reactor_count' => 'reactor_num',
         'worker_count' => 'worker_num',
-        'serve_static_files' => 'enable_static_handler',
+        'serve_static' => 'enable_static_handler',
         'public_dir' => 'document_root',
         'log_file' => 'log_file',
         'log_level' => 'log_level',
         'pid_file' => 'pid_file',
+    ];
+
+    private const SWOOLE_SERVE_STATIC = [
+        'off' => false,
+        'advanced' => false,
+        'default' => true,
     ];
 
     private const SWOOLE_LOG_LEVELS = [
@@ -42,12 +48,12 @@ final class HttpServerConfiguration
     ];
 
     private const SWOOLE_SOCKET_TYPE = [
-        'sock_tcp_ipv4' => SWOOLE_SOCK_TCP,
-        'sock_tcp_ipv6' => SWOOLE_SOCK_TCP6,
-        'sock_udp_ipv4' => SWOOLE_SOCK_UDP,
-        'sock_udp_ipv6' => SWOOLE_SOCK_UDP6,
-        'sock_unix_dgram' => SWOOLE_SOCK_UNIX_DGRAM,
-        'sock_unix_stream' => SWOOLE_SOCK_UNIX_STREAM,
+        'tcp' => SWOOLE_SOCK_TCP,
+        'tcp_ipv6' => SWOOLE_SOCK_TCP6,
+        'udp' => SWOOLE_SOCK_UDP,
+        'udp_ipv6' => SWOOLE_SOCK_UDP6,
+        'unix_dgram' => SWOOLE_SOCK_UNIX_DGRAM,
+        'unix_stream' => SWOOLE_SOCK_UNIX_STREAM,
     ];
 
     private const PORT_MAX_VALUE = 65535;
@@ -98,16 +104,28 @@ final class HttpServerConfiguration
     }
 
     /**
-     * @param string $host
-     * @param int    $port
-     * @param string $runningMode
-     * @param string $socketType
-     * @param bool   $sslEnabled
+     * @param string      $host
+     * @param int         $port
+     * @param null|string $runningMode
+     * @param null|string $socketType
+     * @param bool|null   $sslEnabled
      *
      * @throws \Assert\AssertionFailedException
      */
-    public function changeSocket(string $host, int $port, string $runningMode = 'process', string $socketType = 'sock_tcp_ipv4', bool $sslEnabled = false): void
+    public function changeSocket(string $host, int $port, ?string $runningMode = null, ?string $socketType = null, ?bool $sslEnabled = null): void
     {
+        if (null === $runningMode) {
+            $runningMode = $this->runningMode ?? 'process';
+        }
+
+        if (null === $socketType) {
+            $socketType = $this->socketType ?? 'tcp';
+        }
+
+        if (null === $sslEnabled) {
+            $sslEnabled = $this->sslEnabled ?? false;
+        }
+
         Assertion::notBlank($host, 'Host cannot be blank.');
         Assertion::between($port, self::PORT_MIN_VALUE, self::PORT_MAX_VALUE, 'Provided port value "%s" is not between 0 and 65535.');
         Assertion::inArray($runningMode, \array_keys(self::SWOOLE_RUNNING_MODE));
@@ -140,10 +158,15 @@ final class HttpServerConfiguration
      */
     public function enableServingStaticFiles(string $publicDir): void
     {
-        $this->setSettings([
-            'serve_static_files' => true,
+        $settings = [
             'public_dir' => $publicDir,
-        ]);
+        ];
+
+        if ('off' === $this->settings['serve_static']) {
+            $settings['serve_static'] = 'default';
+        }
+
+        $this->setSettings($settings);
     }
 
     /**
@@ -156,8 +179,8 @@ final class HttpServerConfiguration
     {
         Assertion::keyExists(self::SWOOLE_HTTP_SERVER_CONFIGURATION, $key, 'There is no configuration mapping for setting "%s".');
 
-        if ('serve_static_files' === $key) {
-            Assertion::boolean($value, 'Serve static files setting must be a boolean');
+        if ('serve_static' === $key) {
+            Assertion::inArray($value, \array_keys(self::SWOOLE_SERVE_STATIC));
         }
 
         if ('public_dir' === $key) {
@@ -185,7 +208,7 @@ final class HttpServerConfiguration
             $this->validateSetting($name, $value);
         }
 
-        Assertion::false(isset($settings['serve_static_files']) && !isset($settings['public_dir']), 'Enabling static files serving requires providing "public_dir" setting.');
+        Assertion::false(isset($settings['serve_static']) && 'off' !== $settings['serve_static'] && !isset($settings['public_dir']), 'Enabling static files serving requires providing "public_dir" setting.');
     }
 
     /**
@@ -300,6 +323,8 @@ final class HttpServerConfiguration
      * @see \Swoole\Http\Server::set()
      *
      * @return array
+     *
+     * @todo create swoole settings transformer
      */
     public function getSwooleSettings(): array
     {
@@ -307,7 +332,13 @@ final class HttpServerConfiguration
         foreach ($this->settings as $key => $setting) {
             $swooleSettingKey = self::SWOOLE_HTTP_SERVER_CONFIGURATION[$key];
             $swooleGetter = \sprintf('getSwoole%s', \str_replace('_', '', $swooleSettingKey));
-            $swooleSettings[$swooleSettingKey] = \method_exists($this, $swooleGetter) ? $this->{$swooleGetter}() : $setting;
+            if (\method_exists($this, $swooleGetter)) {
+                $setting = $this->{$swooleGetter}();
+            }
+
+            if (null !== $setting) {
+                $swooleSettings[$swooleSettingKey] = $setting;
+            }
         }
 
         return $swooleSettings;
@@ -321,5 +352,20 @@ final class HttpServerConfiguration
     public function getSwooleLogLevel(): int
     {
         return self::SWOOLE_LOG_LEVELS[$this->settings['log_level']];
+    }
+
+    /**
+     * @see getSwooleSettings()
+     *
+     * @return bool
+     */
+    public function getSwooleEnableStaticHandler(): bool
+    {
+        return self::SWOOLE_SERVE_STATIC[$this->settings['serve_static']];
+    }
+
+    public function getSwooleDocumentRoot(): ?string
+    {
+        return 'default' === $this->settings['serve_static'] ? $this->settings['public_dir'] : null;
     }
 }

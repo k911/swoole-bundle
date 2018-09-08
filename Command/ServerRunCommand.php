@@ -31,26 +31,38 @@ final class ServerRunCommand extends Command
      */
     public function __construct(KernelInterface $kernel, HttpServer $server, HttpServerConfiguration $configuration, RequestHandlerInterface $driver)
     {
-        parent::__construct();
-
         $this->kernel = $kernel;
         $this->server = $server;
         $this->driver = $driver;
         $this->configuration = $configuration;
+
+        parent::__construct();
+    }
+
+    /**
+     * @throws \Assert\AssertionFailedException
+     *
+     * @return string
+     */
+    private function getDefaultPublicDir(): string
+    {
+        return $this->configuration->hasPublicDir() ? $this->configuration->getPublicDir() : \dirname($this->kernel->getRootDir()).'/public';
     }
 
     /**
      * {@inheritdoc}
      *
      * @throws \Symfony\Component\Console\Exception\InvalidArgumentException
+     * @throws \Assert\AssertionFailedException
      */
     protected function configure(): void
     {
         $this->setName('swoole:server:run')
             ->setDescription('Runs a local swoole http server')
-            ->addOption('host', null, InputOption::VALUE_REQUIRED, 'Host name to listen to.')
-            ->addOption('port', null, InputOption::VALUE_REQUIRED, 'Range 0-65535. When 0 random available port is chosen.')
-            ->addOption('enable-static', null, InputOption::VALUE_NONE, 'Enables static files serving. Uses configured public directory or symfony default one.');
+            ->addOption('host', null, InputOption::VALUE_REQUIRED, 'Host name to listen to')
+            ->addOption('port', null, InputOption::VALUE_REQUIRED, 'Range 0-65535. When 0 random available port is chosen')
+            ->addOption('serve-static', 's', InputOption::VALUE_NONE, 'Enables serving static content from public directory')
+            ->addOption('public-dir', null, InputOption::VALUE_REQUIRED, 'Public directory', $this->getDefaultPublicDir());
     }
 
     /**
@@ -74,10 +86,8 @@ final class ServerRunCommand extends Command
             (int) ($input->getOption('port') ?? $this->configuration->getPort())
         );
 
-        if (\filter_var($input->getOption('enable-static'), FILTER_VALIDATE_BOOLEAN)) {
-            $this->configuration->enableServingStaticFiles(
-                $this->configuration->hasPublicDir() ? $this->configuration->getPublicDir() : \dirname($this->kernel->getRootDir()).'/public'
-            );
+        if (\filter_var($input->getOption('serve-static'), FILTER_VALIDATE_BOOLEAN)) {
+            $this->configuration->enableServingStaticFiles($input->getOption('public-dir'));
         }
 
         $this->driver->boot([

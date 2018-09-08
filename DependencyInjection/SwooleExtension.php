@@ -67,29 +67,26 @@ final class SwooleExtension extends Extension implements PrependExtensionInterfa
             'static' => $static,
             'host' => $host,
             'port' => $port,
-            'runningMode' => $runningMode,
-            'socketType' => $socketType,
-            'sslEnabled' => $sslEnabled,
+            'running_mode' => $runningMode,
+            'socket_type' => $socketType,
+            'ssl_enabled' => $sslEnabled,
             'settings' => $settings,
         ] = $config;
 
-        $staticFileServingStrategy = $static['strategy'];
+        if ('auto' === $static['strategy']) {
+            $static['strategy'] = $this->isDebugOrNotProd($container) ? 'advanced' : 'off';
+        }
 
-        if ($this->enableAdvancedStaticHandler($container, $staticFileServingStrategy)) {
+        if ('advanced' === $static['strategy']) {
             $container->register(AdvancedStaticFilesServer::class)
                 ->addArgument(new Reference(AdvancedStaticFilesServer::class.'.inner'))
                 ->setAutowired(true)
                 ->setPublic(false)
                 ->setDecoratedService(RequestHandlerInterface::class, null, -60);
-
-            $settings['serve_static_files'] = false;
-            $settings['public_dir'] = $static['public_dir'];
         }
 
-        if ('default' === $staticFileServingStrategy) {
-            $settings['serve_static_files'] = true;
-            $settings['public_dir'] = $static['public_dir'];
-        }
+        $settings['serve_static'] = $static['strategy'];
+        $settings['public_dir'] = $static['public_dir'];
 
         if ('auto' === $settings['log_level']) {
             $settings['log_level'] = $container->getParameter('kernel.debug') ? 'debug' : 'notice';
@@ -165,17 +162,8 @@ final class SwooleExtension extends Extension implements PrependExtensionInterfa
         return Configuration::fromTreeBuilder();
     }
 
-    /**
-     * Determines whether advanced static handler should be enabled.
-     *
-     * @param ContainerBuilder $container
-     * @param string           $strategy
-     *
-     * @return bool
-     */
-    private function enableAdvancedStaticHandler(ContainerBuilder $container, string $strategy): bool
+    private function isDebugOrNotProd(ContainerBuilder $container): bool
     {
-        return 'advanced' === $strategy ||
-            ('auto' === $strategy && ($container->getParameter('kernel.debug') && 'prod' !== $container->getParameter('kernel.environment')));
+        return $container->getParameter('kernel.debug') && 'prod' !== $container->getParameter('kernel.environment');
     }
 }
