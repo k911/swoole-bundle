@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Bundle\SwooleBundle\Bridge\Doctrine\ORM;
 
-use App\Bundle\SwooleBundle\Server\RequestHandlerInterface;
+use App\Bundle\SwooleBundle\Server\RequestHandler\RequestHandlerInterface;
 use Doctrine\ORM\EntityManagerInterface;
 use Swoole\Http\Request;
 use Swoole\Http\Response;
@@ -20,14 +20,6 @@ final class EntityManagerHandler implements RequestHandlerInterface
         $this->decorated = $decorated;
         $this->entityManager = $entityManager;
         $this->connection = $entityManager->getConnection();
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function boot(array $runtimeConfiguration = []): void
-    {
-        $this->decorated->boot($runtimeConfiguration);
     }
 
     /**

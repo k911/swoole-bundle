@@ -7,7 +7,8 @@ namespace App\Bundle\SwooleBundle\Command;
 use App\Bundle\SwooleBundle\Functions\ServerUtils;
 use App\Bundle\SwooleBundle\Server\HttpServer;
 use App\Bundle\SwooleBundle\Server\HttpServerConfiguration;
-use App\Bundle\SwooleBundle\Server\RequestHandlerInterface;
+use App\Bundle\SwooleBundle\Server\HttpServerFactory;
+use App\Bundle\SwooleBundle\Server\Runtime\BootManager;
 use Composer\XdebugHandler\XdebugHandler;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Exception\InvalidArgumentException;
@@ -20,23 +21,31 @@ use Symfony\Component\HttpKernel\KernelInterface;
 
 final class ServerProfileCommand extends Command
 {
-    private $kernel;
     private $server;
-    private $configuration;
-    private $driver;
+    private $serverFactory;
+    private $serverConfiguration;
+    private $kernel;
+    private $bootManager;
 
     /**
-     * @param KernelInterface         $kernel
      * @param HttpServer              $server
-     * @param HttpServerConfiguration $configuration
-     * @param RequestHandlerInterface $driver
+     * @param HttpServerFactory       $serverFactory
+     * @param HttpServerConfiguration $serverConfiguration
+     * @param KernelInterface         $kernel
+     * @param BootManager             $bootManager
      */
-    public function __construct(KernelInterface $kernel, HttpServer $server, HttpServerConfiguration $configuration, RequestHandlerInterface $driver)
-    {
-        $this->kernel = $kernel;
+    public function __construct(
+        HttpServer $server,
+        HttpServerFactory $serverFactory,
+        HttpServerConfiguration $serverConfiguration,
+        KernelInterface $kernel,
+        BootManager $bootManager
+    ) {
         $this->server = $server;
-        $this->driver = $driver;
-        $this->configuration = $configuration;
+        $this->serverFactory = $serverFactory;
+        $this->serverConfiguration = $serverConfiguration;
+        $this->kernel = $kernel;
+        $this->bootManager = $bootManager;
 
         parent::__construct();
     }
@@ -48,7 +57,7 @@ final class ServerProfileCommand extends Command
      */
     private function getDefaultPublicDir(): string
     {
-        return $this->configuration->hasPublicDir() ? $this->configuration->getPublicDir() : \dirname($this->kernel->getRootDir()).'/public';
+        return $this->serverConfiguration->hasPublicDir() ? $this->serverConfiguration->getPublicDir() : \dirname($this->kernel->getRootDir()).'/public';
     }
 
     /**
@@ -79,19 +88,19 @@ final class ServerProfileCommand extends Command
      */
     protected function execute(InputInterface $input, OutputInterface $output): void
     {
-        $xdebug = new XdebugHandler('swoole');
-        $xdebug->check();
-        unset($xdebug);
+        $this->ensureXdebugDisabled();
 
         $io = new SymfonyStyle($input, $output);
 
-        $this->configuration->changeSocket(
-            (string) ($input->getOption('host') ?? $this->configuration->getHost()),
-            (int) ($input->getOption('port') ?? $this->configuration->getPort())
-        );
+        $socket = $this->serverConfiguration->getDefaultSocket();
+        $socket = $socket
+            ->withPort((int) ($input->getOption('port') ?? $socket->port()))
+            ->withHost((string) ($input->getOption('host') ?? $socket->host()));
+
+        $this->serverConfiguration->changeDefaultSocket($socket);
 
         if (\filter_var($input->getOption('serve-static'), FILTER_VALIDATE_BOOLEAN)) {
-            $this->configuration->enableServingStaticFiles($input->getOption('public-dir'));
+            $this->serverConfiguration->enableServingStaticFiles($input->getOption('public-dir'));
         }
 
         $requestLimit = (int) $input->getArgument('requests');
@@ -99,44 +108,78 @@ final class ServerProfileCommand extends Command
             throw new InvalidArgumentException('Request limit must be greater than 0');
         }
 
-        $trustedHosts = ServerUtils::decodeStringAsSet($_SERVER['APP_TRUSTED_HOSTS']);
-        $trustedProxies = ServerUtils::decodeStringAsSet($_SERVER['APP_TRUSTED_PROXIES']);
-
-        $this->driver->boot([
+        $runtimeConfiguration = [
             'symfonyStyle' => $io,
             'requestLimit' => $requestLimit,
-            'trustedHosts' => $trustedHosts,
-            'trustedProxies' => $trustedProxies,
-        ]);
-
-        $this->server->setup($this->configuration);
-
-        $rows = [
-            ['env', $this->kernel->getEnvironment()],
-            ['debug', \var_export($this->kernel->isDebug(), true)],
-            ['worker_count', $this->configuration->getWorkerCount()],
-            ['memory_limit', ServerUtils::formatBytes(ServerUtils::getMaxMemory())],
-            ['request_limit', $requestLimit > 0 ? $requestLimit : -1],
-            ['trusted_hosts', \implode(', ', $trustedHosts)],
-            ['trusted_proxies', \implode(', ', $trustedProxies)],
+            'trustedHosts' => ServerUtils::decodeStringAsSet($_SERVER['APP_TRUSTED_HOSTS']),
+            'trustedProxies' => ServerUtils::decodeStringAsSet($_SERVER['APP_TRUSTED_PROXIES']),
         ];
 
-        if ($this->configuration->hasPublicDir()) {
-            $rows[] = ['public_dir', $this->configuration->getPublicDir()];
+        if (\in_array('*', $runtimeConfiguration['trustedProxies'], true)) {
+            $runtimeConfiguration['trustAllProxies'] = true;
+            $runtimeConfiguration['trustedProxies'] = \array_filter($runtimeConfiguration['trustedProxies'], function (string $trustedProxy): bool {
+                return '*' !== $trustedProxy;
+            });
         }
 
-        $io->success(\sprintf('Swoole HTTP Server started on http://%s:%d', $this->configuration->getHost(), $this->configuration->getPort()));
-        $io->table(['Configuration', 'Values'], $rows);
+        $this->server->attach($this->serverFactory->make(
+            $this->serverConfiguration->getDefaultSocket(),
+            $this->serverConfiguration->getRunningMode()
+        ));
+        $this->bootManager->boot($runtimeConfiguration);
 
+        $io->success(\sprintf('Swoole HTTP Server started on http://%s', $this->serverConfiguration->getDefaultSocket()->addressPort()));
+        $this->printServerConfiguration($io, $runtimeConfiguration);
+
+        // TODO: Remove or improve before release
         if ($this->kernel->isDebug()) {
-            dump($this->configuration);
-            dump($this->configuration->getSwooleSettings());
+            dump($this->serverConfiguration, $this->serverConfiguration->getSwooleSettings());
         }
 
-        if ($this->server->start($this->driver)) {
+        if ($this->server->start()) {
             $io->success('Swoole HTTP Server has been successfully shutdown.');
         } else {
             $io->error('Failure during starting Swoole HTTP Server.');
         }
+    }
+
+    /**
+     * Xdebug must be disabled when using swoole due to possibility of core dump.
+     */
+    private function ensureXdebugDisabled(): void
+    {
+        $xdebug = new XdebugHandler('swoole');
+        $xdebug->check();
+        unset($xdebug);
+    }
+
+    /**
+     * @param SymfonyStyle $io
+     * @param array        $runtimeConfiguration
+     *
+     * @throws \Assert\AssertionFailedException
+     */
+    private function printServerConfiguration(SymfonyStyle $io, array $runtimeConfiguration): void
+    {
+        $rows = [
+            ['env', $this->kernel->getEnvironment()],
+            ['debug', \var_export($this->kernel->isDebug(), true)],
+            ['worker_count', $this->serverConfiguration->getWorkerCount()],
+            ['memory_limit', ServerUtils::formatBytes(ServerUtils::getMaxMemory())],
+            ['request_limit', $runtimeConfiguration['requestLimit'] > 0 ? $runtimeConfiguration['requestLimit'] : -1],
+            ['trusted_hosts', \implode(', ', $runtimeConfiguration['trustedHosts'])],
+        ];
+
+        if (isset($runtimeConfiguration['trustAllProxies'])) {
+            $rows[] = ['trusted_proxies', '*'];
+        } else {
+            $rows[] = ['trusted_proxies', \implode(', ', $runtimeConfiguration['trustedProxies'])];
+        }
+
+        if ($this->serverConfiguration->hasPublicDir()) {
+            $rows[] = ['public_dir', $this->serverConfiguration->getPublicDir()];
+        }
+
+        $io->table(['Configuration', 'Values'], $rows);
     }
 }

@@ -2,8 +2,10 @@
 
 declare(strict_types=1);
 
-namespace App\Bundle\SwooleBundle\Server;
+namespace App\Bundle\SwooleBundle\Server\RequestHandler;
 
+use App\Bundle\SwooleBundle\Server\HttpServerConfiguration;
+use App\Bundle\SwooleBundle\Server\Runtime\BootableInterface;
 use RuntimeException;
 use Swoole\Http\Request;
 use Swoole\Http\Response;
@@ -15,7 +17,7 @@ use Swoole\Http\Response;
  *
  * @see https://github.com/zendframework/zend-expressive-swoole/blob/8b33edb50732961cce9e980c10a5948636b98e4e/src/RequestHandlerSwooleRunner.php
  */
-final class AdvancedStaticFilesServer implements RequestHandlerInterface
+final class AdvancedStaticFilesServer implements RequestHandlerInterface, BootableInterface
 {
     /**
      * Default static file extensions supported.

@@ -4,9 +4,8 @@ declare(strict_types=1);
 
 namespace App\Bundle\SwooleBundle\Server;
 
+use App\Bundle\SwooleBundle\Server\Config\Socket;
 use Assert\Assertion;
-use DomainException;
-use InvalidArgumentException;
 
 final class HttpServerConfiguration
 {
@@ -41,114 +40,41 @@ final class HttpServerConfiguration
         'error' => SWOOLE_LOG_ERROR,
     ];
 
-    private const SWOOLE_RUNNING_MODE = [
-        'reactor' => SWOOLE_BASE,
-        'thread' => SWOOLE_THREAD,
-        'process' => SWOOLE_PROCESS,
-    ];
-
-    private const SWOOLE_SOCKET_TYPE = [
-        'tcp' => SWOOLE_SOCK_TCP,
-        'tcp_ipv6' => SWOOLE_SOCK_TCP6,
-        'udp' => SWOOLE_SOCK_UDP,
-        'udp_ipv6' => SWOOLE_SOCK_UDP6,
-        'unix_dgram' => SWOOLE_SOCK_UNIX_DGRAM,
-        'unix_stream' => SWOOLE_SOCK_UNIX_STREAM,
-    ];
-
-    private const PORT_MAX_VALUE = 65535;
-    private const PORT_MIN_VALUE = 0;
-
-    /**
-     * @see https://github.com/swoole/swoole-docs/blob/master/modules/swoole-server/methods/construct.md#parameter
-     *
-     * @var string
-     * @var int    $port
-     * @var string $runningMode
-     * @var string $socketType
-     * @var bool   $sslEnabled
-     */
-    private $host;
-    private $port;
+    private $defaultSocket;
     private $runningMode;
-    private $socketType;
-    private $sslEnabled;
-
-    // Container for SWOOLE_HTTP_SERVER_CONFIGURATION values
     private $settings;
 
     /**
-     * @param string $host
-     * @param int    $port
+     * @param Socket $defaultSocket
      * @param string $runningMode
-     * @param string $socketType
-     * @param bool   $sslEnabled
-     * @param array  $settings    settings available:
-     *                            - reactor_count (default: number of cpu cores)
-     *                            - worker_count (default: 2 * number of cpu cores)
-     *                            - serve_static_files (default: false)
-     *                            - public_dir (default: '%kernel.root_dir%/public')
+     * @param array  $settings      settings available:
+     *                              - reactor_count (default: number of cpu cores)
+     *                              - worker_count (default: 2 * number of cpu cores)
+     *                              - serve_static_files (default: false)
+     *                              - public_dir (default: '%kernel.root_dir%/public')
      *
      * @throws \Assert\AssertionFailedException
      */
-    public function __construct(
-        string $host = 'localhost',
-        int $port = 9501,
-        string $runningMode = 'process',
-        string $socketType = 'sock_tcp',
-        bool $sslEnabled = false,
-        array $settings = []
-    ) {
+    public function __construct(Socket $defaultSocket, string $runningMode = 'process', array $settings = [])
+    {
+        $this->changeRunningMode($runningMode);
+        $this->changeDefaultSocket($defaultSocket);
         $this->initializeSettings($settings);
-        $this->changeSocket($host, $port, $runningMode, $socketType, $sslEnabled);
+    }
+
+    public function changeRunningMode(string $runningMode): void
+    {
+        Assertion::inArray($runningMode, ['process', 'reactor', 'thread']);
+
+        $this->runningMode = $runningMode;
     }
 
     /**
-     * @param string      $host
-     * @param int         $port
-     * @param null|string $runningMode
-     * @param null|string $socketType
-     * @param bool|null   $sslEnabled
-     *
-     * @throws \Assert\AssertionFailedException
+     * @param Socket $socket
      */
-    public function changeSocket(string $host, int $port, ?string $runningMode = null, ?string $socketType = null, ?bool $sslEnabled = null): void
+    public function changeDefaultSocket(Socket $socket): void
     {
-        if (null === $runningMode) {
-            $runningMode = $this->runningMode ?? 'process';
-        }
-
-        if (null === $socketType) {
-            $socketType = $this->socketType ?? 'tcp';
-        }
-
-        if (null === $sslEnabled) {
-            $sslEnabled = $this->sslEnabled ?? false;
-        }
-
-        Assertion::notBlank($host, 'Host cannot be blank.');
-        Assertion::between($port, self::PORT_MIN_VALUE, self::PORT_MAX_VALUE, 'Provided port value "%s" is not between 0 and 65535.');
-        Assertion::inArray($runningMode, \array_keys(self::SWOOLE_RUNNING_MODE));
-        Assertion::inArray($socketType, \array_keys(self::SWOOLE_SOCKET_TYPE));
-
-        if ($sslEnabled) {
-            Assertion::defined('SWOOLE_SSL', 'Swoole SSL support is disabled. You must install php extension with SSL support enabled.');
-        }
-
-        $this->host = $host;
-        $this->runningMode = $runningMode;
-        $this->port = $port;
-        $this->socketType = $socketType;
-        $this->sslEnabled = $sslEnabled;
-    }
-
-    public function changePort(int $port): void
-    {
-        if (0 !== $this->port || $port <= self::PORT_MIN_VALUE || $port > self::PORT_MAX_VALUE) {
-            throw new DomainException('Method changePort() can be used directly, only if port originally was set to 0, which means random available port. Use changeSocket() instead.');
-        }
-
-        $this->port = $port;
+        $this->defaultSocket = $socket;
     }
 
     /**
@@ -247,47 +173,36 @@ final class HttpServerConfiguration
         }
     }
 
-    public function getHost(): string
+    public function getRunningMode(): string
     {
-        return $this->host;
-    }
-
-    public function getPort(): int
-    {
-        return $this->port;
-    }
-
-    public function getSwooleRunningMode(): int
-    {
-        return self::SWOOLE_RUNNING_MODE[$this->runningMode];
-    }
-
-    /**
-     * @return int
-     */
-    public function getSwooleSocketType(): int
-    {
-        $type = self::SWOOLE_SOCKET_TYPE[$this->socketType];
-
-        if (!$this->isSslEnabled()) {
-            return $type;
-        }
-
-        if (!\defined('SWOOLE_SSL')) {
-            throw new InvalidArgumentException('Swoole SSL support is disabled. You must install php extension with SSL support enabled.');
-        }
-
-        return $type | SWOOLE_SSL;
-    }
-
-    public function isSslEnabled(): bool
-    {
-        return $this->sslEnabled;
+        return $this->runningMode;
     }
 
     public function hasPublicDir(): bool
     {
         return isset($this->settings['public_dir']);
+    }
+
+    public function hasPidFile(): bool
+    {
+        return isset($this->settings['public_dir']);
+    }
+
+    public function existsPidFile(): bool
+    {
+        return $this->hasPidFile() && \file_exists($this->getPidFile());
+    }
+
+    /**
+     * @throws \Assert\AssertionFailedException
+     *
+     * @return string
+     */
+    public function getPidFile(): string
+    {
+        Assertion::keyIsset($this->settings, 'pid_file', 'Setting "%s" is not set.');
+
+        return $this->settings['pid_file'];
     }
 
     public function getWorkerCount(): int
@@ -298,6 +213,11 @@ final class HttpServerConfiguration
     public function getReactorCount(): int
     {
         return $this->settings['worker_count'];
+    }
+
+    public function getDefaultSocket(): Socket
+    {
+        return $this->defaultSocket;
     }
 
     /**

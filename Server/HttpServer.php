@@ -9,54 +9,46 @@ use Swoole\Http\Server;
 
 final class HttpServer
 {
+    private const SWOOLE_HTTP_SERVER_HAS_NOT_BEEN_INITIALIZED_MESSAGE = 'Swoole HTTP Server has not been setup yet. Please use setup or attach method.';
+
     /**
      * @var Server|null
      */
     private $server;
 
-    /**
-     * @var HttpServerFactory
-     */
-    private $serverFactory;
+    private $running;
+    private $configuration;
 
-    public function __construct(HttpServerFactory $serverFactory)
+    public function __construct(HttpServerConfiguration $configuration, bool $running = false)
     {
-        $this->serverFactory = $serverFactory;
+        $this->running = $running;
+        $this->configuration = $configuration;
     }
 
     /**
-     * @param HttpServerConfiguration $configuration
+     * Attach already configured Swoole HTTP server instance.
+     *
+     * @param Server $server
      *
      * @throws \Assert\AssertionFailedException
      */
-    public function setup(HttpServerConfiguration $configuration): void
+    public function attach(Server $server): void
     {
-        Assertion::null($this->server, 'Cannot setup swoole http server multiple times.');
-        $server = $this->serverFactory->make($configuration);
-
-        $server->set($configuration->getSwooleSettings());
-
-        if (0 === $configuration->getPort()) {
-            $configuration->changePort($server->port);
-        }
+        Assertion::null($this->server, 'Cannot attach Swoole HTTP server multiple times.');
 
         $this->server = $server;
     }
 
     /**
-     * @param RequestHandlerInterface $driver
-     *
      * @throws \Assert\AssertionFailedException
      *
      * @return bool
      */
-    public function start(RequestHandlerInterface $driver): bool
+    public function start(): bool
     {
-        Assertion::isInstanceOf($this->server, Server::class, 'Swoole HTTP Server has not been setup yet. Please use setup() method.');
+        Assertion::isInstanceOf($this->server, Server::class, self::SWOOLE_HTTP_SERVER_HAS_NOT_BEEN_INITIALIZED_MESSAGE);
 
-        $this->server->on('request', [$driver, 'handle']);
-
-        return $this->server->start();
+        return $this->running = $this->server->start();
     }
 
     /**
@@ -64,8 +56,16 @@ final class HttpServer
      */
     public function shutdown(): void
     {
-        Assertion::isInstanceOf($this->server, Server::class, 'Swoole HTTP Server has not been setup yet. Please use setup() method.');
+        Assertion::isInstanceOf($this->server, Server::class, self::SWOOLE_HTTP_SERVER_HAS_NOT_BEEN_INITIALIZED_MESSAGE);
 
         $this->server->shutdown();
+    }
+
+    /**
+     * @return bool
+     */
+    public function isRunning(): bool
+    {
+        return $this->running || $this->configuration->existsPidFile();
     }
 }

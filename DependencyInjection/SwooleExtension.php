@@ -9,13 +9,16 @@ use App\Bundle\SwooleBundle\Bridge\Symfony\HttpFoundation\CloudFrontRequestFacto
 use App\Bundle\SwooleBundle\Bridge\Symfony\HttpFoundation\RequestFactoryInterface;
 use App\Bundle\SwooleBundle\Bridge\Symfony\HttpFoundation\TrustAllProxiesRequestHandler;
 use App\Bundle\SwooleBundle\Bridge\Symfony\HttpKernel\DebugHttpKernelRequestHandler;
-use App\Bundle\SwooleBundle\Server\AdvancedStaticFilesServer;
+use App\Bundle\SwooleBundle\Server\Config\Socket;
 use App\Bundle\SwooleBundle\Server\HttpServerConfiguration;
-use App\Bundle\SwooleBundle\Server\RequestHandlerInterface;
+use App\Bundle\SwooleBundle\Server\RequestHandler\AdvancedStaticFilesServer;
+use App\Bundle\SwooleBundle\Server\RequestHandler\RequestHandlerInterface;
+use App\Bundle\SwooleBundle\Server\Runtime\BootableInterface;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
+use Symfony\Component\DependencyInjection\Definition;
 use Symfony\Component\DependencyInjection\Extension\PrependExtensionInterface;
 use Symfony\Component\DependencyInjection\Loader\YamlFileLoader;
 use Symfony\Component\DependencyInjection\Reference;
@@ -37,10 +40,14 @@ final class SwooleExtension extends Extension implements PrependExtensionInterfa
      */
     public function load(array $configs, ContainerBuilder $container): void
     {
+        $configuration = Configuration::fromTreeBuilder();
+
         $loader = new YamlFileLoader($container, new FileLocator(__DIR__.'/../Resources/config'));
         $loader->load('services.yaml');
 
-        $configuration = Configuration::fromTreeBuilder();
+        $container->registerForAutoconfiguration(BootableInterface::class)
+            ->addTag('swoole.bootable_service');
+
         $config = $this->processConfiguration($configuration, $configs);
 
         $this->registerHttpServer($config['http_server'], $container);
@@ -81,6 +88,7 @@ final class SwooleExtension extends Extension implements PrependExtensionInterfa
             $container->register(AdvancedStaticFilesServer::class)
                 ->addArgument(new Reference(AdvancedStaticFilesServer::class.'.inner'))
                 ->setAutowired(true)
+                ->setAutoconfigured(true)
                 ->setPublic(false)
                 ->setDecoratedService(RequestHandlerInterface::class, null, -60);
         }
@@ -92,12 +100,10 @@ final class SwooleExtension extends Extension implements PrependExtensionInterfa
             $settings['log_level'] = $container->getParameter('kernel.debug') ? 'debug' : 'notice';
         }
 
+        $defaultSocket = new Definition(Socket::class, [$host, $port, $socketType, $sslEnabled]);
         $container->getDefinition(HttpServerConfiguration::class)
-            ->addArgument($host)
-            ->addArgument($port)
+            ->addArgument($defaultSocket)
             ->addArgument($runningMode)
-            ->addArgument($socketType)
-            ->addArgument($sslEnabled)
             ->addArgument($settings);
     }
 
@@ -115,6 +121,7 @@ final class SwooleExtension extends Extension implements PrependExtensionInterfa
             $container->register(CloudFrontRequestFactory::class)
                 ->addArgument(new Reference(CloudFrontRequestFactory::class.'.inner'))
                 ->setAutowired(true)
+                ->setAutoconfigured(true)
                 ->setPublic(false)
                 ->setDecoratedService(RequestFactoryInterface::class, null, -10);
         }
@@ -125,6 +132,7 @@ final class SwooleExtension extends Extension implements PrependExtensionInterfa
             $container->register(TrustAllProxiesRequestHandler::class)
                 ->addArgument(new Reference(TrustAllProxiesRequestHandler::class.'.inner'))
                 ->setAutowired(true)
+                ->setAutoconfigured(true)
                 ->setPublic(false)
                 ->setDecoratedService(RequestHandlerInterface::class, null, -10);
         }
@@ -133,6 +141,7 @@ final class SwooleExtension extends Extension implements PrependExtensionInterfa
             $container->register(EntityManagerHandler::class)
                 ->addArgument(new Reference(EntityManagerHandler::class.'.inner'))
                 ->setAutowired(true)
+                ->setAutoconfigured(true)
                 ->setPublic(false)
                 ->setDecoratedService(RequestHandlerInterface::class, null, -20);
         }
@@ -141,6 +150,7 @@ final class SwooleExtension extends Extension implements PrependExtensionInterfa
             $container->register(DebugHttpKernelRequestHandler::class)
                 ->addArgument(new Reference(DebugHttpKernelRequestHandler::class.'.inner'))
                 ->setAutowired(true)
+                ->setAutoconfigured(true)
                 ->setPublic(false)
                 ->setDecoratedService(RequestHandlerInterface::class, null, -50);
         }

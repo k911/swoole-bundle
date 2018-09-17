@@ -6,14 +6,14 @@ namespace App\Bundle\SwooleBundle\Bridge\Symfony\HttpKernel;
 
 use App\Bundle\SwooleBundle\Bridge\Symfony\HttpFoundation\RequestFactoryInterface;
 use App\Bundle\SwooleBundle\Bridge\Symfony\HttpFoundation\ResponseProcessorInterface;
-use App\Bundle\SwooleBundle\Server\RequestHandlerInterface;
+use App\Bundle\SwooleBundle\Server\RequestHandler\RequestHandlerInterface;
+use App\Bundle\SwooleBundle\Server\Runtime\BootableInterface;
 use Swoole\Http\Request as SwooleRequest;
 use Swoole\Http\Response as SwooleResponse;
-use Symfony\Component\HttpFoundation\Request as SymfonyRequest;
 use Symfony\Component\HttpKernel\KernelInterface;
 use Symfony\Component\HttpKernel\TerminableInterface;
 
-final class HttpKernelRequestHandler implements RequestHandlerInterface
+final class HttpKernelRequestHandler implements RequestHandlerInterface, BootableInterface
 {
     private $kernel;
     private $requestFactory;
@@ -31,13 +31,6 @@ final class HttpKernelRequestHandler implements RequestHandlerInterface
      */
     public function boot(array $runtimeConfiguration = []): void
     {
-        if (\array_key_exists('trustedHosts', $runtimeConfiguration)) {
-            SymfonyRequest::setTrustedHosts($runtimeConfiguration['trustedHosts']);
-        }
-        if (\array_key_exists('trustedProxies', $runtimeConfiguration)) {
-            SymfonyRequest::setTrustedProxies($runtimeConfiguration['trustedProxies'], $runtimeConfiguration['trustedHeaderSet'] ?? SymfonyRequest::HEADER_X_FORWARDED_ALL);
-        }
-
         $this->kernel->boot();
     }
 

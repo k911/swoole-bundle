@@ -2,15 +2,17 @@
 
 declare(strict_types=1);
 
-namespace App\Bundle\SwooleBundle\Server;
+namespace App\Bundle\SwooleBundle\Server\RequestHandler;
 
 use App\Bundle\SwooleBundle\Component\AtomicCounter;
+use App\Bundle\SwooleBundle\Server\HttpServer;
+use App\Bundle\SwooleBundle\Server\Runtime\BootableInterface;
 use InvalidArgumentException;
 use Swoole\Http\Request;
 use Swoole\Http\Response;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
-final class LimitedRequestHandler implements RequestHandlerInterface
+final class LimitedRequestHandler implements RequestHandlerInterface, BootableInterface
 {
     private $requestLimit;
     private $server;
@@ -32,15 +34,12 @@ final class LimitedRequestHandler implements RequestHandlerInterface
     {
         $this->requestLimit = (int) ($runtimeConfiguration['requestLimit'] ?? -1);
         $this->symfonyStyle = $runtimeConfiguration['symfonyStyle'] ?? null;
-
-        $this->decorated->boot($runtimeConfiguration);
     }
 
     /**
-     * Handles swoole request and modifies swoole response accordingly.
+     * {@inheritdoc}
      *
-     * @param \Swoole\Http\Request  $request
-     * @param \Swoole\Http\Response $response
+     * @throws \Assert\AssertionFailedException
      */
     public function handle(Request $request, Response $response): void
     {

@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Bundle\SwooleBundle\Bridge\Symfony\HttpKernel;
 
 use App\Bundle\SwooleBundle\Functions\ServerUtils;
-use App\Bundle\SwooleBundle\Server\RequestHandlerInterface;
+use App\Bundle\SwooleBundle\Server\RequestHandler\RequestHandlerInterface;
 use Swoole\Http\Request;
 use Swoole\Http\Response;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -22,14 +22,6 @@ final class DebugHttpKernelRequestHandler implements RequestHandlerInterface
         $this->decorated = $decorated;
         $this->container = $container;
         $this->kernel = $kernel;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function boot(array $runtimeConfiguration = []): void
-    {
-        $this->decorated->boot($runtimeConfiguration);
     }
 
     /**

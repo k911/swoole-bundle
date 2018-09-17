@@ -4,20 +4,21 @@ declare(strict_types=1);
 
 namespace App\Bundle\SwooleBundle\Bridge\Symfony\HttpFoundation;
 
-use App\Bundle\SwooleBundle\Server\RequestHandlerInterface;
+use App\Bundle\SwooleBundle\Server\RequestHandler\RequestHandlerInterface;
+use App\Bundle\SwooleBundle\Server\Runtime\BootableInterface;
 use Swoole\Http\Request as SwooleRequest;
 use Swoole\Http\Response as SwooleResponse;
 use Symfony\Component\HttpFoundation\Request as SymfonyRequest;
 
-final class TrustAllProxiesRequestHandler implements RequestHandlerInterface
+final class TrustAllProxiesRequestHandler implements RequestHandlerInterface, BootableInterface
 {
     private $decorated;
     private $trustAllProxies;
 
-    public function __construct(RequestHandlerInterface $decorated)
+    public function __construct(RequestHandlerInterface $decorated, bool $trustAllProxies = false)
     {
         $this->decorated = $decorated;
-        $this->trustAllProxies = false;
+        $this->trustAllProxies = $trustAllProxies;
     }
 
     /**
@@ -25,14 +26,9 @@ final class TrustAllProxiesRequestHandler implements RequestHandlerInterface
      */
     public function boot(array $runtimeConfiguration = []): void
     {
-        if (isset($runtimeConfiguration['trustedProxies']) && \in_array('*', $runtimeConfiguration['trustedProxies'], true)) {
+        if (isset($runtimeConfiguration['trustAllProxies']) && true === $runtimeConfiguration['trustAllProxies']) {
             $this->trustAllProxies = true;
-            $runtimeConfiguration['trustedProxies'] = \array_filter($runtimeConfiguration['trustedProxies'], function (string $trustedProxy) {
-                return '*' !== $trustedProxy;
-            });
         }
-
-        $this->decorated->boot($runtimeConfiguration);
     }
 
     /**
