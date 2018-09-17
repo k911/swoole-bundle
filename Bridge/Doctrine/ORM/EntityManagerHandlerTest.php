@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Tests\Bundle\SwooleBundle\Bridge\Doctrine\ORM;
 
 use App\Bundle\SwooleBundle\Bridge\Doctrine\ORM\EntityManagerHandler;
-use App\Bundle\SwooleBundle\Server\RequestHandlerInterface;
+use App\Bundle\SwooleBundle\Server\RequestHandler\RequestHandlerInterface;
 use Doctrine\DBAL\Connection;
 use Doctrine\ORM\EntityManagerInterface;
 use PHPUnit\Framework\TestCase;
