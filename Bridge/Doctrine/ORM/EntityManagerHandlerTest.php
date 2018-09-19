@@ -51,12 +51,6 @@ class EntityManagerHandlerTest extends TestCase
         $this->httpDriver = new EntityManagerHandler($decoratedMock, $emMock);
     }
 
-    public function testBoot(): void
-    {
-        $this->decoratedProphecy->boot([])->shouldBeCalled();
-        $this->httpDriver->boot([]);
-    }
-
     public function testHandleNoReconnect(): void
     {
         $this->connectionProphecy->ping()->willReturn(true)->shouldBeCalled();

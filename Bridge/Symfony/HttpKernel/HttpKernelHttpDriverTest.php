@@ -11,7 +11,6 @@ use PHPUnit\Framework\TestCase;
 use Prophecy\Prophecy\ObjectProphecy;
 use Swoole\Http\Request as SwooleRequest;
 use Swoole\Http\Response as SwooleResponse;
-use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Request as HttpFoundationRequest;
 use Symfony\Component\HttpFoundation\Response as HttpFoundationResponse;
 use Symfony\Component\HttpKernel\KernelInterface;
@@ -57,20 +56,9 @@ class HttpKernelHttpDriverTest extends TestCase
 
     public function testBoot(): void
     {
-        $configuration = [
-            'trustedHosts' => ['127.0.0.1', 'localhost'],
-            'trustedProxies' => ['192.168.1.0/24', '73.41.22.1', 'varnish'],
-            'trustedHeaderSet' => Request::HEADER_X_FORWARDED_AWS_ELB,
-        ];
-
         $this->kernelProphecy->boot()->shouldBeCalled();
 
-        $this->httpDriver->boot($configuration);
-
-        $this->assertSame(['{127.0.0.1}i', '{localhost}i'], Request::getTrustedHosts());
-
-        $this->assertSame($configuration['trustedProxies'], Request::getTrustedProxies());
-        $this->assertSame($configuration['trustedHeaderSet'], Request::getTrustedHeaderSet());
+        $this->httpDriver->boot();
     }
 
     /**
