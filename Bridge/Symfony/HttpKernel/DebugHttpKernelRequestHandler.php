@@ -4,12 +4,12 @@ declare(strict_types=1);
 
 namespace App\Bundle\SwooleBundle\Bridge\Symfony\HttpKernel;
 
-use App\Bundle\SwooleBundle\Functions\ServerUtils;
 use App\Bundle\SwooleBundle\Server\RequestHandler\RequestHandlerInterface;
 use Swoole\Http\Request;
 use Swoole\Http\Response;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpKernel\KernelInterface;
+use function App\Bundle\SwooleBundle\Functions\replace_object_property;
 
 final class DebugHttpKernelRequestHandler implements RequestHandlerInterface
 {
@@ -30,7 +30,7 @@ final class DebugHttpKernelRequestHandler implements RequestHandlerInterface
     public function handle(Request $request, Response $response): void
     {
         if ($this->kernel->isDebug()) {
-            ServerUtils::hijackProperty($this->kernel, 'startTime', \microtime(true));
+            replace_object_property($this->kernel, 'startTime', \microtime(true));
         }
 
         $this->decorated->handle($request, $response);

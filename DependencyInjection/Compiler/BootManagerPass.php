@@ -24,7 +24,6 @@ final class BootManagerPass implements CompilerPassInterface
         $taggedServices = $container->findTaggedServiceIds('swoole.bootable_service');
 
         foreach ($taggedServices as $id => $tags) {
-            dump($id);
             $definition->addMethodCall('addService', [new Reference($id)]);
         }
     }
