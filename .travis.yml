@@ -4,14 +4,15 @@ sudo: false
 cache:
   directories:
   - $HOME/.composer/cache
+  - $HOME/pecl_cache
 
 env:
   global:
   - COMPOSER_ARGS=update
+  - SWOOLE_VERSION=4.2.1
 
 matrix:
   include:
-  - php: '7.1'
   - php: '7.2'
     before_script:
     - >-
@@ -33,6 +34,9 @@ matrix:
 
 before_install:
 - 'export PATH="$PATH:$HOME/.composer/vendor/bin"'
+- 'composer global require phwoolcon/ci-pecl-cacher'
+- pecl update-channels
+- ci-pecl-install swoole-$SWOOLE_VERSION swoole
 
 install:
 - 'composer $COMPOSER_ARGS --prefer-dist --no-progress --no-suggest --no-scripts --ansi'
