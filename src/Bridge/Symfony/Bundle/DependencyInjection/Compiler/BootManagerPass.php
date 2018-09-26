@@ -21,7 +21,7 @@ final class BootManagerPass implements CompilerPassInterface
         }
 
         $definition = $container->findDefinition(BootManager::class);
-        $taggedServices = $container->findTaggedServiceIds('swoole.bootable_service');
+        $taggedServices = $container->findTaggedServiceIds('swoole_bundle.bootable_service');
 
         foreach ($taggedServices as $id => $tags) {
             $definition->addMethodCall('addService', [new Reference($id)]);

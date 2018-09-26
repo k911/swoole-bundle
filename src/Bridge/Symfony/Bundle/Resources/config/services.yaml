@@ -4,52 +4,52 @@ services:
         autoconfigure: true
         public: false
 
-    'App\Bundle\SwooleBundle\Component\AtomicCounter':
-        factory: ['App\Bundle\SwooleBundle\Component\AtomicCounter', fromZero]
+    'K911\Swoole\Component\AtomicCounter':
+        factory: ['K911\Swoole\Component\AtomicCounter', fromZero]
 
-    'App\Bundle\SwooleBundle\Bridge\Symfony\HttpFoundation\SetRequestRuntimeConfiguration':
+    'K911\Swoole\Bridge\Symfony\HttpFoundation\SetRequestRuntimeConfiguration':
 
-    'App\Bundle\SwooleBundle\Bridge\Symfony\HttpFoundation\RequestFactoryInterface':
-        class: App\Bundle\SwooleBundle\Bridge\Symfony\HttpFoundation\RequestFactory
+    'K911\Swoole\Bridge\Symfony\HttpFoundation\RequestFactoryInterface':
+        class: K911\Swoole\Bridge\Symfony\HttpFoundation\RequestFactory
 
-    'App\Bundle\SwooleBundle\Bridge\Symfony\HttpFoundation\ResponseProcessorInterface':
-        class: App\Bundle\SwooleBundle\Bridge\Symfony\HttpFoundation\ResponseProcessor
+    'K911\Swoole\Bridge\Symfony\HttpFoundation\ResponseProcessorInterface':
+        class: K911\Swoole\Bridge\Symfony\HttpFoundation\ResponseProcessor
 
-    'App\Bundle\SwooleBundle\Server\RequestHandler\RequestHandlerInterface':
-        class: App\Bundle\SwooleBundle\Bridge\Symfony\HttpKernel\HttpKernelRequestHandler
+    'K911\Swoole\Server\RequestHandler\RequestHandlerInterface':
+        class: K911\Swoole\Bridge\Symfony\HttpKernel\HttpKernelRequestHandler
 
-    'App\Bundle\SwooleBundle\Server\RequestHandler\LimitedRequestHandler':
+    'K911\Swoole\Server\RequestHandler\LimitedRequestHandler':
 
-    'App\Bundle\SwooleBundle\Server\Runtime\BootManager':
+    'K911\Swoole\Server\Runtime\BootManager':
         autoconfigure: false
 
-    'App\Bundle\SwooleBundle\Server\HttpServer':
+    'K911\Swoole\Server\HttpServer':
 
-    'App\Bundle\SwooleBundle\Server\HttpServerConfiguration':
+    'K911\Swoole\Server\HttpServerConfiguration':
 
-    'App\Bundle\SwooleBundle\Server\Configurator\ConfiguratorInterface':
-        class: App\Bundle\SwooleBundle\Server\Configurator\WithHttpServerConfiguration
+    'K911\Swoole\Server\Configurator\ConfiguratorInterface':
+        class: K911\Swoole\Server\Configurator\WithHttpServerConfiguration
 
-    'App\Bundle\SwooleBundle\Server\Configurator\WithLimitedRequestHandler':
+    'K911\Swoole\Server\Configurator\WithLimitedRequestHandler':
 
-    'App\Bundle\SwooleBundle\Server\Configurator\WithRequestHandler':
+    'K911\Swoole\Server\Configurator\WithRequestHandler':
 
-    'app.swoole.server.http_server.normal_factory':
-        class: App\Bundle\SwooleBundle\Server\HttpServerFactory
+    'swoole_bundle.server.http_server.factory':
+        class: K911\Swoole\Server\HttpServerFactory
         arguments:
-            $configurator: '@App\Bundle\SwooleBundle\Server\Configurator\WithRequestHandler'
+            $configurator: '@K911\Swoole\Server\Configurator\WithRequestHandler'
 
-    'App\Bundle\SwooleBundle\Command\ServerRunCommand':
+    'K911\Swoole\Bridge\Symfony\Bundle\Command\ServerRunCommand':
         tags: ['console.command']
         arguments:
-            $serverFactory: '@app.swoole.server.http_server.normal_factory'
+            $serverFactory: '@swoole_bundle.server.http_server.factory'
 
-    'app.swoole.server.http_server.limited_factory':
-        class: App\Bundle\SwooleBundle\Server\HttpServerFactory
+    'swoole_bundle.server.http_server.limited_factory':
+        class: K911\Swoole\Server\HttpServerFactory
         arguments:
-            $configurator: '@App\Bundle\SwooleBundle\Server\Configurator\WithLimitedRequestHandler'
+            $configurator: '@K911\Swoole\Server\Configurator\WithLimitedRequestHandler'
 
-    'App\Bundle\SwooleBundle\Command\ServerProfileCommand':
+    'K911\Swoole\Bridge\Symfony\Bundle\Command\ServerProfileCommand':
         tags: ['console.command']
         arguments:
-            $serverFactory: '@app.swoole.server.http_server.limited_factory'
+            $serverFactory: '@swoole_bundle.server.http_server.limited_factory'

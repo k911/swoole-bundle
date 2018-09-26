@@ -29,4 +29,5 @@ plugins:
     enabled: true
 
 exclude_patterns:
-- '**/tests/'
+- tests
+- src/Bridge/Symfony/Bundle/DependencyInjection

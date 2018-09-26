@@ -46,7 +46,7 @@ final class SwooleExtension extends Extension implements PrependExtensionInterfa
         $loader->load('services.yaml');
 
         $container->registerForAutoconfiguration(BootableInterface::class)
-            ->addTag('swoole.bootable_service');
+            ->addTag('swoole_bundle.bootable_service');
 
         $config = $this->processConfiguration($configuration, $configs);
 
