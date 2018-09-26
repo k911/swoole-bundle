@@ -1,0 +1,9 @@
+includes:
+    - vendor/phpstan/phpstan-phpunit/extension.neon
+    - vendor/phpstan/phpstan-doctrine/extension.neon
+parameters:
+    ignoreErrors:
+        # Put false positives here
+
+        # Prophecy "->shouldBeCalled()"
+        - '#Result of method [\w\\]+::\w+\(\) \(void\) is used#'

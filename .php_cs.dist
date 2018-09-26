@@ -1,0 +1,33 @@
+<?php
+
+declare(strict_types=1);
+
+$finder = PhpCsFixer\Finder::create()
+    ->in(['src', 'tests']);
+
+/**
+ * @see https://github.com/FriendsOfPHP/PHP-CS-Fixer for rules
+ */
+return PhpCsFixer\Config::create()
+    ->setRules([
+        '@Symfony' => true,
+        '@Symfony:risky' => true,
+        '@PHP71Migration' => true,
+        '@PHP71Migration:risky' => true,
+        'array_syntax' => ['syntax' => 'short'],
+        'combine_consecutive_issets' => true,
+        'combine_consecutive_unsets' => true,
+        'compact_nullable_typehint' => true,
+        'linebreak_after_opening_tag' => true,
+        'list_syntax' => ['syntax' => 'short'],
+        'mb_str_functions' => true,
+        'native_function_invocation' => true,
+        'no_null_property_initialization' => true,
+        'no_useless_else' => true,
+        'no_useless_return' => true,
+        'ordered_imports' => ['sortAlgorithm' => 'alpha'],
+        'phpdoc_order' => true,
+        'strict_comparison' => true,
+    ])
+    ->setRiskyAllowed(true)
+    ->setFinder($finder);

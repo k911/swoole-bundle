@@ -1,0 +1,32 @@
+version: '2'
+plugins:
+  duplication:
+    enabled: true
+    config:
+      languages:
+      - php
+
+  # rules: https://github.com/squizlabs/PHP_CodeSniffer/tree/master/src/Standards
+  phpcodesniffer:
+    enabled: true
+    checks:
+      Generic Files LineLength TooLong:
+        enabled: false
+
+  # rules: https://phpmd.org/rules/index.html
+  phpmd:
+    enabled: true
+    checks:
+      Naming/LongVariable:
+        enabled: false
+      Naming/ShortVariable:
+        enabled: false
+      CleanCode/StaticAccess:
+        enabled: false
+
+  # rules: https://github.com/SonarSource/sonar-php/tree/master/php-checks/src/main/resources/org/sonar/l10n/php/rules/php
+  sonar-php:
+    enabled: true
+
+exclude_patterns:
+- '**/tests/'
