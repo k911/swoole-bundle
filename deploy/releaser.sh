@@ -17,9 +17,19 @@ V=( ${VERSION//./ } )
 ((V[2]--))
 OLD_VERSION_SEM="${V[0]}.${V[1]}.${V[2]}"
 
-# Increment either major, minor or patch number
-if [[ "${RECOMMENDED_BUMP}" = "major" ]]; then ((V[0]++));
-elif [[ "${RECOMMENDED_BUMP}" = "minor" ]]; then ((V[1]++));
+# When version is 0.x.x it is allowed to make braking changes on minor version
+if [[ "0" = "${V[0]}" ]] && [[ "${RECOMMENDED_BUMP}" = "major" ]]; then
+    RECOMMENDED_BUMP="minor";
+fi;
+
+# Increment semantic version numbers major.minor.patch
+if [[ "${RECOMMENDED_BUMP}" = "major" ]]; then
+    ((V[0]++));
+    V[1]=0;
+    V[2]=0;
+elif [[ "${RECOMMENDED_BUMP}" = "minor" ]]; then
+    ((V[1]++));
+    V[2]=0;
 elif [[ "${RECOMMENDED_BUMP}" = "patch" ]]; then ((V[2]++));
 else
     echo "Could not bump version"
