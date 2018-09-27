@@ -7,7 +7,7 @@
 # Swoole Bundle
 Symfony integration with [Swoole](https://www.swoole.co.uk/) to speed up your applications.
 
-- [Quick start guide](#quick-start)
+- [Quick start guide](#quick-start-guide)
 - [Configuration](./docs/configuration-reference.md)
 - [Usage with Docker](./docs/docker-usage.md)
 

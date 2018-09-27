@@ -11,6 +11,8 @@ final class Configuration implements ConfigurationInterface
 {
     private $builder;
 
+    public const DEFAULT_PUBLIC_DIR = '%kernel.project_dir%/public';
+
     public function __construct(TreeBuilder $builder)
     {
         $this->builder = $builder;
@@ -29,6 +31,7 @@ final class Configuration implements ConfigurationInterface
         $rootNode
             ->children()
                 ->arrayNode('http_server')
+                    ->addDefaultsIfNotSet()
                     ->children()
                         ->scalarNode('host')
                             ->cannotBeEmpty()
@@ -55,6 +58,15 @@ final class Configuration implements ConfigurationInterface
                         ->end()
                         ->arrayNode('static')
                             ->addDefaultsIfNotSet()
+                            ->beforeNormalization()
+                                ->ifString()
+                                ->then(function ($v): array {
+                                    return [
+                                       'strategy' => $v,
+                                       'public_dir' => 'off' === $v ? null : self::DEFAULT_PUBLIC_DIR,
+                                   ];
+                                })
+                            ->end()
                             ->children()
                                 ->enumNode('strategy')
                                     ->defaultValue('auto')
@@ -62,8 +74,7 @@ final class Configuration implements ConfigurationInterface
                                     ->values(['off', 'default', 'advanced', 'auto'])
                                 ->end()
                                 ->scalarNode('public_dir')
-                                    ->cannotBeEmpty()
-                                    ->defaultValue('%kernel.project_dir%/public')
+                                    ->defaultValue(self::DEFAULT_PUBLIC_DIR)
                                 ->end()
                             ->end()
                         ->end() // end static

@@ -1,0 +1,9 @@
+parameters:
+    env(HOST): localhost
+    env(PORT): 9501
+
+swoole:
+    http_server:
+        port: '%env(int:PORT)%'
+        host: '%env(HOST)%'
+        static: 'off'

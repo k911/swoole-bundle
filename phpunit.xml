@@ -12,8 +12,8 @@
         </whitelist>
     </filter>
     <testsuites>
-        <testsuite name="Library Test Suite">
-            <directory>tests/</directory>
+        <testsuite name="Unit tests suite">
+            <directory>tests/Unit</directory>
         </testsuite>
     </testsuites>
 </phpunit>

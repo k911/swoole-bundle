@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace K911\Swoole\Tests\Bridge\Symfony\HttpKernel;
+namespace K911\Swoole\Tests\Unit\Bridge\Symfony\HttpKernel;
 
 use K911\Swoole\Bridge\Symfony\HttpFoundation\RequestFactoryInterface;
 use K911\Swoole\Bridge\Symfony\HttpFoundation\ResponseProcessorInterface;

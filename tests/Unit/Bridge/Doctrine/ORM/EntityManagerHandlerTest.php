@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace K911\Swoole\Tests\Bridge\Doctrine\ORM;
+namespace K911\Swoole\Tests\Unit\Bridge\Doctrine\ORM;
 
 use Doctrine\DBAL\Connection;
 use Doctrine\ORM\EntityManagerInterface;

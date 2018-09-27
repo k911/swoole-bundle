@@ -3,7 +3,8 @@
 declare(strict_types=1);
 
 $finder = PhpCsFixer\Finder::create()
-    ->in(['src', 'tests']);
+    ->in(['src', 'tests'])
+    ->exclude(['Fixtures/Symfony/app/var']);
 
 /**
  * @see https://github.com/FriendsOfPHP/PHP-CS-Fixer for rules

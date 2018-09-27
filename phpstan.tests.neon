@@ -2,8 +2,14 @@ includes:
     - vendor/phpstan/phpstan-phpunit/extension.neon
     - vendor/phpstan/phpstan-doctrine/extension.neon
 parameters:
+    excludes_analyse:
+        - tests/Fixtures/Symfony/app/var
+        - tests/Fixtures/Symfony/app/TestAppKernel
     ignoreErrors:
         # Put false positives here
 
         # Prophecy "->shouldBeCalled()"
         - '#Result of method [\w\\]+::\w+\(\) \(void\) is used#'
+
+        # Symfony configuration files
+        - '#Undefined variable: \$container#'

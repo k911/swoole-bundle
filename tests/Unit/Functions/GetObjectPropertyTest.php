@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace K911\Swoole\Tests\Functions;
+namespace K911\Swoole\Tests\Unit\Functions;
 
 use PHPUnit\Framework\TestCase;
 use function K911\Swoole\get_object_property;

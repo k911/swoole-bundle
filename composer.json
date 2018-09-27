@@ -32,6 +32,7 @@
         "symfony/http-kernel": "^4.1"
     },
     "require-dev": {
+        "doctrine/annotations": "^1.6",
         "doctrine/orm": "^2.6",
         "eaglewu/swoole-ide-helper": "dev-master",
         "friendsofphp/php-cs-fixer": "^2.13",
@@ -40,7 +41,11 @@
         "phpstan/phpstan-doctrine": "^0.10.0",
         "phpstan/phpstan-phpunit": "^0.10.0",
         "phpunit/phpunit": "^7.0",
-        "symfony/debug": "^4.1"
+        "symfony/debug": "^4.1",
+        "symfony/framework-bundle": "^4.1",
+        "symfony/monolog-bundle": "^3.3",
+        "symfony/twig-bundle": "^4.1",
+        "symfony/yaml": "^4.1"
     },
     "suggest": {
         "doctrine/orm": "To use the EntityManager handler."
@@ -59,6 +64,9 @@
         }
     },
     "scripts": {
+        "console": [
+            "php tests/Fixtures/Symfony/app/console --ansi"
+        ],
         "analyse": [
             "phpstan analyze src -l 7 --ansi",
             "phpstan analyze tests -l 5 -c phpstan.tests.neon --ansi",

@@ -124,20 +124,6 @@ final class HttpServerConfiguration
     }
 
     /**
-     * @param array $settings
-     *
-     * @throws \Assert\AssertionFailedException
-     */
-    private function validateSettings(array $settings): void
-    {
-        foreach ($settings as $name => $value) {
-            $this->validateSetting($name, $value);
-        }
-
-        Assertion::false(isset($settings['serve_static']) && 'off' !== $settings['serve_static'] && !isset($settings['public_dir']), 'Enabling static files serving requires providing "public_dir" setting.');
-    }
-
-    /**
      * @param array $init
      *
      * @throws \Assert\AssertionFailedException
@@ -165,12 +151,14 @@ final class HttpServerConfiguration
      */
     private function setSettings(array $settings): void
     {
-        $this->validateSettings($settings);
-        foreach ($settings as $name => $setting) {
-            if (null !== $setting) {
-                $this->settings[$name] = $setting;
+        foreach ($settings as $name => $value) {
+            if (null !== $value) {
+                $this->validateSetting($name, $value);
+                $this->settings[$name] = $value;
             }
         }
+
+        Assertion::false(isset($settings['serve_static']) && 'off' !== $settings['serve_static'] && !isset($settings['public_dir']), 'Enabling static files serving requires providing "public_dir" setting.');
     }
 
     public function getRunningMode(): string
