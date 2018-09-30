@@ -164,8 +164,8 @@ abstract class AbstractServerStartCommand extends Command
     {
         $trustedHosts = $input->getOption('trusted-hosts');
         $trustedProxies = $input->getOption('trusted-proxies');
-        $runtimeConfiguration['trustedHosts'] = \is_string($trustedHosts) ? decode_string_as_set($trustedHosts) : $trustedHosts;
-        $runtimeConfiguration['trustedProxies'] = \is_string($trustedProxies) ? decode_string_as_set($trustedProxies) : $trustedProxies;
+        $runtimeConfiguration['trustedHosts'] = $this->decodeSet($trustedHosts);
+        $runtimeConfiguration['trustedProxies'] = $this->decodeSet($trustedProxies);
 
         Assertion::isArray($runtimeConfiguration['trustedProxies']);
         if (\in_array('*', $runtimeConfiguration['trustedProxies'], true)) {
@@ -176,6 +176,28 @@ abstract class AbstractServerStartCommand extends Command
         }
 
         return $runtimeConfiguration;
+    }
+
+    /**
+     * @param mixed $set
+     *
+     * @throws \Assert\AssertionFailedException
+     *
+     * @return array
+     */
+    private function decodeSet($set): array
+    {
+        if (\is_string($set)) {
+            return decode_string_as_set($set);
+        }
+
+        Assertion::isArray($set);
+
+        if (1 === \count($set)) {
+            return decode_string_as_set($set[0]);
+        }
+
+        return $set;
     }
 
     /**
