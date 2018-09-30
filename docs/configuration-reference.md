@@ -14,7 +14,10 @@ swoole:
         socket_type: tcp
         ssl_enabled: false
         trusted_hosts: localhost,127.0.0.1
-        trusted_proxies: *
+        trusted_proxies: 
+            - '*'
+            - 127.0.0.1/8
+            - 192.168.2./16
         static:
             strategy: 'advanced'
             public_dir: '%kernel.project_dir%/public'
