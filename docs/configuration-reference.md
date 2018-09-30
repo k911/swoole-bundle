@@ -13,12 +13,14 @@ swoole:
         running_mode: 'process'
         socket_type: tcp
         ssl_enabled: false
+        trusted_hosts: localhost,127.0.0.1
+        trusted_proxies: *
         static:
             strategy: 'advanced'
             public_dir: '%kernel.project_dir%/public'
         services:
-            debug: true
-            trust_all_proxies: true
+            debug_handler: true
+            trust_all_proxies_handler: true
             cloudfront_proto_header_handler: true
             entity_manager_handler: true
         settings:
