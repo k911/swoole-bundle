@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace K911\Swoole\Bridge\Symfony\Bundle\Command;
 
+use Assert\Assertion;
 use K911\Swoole\Server\HttpServerConfiguration;
-use Symfony\Component\Console\Exception\InvalidArgumentException;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 
@@ -25,13 +25,14 @@ final class ServerProfileCommand extends AbstractServerStartCommand
 
     /**
      * {@inheritdoc}
+     *
+     * @throws \Assert\AssertionFailedException
      */
     protected function prepareRuntimeConfiguration(HttpServerConfiguration $serverConfiguration, InputInterface $input): array
     {
-        $requestLimit = (int) $input->getArgument('requests');
-        if ($requestLimit <= 0) {
-            throw new InvalidArgumentException('Request limit must be greater than 0');
-        }
+        $requestLimit = $input->getArgument('requests');
+        Assertion::numeric($requestLimit);
+        Assertion::greaterOrEqualThan($requestLimit, 0, 'Request limit must be greater than 0');
 
         return ['requestLimit' => $requestLimit] + parent::prepareRuntimeConfiguration($serverConfiguration, $input);
     }

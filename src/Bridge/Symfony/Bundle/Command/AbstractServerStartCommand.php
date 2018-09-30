@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace K911\Swoole\Bridge\Symfony\Bundle\Command;
 
+use Assert\Assertion;
 use Composer\XdebugHandler\XdebugHandler;
 use K911\Swoole\Server\HttpServer;
 use K911\Swoole\Server\HttpServerConfiguration;
@@ -133,20 +134,29 @@ abstract class AbstractServerStartCommand extends Command
      */
     protected function prepareServerConfiguration(HttpServerConfiguration $serverConfiguration, InputInterface $input): void
     {
+        $port = $input->getOption('port');
+        $host = $input->getOption('host');
+        Assertion::numeric($port, 'Port must be numeric');
+        Assertion::string($host, 'Host must be string');
+
         $socket = $serverConfiguration->getDefaultSocket()
-            ->withPort((int) $input->getOption('port'))
-            ->withHost((string) $input->getOption('host'));
+            ->withPort((int) $port)
+            ->withHost($host);
 
         $serverConfiguration->changeDefaultSocket($socket);
 
         if (\filter_var($input->getOption('serve-static'), FILTER_VALIDATE_BOOLEAN)) {
-            $serverConfiguration->enableServingStaticFiles($input->getOption('public-dir'));
+            $publicDir = $input->getOption('public-dir');
+            Assertion::string($publicDir, 'Public dir must be a valid path');
+            $serverConfiguration->enableServingStaticFiles($publicDir);
         }
     }
 
     /**
      * @param HttpServerConfiguration $serverConfiguration
      * @param InputInterface          $input
+     *
+     * @throws \Assert\AssertionFailedException
      *
      * @return array
      */
@@ -157,6 +167,7 @@ abstract class AbstractServerStartCommand extends Command
         $runtimeConfiguration['trustedHosts'] = \is_string($trustedHosts) ? decode_string_as_set($trustedHosts) : $trustedHosts;
         $runtimeConfiguration['trustedProxies'] = \is_string($trustedProxies) ? decode_string_as_set($trustedProxies) : $trustedProxies;
 
+        Assertion::isArray($runtimeConfiguration['trustedProxies']);
         if (\in_array('*', $runtimeConfiguration['trustedProxies'], true)) {
             $runtimeConfiguration['trustAllProxies'] = true;
             $runtimeConfiguration['trustedProxies'] = \array_filter($runtimeConfiguration['trustedProxies'], function (string $trustedProxy): bool {
