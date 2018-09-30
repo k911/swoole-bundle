@@ -8,7 +8,7 @@ cache:
 
 env:
   global:
-  - COMPOSER_ARGS=update
+  - COMPOSER_ARGS=install
   - SWOOLE_VERSION=4.2.1
 
 matrix:
@@ -28,6 +28,9 @@ matrix:
     env:
     - COVERAGE=1
     - DEPLOY=1
+  - php: '7.2'
+    env:
+    - COMPOSER_ARGS=update
   - php: '7.2'
     env:
     - COMPOSER_ARGS=update --prefer-lowest
