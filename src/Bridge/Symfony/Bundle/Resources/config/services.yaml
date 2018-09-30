@@ -39,6 +39,17 @@ services:
         arguments:
             $configurator: '@K911\Swoole\Server\Configurator\WithRequestHandler'
 
+    'K911\Swoole\Bridge\Symfony\Bundle\Command\ServerStartCommand':
+        tags: ['console.command']
+        arguments:
+            $serverFactory: '@swoole_bundle.server.http_server.factory'
+
+    'K911\Swoole\Bridge\Symfony\Bundle\Command\ServerStopCommand':
+        tags: ['console.command']
+
+    'K911\Swoole\Bridge\Symfony\Bundle\Command\ServerReloadCommand':
+        tags: ['console.command']
+
     'K911\Swoole\Bridge\Symfony\Bundle\Command\ServerRunCommand':
         tags: ['console.command']
         arguments:

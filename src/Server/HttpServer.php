@@ -5,12 +5,13 @@ declare(strict_types=1);
 namespace K911\Swoole\Server;
 
 use Assert\Assertion;
+use RuntimeException;
 use Swoole\Http\Server;
+use Swoole\Process;
+use Throwable;
 
 final class HttpServer
 {
-    private const SWOOLE_HTTP_SERVER_HAS_NOT_BEEN_INITIALIZED_MESSAGE = 'Swoole HTTP Server has not been setup yet. Please use setup or attach method.';
-
     /**
      * @var Server|null
      */
@@ -46,7 +47,7 @@ final class HttpServer
      */
     public function start(): bool
     {
-        Assertion::isInstanceOf($this->server, Server::class, self::SWOOLE_HTTP_SERVER_HAS_NOT_BEEN_INITIALIZED_MESSAGE);
+        Assertion::isInstanceOf($this->server, Server::class, 'Swoole HTTP Server has not been setup yet. Please use attach method.');
 
         return $this->running = $this->server->start();
     }
@@ -56,9 +57,27 @@ final class HttpServer
      */
     public function shutdown(): void
     {
-        Assertion::isInstanceOf($this->server, Server::class, self::SWOOLE_HTTP_SERVER_HAS_NOT_BEEN_INITIALIZED_MESSAGE);
+        if ($this->server instanceof Server) {
+            $this->server->shutdown();
+        } elseif ($this->isRunningInBackground()) {
+            Process::kill($this->configuration->getPid(), 15); // SIGTERM
+        } else {
+            throw new RuntimeException('Swoole HTTP Server has not been running.');
+        }
+    }
 
-        $this->server->shutdown();
+    /**
+     * @throws \Assert\AssertionFailedException
+     */
+    public function reload(): void
+    {
+        if ($this->server instanceof Server) {
+            $this->server->reload();
+        } elseif ($this->isRunningInBackground()) {
+            Process::kill($this->configuration->getPid(), 10); // SIGUSR1
+        } else {
+            throw new RuntimeException('Swoole HTTP Server has not been running.');
+        }
     }
 
     /**
@@ -66,6 +85,18 @@ final class HttpServer
      */
     public function isRunning(): bool
     {
-        return $this->running || $this->configuration->existsPidFile();
+        return $this->running || $this->isRunningInBackground();
+    }
+
+    /**
+     * @return bool
+     */
+    private function isRunningInBackground(): bool
+    {
+        try {
+            return Process::kill($this->configuration->getPid(), 0);
+        } catch (Throwable $ex) {
+            return false;
+        }
     }
 }
