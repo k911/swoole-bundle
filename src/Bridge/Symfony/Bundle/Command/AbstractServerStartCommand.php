@@ -73,8 +73,8 @@ abstract class AbstractServerStartCommand extends Command
             ->addOption('port', null, InputOption::VALUE_REQUIRED, 'Range 0-65535. When 0 random available port is chosen.', $defaultSocket->port())
             ->addOption('serve-static', 's', InputOption::VALUE_NONE, 'Enables serving static content from public directory.')
             ->addOption('public-dir', null, InputOption::VALUE_REQUIRED, 'Public directory', $this->getDefaultPublicDir())
-            ->addOption('trusted-hosts', null, InputOption::VALUE_REQUIRED, 'Trusted hosts (e.g.: localhost,127.0.0.1)', $this->parameterBag->get('swoole.http_server.trusted_hosts'))
-            ->addOption('trusted-proxies', null, InputOption::VALUE_REQUIRED, 'Trusted proxies (e.g.: *,127.0.0.1)', $this->parameterBag->get('swoole.http_server.trusted_proxies'))
+            ->addOption('trusted-hosts', null, InputOption::VALUE_REQUIRED, 'Trusted hosts', $this->parameterBag->get('swoole.http_server.trusted_hosts'))
+            ->addOption('trusted-proxies', null, InputOption::VALUE_REQUIRED, 'Trusted proxies', $this->parameterBag->get('swoole.http_server.trusted_proxies'))
         ;
     }
 
