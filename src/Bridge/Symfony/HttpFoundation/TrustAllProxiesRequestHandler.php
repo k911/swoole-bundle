@@ -31,12 +31,17 @@ final class TrustAllProxiesRequestHandler implements RequestHandlerInterface, Bo
         }
     }
 
+    public function trustAllProxies(): bool
+    {
+        return $this->trustAllProxies;
+    }
+
     /**
      * {@inheritdoc}
      */
     public function handle(SwooleRequest $request, SwooleResponse $response): void
     {
-        if ($this->trustAllProxies) {
+        if ($this->trustAllProxies()) {
             SymfonyRequest::setTrustedProxies(['127.0.0.1', $request->server['remote_addr']], SymfonyRequest::HEADER_X_FORWARDED_ALL);
         }
 
