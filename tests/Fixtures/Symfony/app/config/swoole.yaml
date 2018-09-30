@@ -1,9 +1,10 @@
-parameters:
-    env(HOST): localhost
-    env(PORT): 9501
-
 swoole:
     http_server:
-        port: '%env(int:PORT)%'
-        host: '%env(HOST)%'
-        static: 'off'
+        port: 9501
+        host: localhost
+        static: 'auto'
+        trusted_proxies:
+            - '*'
+            - 127.0.0.1/8
+            - 192.168.2./16
+        trusted_hosts: localhost,127.0.0.1

@@ -14,9 +14,6 @@ if (!\class_exists(Application::class)) {
     throw new \RuntimeException('You need to add "symfony/framework-bundle" as a Composer dependency.');
 }
 
-$_SERVER['APP_TRUSTED_HOSTS'] = '127.0.0.1,localhost';
-$_SERVER['APP_TRUSTED_PROXIES'] = '*';
-
 $input = new ArgvInput();
 $env = $input->getParameterOption(['--env', '-e'], $_SERVER['APP_ENV'] ?? 'test');
 $debug = ($_SERVER['APP_DEBUG'] ?? ('prod' !== $env)) && !$input->hasParameterOption(['--no-debug', '']);

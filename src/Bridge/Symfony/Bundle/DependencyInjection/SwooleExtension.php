@@ -65,6 +65,9 @@ final class SwooleExtension extends Extension implements PrependExtensionInterfa
             $this->registerHttpServerServices($config['services'], $container);
         }
 
+        $container->setParameter('swoole.http_server.trusted_proxies', $config['trusted_proxies']);
+        $container->setParameter('swoole.http_server.trusted_hosts', $config['trusted_hosts']);
+
         $this->registerHttpServerConfiguration($config, $container);
     }
 
@@ -128,7 +131,7 @@ final class SwooleExtension extends Extension implements PrependExtensionInterfa
 
         // RequestHandlerInterface
         // -------------------------
-        if ($config['trust_all_proxies']) {
+        if ($config['trust_all_proxies_handler']) {
             $container->register(TrustAllProxiesRequestHandler::class)
                 ->addArgument(new Reference(TrustAllProxiesRequestHandler::class.'.inner'))
                 ->setAutowired(true)
@@ -146,7 +149,7 @@ final class SwooleExtension extends Extension implements PrependExtensionInterfa
                 ->setDecoratedService(RequestHandlerInterface::class, null, -20);
         }
 
-        if ($config['debug'] || (null === $config['debug'] && $container->getParameter('kernal.debug'))) {
+        if ($config['debug_handler'] || (null === $config['debug_handler'] && $container->getParameter('kernel.debug'))) {
             $container->register(DebugHttpKernelRequestHandler::class)
                 ->addArgument(new Reference(DebugHttpKernelRequestHandler::class.'.inner'))
                 ->setAutowired(true)
@@ -172,8 +175,13 @@ final class SwooleExtension extends Extension implements PrependExtensionInterfa
         return Configuration::fromTreeBuilder();
     }
 
+    private function isDebug(ContainerBuilder $container): bool
+    {
+        return $container->getParameter('kernel.debug');
+    }
+
     private function isDebugOrNotProd(ContainerBuilder $container): bool
     {
-        return $container->getParameter('kernel.debug') && 'prod' !== $container->getParameter('kernel.environment');
+        return $this->isDebug($container) || 'prod' !== $container->getParameter('kernel.environment');
     }
 }

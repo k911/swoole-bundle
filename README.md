@@ -40,11 +40,15 @@ Symfony integration with [Swoole](https://www.swoole.co.uk/) to speed up your ap
     parameters:
         env(HOST): localhost
         env(PORT): 9501
+        env(TRUSTED_HOSTS): localhost,127.0.0.1
+        env(TRUSTED_PROXIES): *
 
     swoole:
         http_server:
             port: '%env(int:PORT)%'
             host: '%env(HOST)%'
+            trusted_hosts: '%env(TRUSTED_HOSTS)%'
+            trusted_proxies: '%env(TRUSTED_PROXIES)%'
     ```
 
 4. Run swoole server

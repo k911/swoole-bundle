@@ -6,6 +6,7 @@ namespace K911\Swoole\Bridge\Symfony\Bundle\DependencyInjection;
 
 use Symfony\Component\Config\Definition\Builder\TreeBuilder;
 use Symfony\Component\Config\Definition\ConfigurationInterface;
+use function K911\Swoole\decode_string_as_set;
 
 final class Configuration implements ConfigurationInterface
 {
@@ -41,6 +42,26 @@ final class Configuration implements ConfigurationInterface
                             ->min(0)
                             ->max(65535)
                             ->defaultValue(9501)
+                            ->beforeNormalization()
+                                ->ifString()
+                                ->then(function ($v): int { return (int) $v; })
+                            ->end()
+                        ->end()
+                        ->arrayNode('trusted_hosts')
+                            ->defaultValue([])
+                            ->prototype('scalar')->end()
+                            ->beforeNormalization()
+                                ->ifString()
+                                ->then(function ($v): array { return decode_string_as_set($v); })
+                            ->end()
+                        ->end()
+                        ->arrayNode('trusted_proxies')
+                            ->defaultValue([])
+                            ->prototype('scalar')->end()
+                            ->beforeNormalization()
+                                ->ifString()
+                                ->then(function ($v): array { return decode_string_as_set($v); })
+                            ->end()
                         ->end()
                         ->enumNode('running_mode')
                             ->defaultValue('process')
@@ -81,11 +102,11 @@ final class Configuration implements ConfigurationInterface
                         ->arrayNode('services')
                             ->addDefaultsIfNotSet()
                             ->children()
-                                ->booleanNode('debug')
+                                ->booleanNode('debug_handler')
                                     ->defaultFalse()
                                     ->treatNullLike(false)
                                 ->end()
-                                ->booleanNode('trust_all_proxies')
+                                ->booleanNode('trust_all_proxies_handler')
                                     ->defaultFalse()
                                     ->treatNullLike(false)
                                 ->end()

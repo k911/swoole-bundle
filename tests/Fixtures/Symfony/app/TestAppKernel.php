@@ -64,7 +64,7 @@ class TestAppKernel extends Kernel
      */
     protected function configureContainer(ContainerBuilder $c, LoaderInterface $loader): void
     {
-        $c->setParameter('kernel.project_dir', \dirname(__DIR__));
+        $c->setParameter('kernel.project_dir', __DIR__);
 
         $confDir = __DIR__.'/config';
         $loader->load($confDir.'/*'.self::CONFIG_EXTENSIONS, 'glob');

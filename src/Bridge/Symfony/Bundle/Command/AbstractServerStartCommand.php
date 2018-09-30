@@ -14,7 +14,7 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
-use Symfony\Component\HttpKernel\KernelInterface;
+use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use function K911\Swoole\decode_string_as_set;
 use function K911\Swoole\format_bytes;
 use function K911\Swoole\get_max_memory;
@@ -24,27 +24,27 @@ abstract class AbstractServerStartCommand extends Command
     private $server;
     private $serverFactory;
     private $serverConfiguration;
-    private $kernel;
     private $bootManager;
+    private $parameterBag;
 
     /**
      * @param HttpServer              $server
      * @param HttpServerFactory       $serverFactory
      * @param HttpServerConfiguration $serverConfiguration
-     * @param KernelInterface         $kernel
+     * @param ParameterBagInterface   $parameterBag
      * @param BootManager             $bootManager
      */
     public function __construct(
         HttpServer $server,
         HttpServerFactory $serverFactory,
         HttpServerConfiguration $serverConfiguration,
-        KernelInterface $kernel,
+        ParameterBagInterface $parameterBag,
         BootManager $bootManager
     ) {
         $this->server = $server;
         $this->serverFactory = $serverFactory;
         $this->serverConfiguration = $serverConfiguration;
-        $this->kernel = $kernel;
+        $this->parameterBag = $parameterBag;
         $this->bootManager = $bootManager;
 
         parent::__construct();
@@ -57,7 +57,7 @@ abstract class AbstractServerStartCommand extends Command
      */
     private function getDefaultPublicDir(): string
     {
-        return $this->serverConfiguration->hasPublicDir() ? $this->serverConfiguration->getPublicDir() : \dirname($this->kernel->getRootDir()).'/public';
+        return $this->serverConfiguration->hasPublicDir() ? $this->serverConfiguration->getPublicDir() : $this->parameterBag->get('kernel.project_dir').'/public';
     }
 
     /**
@@ -68,10 +68,14 @@ abstract class AbstractServerStartCommand extends Command
      */
     protected function configure(): void
     {
-        $this->addOption('host', null, InputOption::VALUE_REQUIRED, 'Host name to listen to.')
-            ->addOption('port', null, InputOption::VALUE_REQUIRED, 'Range 0-65535. When 0 random available port is chosen.')
+        $defaultSocket = $this->serverConfiguration->getDefaultSocket();
+        $this->addOption('host', null, InputOption::VALUE_REQUIRED, 'Host name to listen to.', $defaultSocket->host())
+            ->addOption('port', null, InputOption::VALUE_REQUIRED, 'Range 0-65535. When 0 random available port is chosen.', $defaultSocket->port())
             ->addOption('serve-static', 's', InputOption::VALUE_NONE, 'Enables serving static content from public directory.')
-            ->addOption('public-dir', null, InputOption::VALUE_REQUIRED, 'Public directory', $this->getDefaultPublicDir());
+            ->addOption('public-dir', null, InputOption::VALUE_REQUIRED, 'Public directory', $this->getDefaultPublicDir())
+            ->addOption('trusted-hosts', null, InputOption::VALUE_REQUIRED, 'Trusted hosts (e.g.: localhost,127.0.0.1)', $this->parameterBag->get('swoole.http_server.trusted_hosts'))
+            ->addOption('trusted-proxies', null, InputOption::VALUE_REQUIRED, 'Trusted proxies (e.g.: *,127.0.0.1)', $this->parameterBag->get('swoole.http_server.trusted_proxies'))
+        ;
     }
 
     /**
@@ -129,10 +133,9 @@ abstract class AbstractServerStartCommand extends Command
      */
     protected function prepareServerConfiguration(HttpServerConfiguration $serverConfiguration, InputInterface $input): void
     {
-        $socket = $serverConfiguration->getDefaultSocket();
-        $socket = $socket
-            ->withPort((int) ($input->getOption('port') ?? $socket->port()))
-            ->withHost((string) ($input->getOption('host') ?? $socket->host()));
+        $socket = $serverConfiguration->getDefaultSocket()
+            ->withPort((int) $input->getOption('port'))
+            ->withHost((string) $input->getOption('host'));
 
         $serverConfiguration->changeDefaultSocket($socket);
 
@@ -149,8 +152,10 @@ abstract class AbstractServerStartCommand extends Command
      */
     protected function prepareRuntimeConfiguration(HttpServerConfiguration $serverConfiguration, InputInterface $input): array
     {
-        $runtimeConfiguration['trustedHosts'] = decode_string_as_set($_SERVER['APP_TRUSTED_HOSTS']);
-        $runtimeConfiguration['trustedProxies'] = decode_string_as_set($_SERVER['APP_TRUSTED_PROXIES']);
+        $trustedHosts = $input->getOption('trusted-hosts');
+        $trustedProxies = $input->getOption('trusted-proxies');
+        $runtimeConfiguration['trustedHosts'] = \is_string($trustedHosts) ? decode_string_as_set($trustedHosts) : $trustedHosts;
+        $runtimeConfiguration['trustedProxies'] = \is_string($trustedProxies) ? decode_string_as_set($trustedProxies) : $trustedProxies;
 
         if (\in_array('*', $runtimeConfiguration['trustedProxies'], true)) {
             $runtimeConfiguration['trustAllProxies'] = true;
@@ -176,8 +181,8 @@ abstract class AbstractServerStartCommand extends Command
     protected function prepareConfigurationRowsToPrint(HttpServerConfiguration $serverConfiguration, array $runtimeConfiguration): array
     {
         $rows = [
-            ['env', $this->kernel->getEnvironment()],
-            ['debug', \var_export($this->kernel->isDebug(), true)],
+            ['env', $this->parameterBag->get('kernel.environment')],
+            ['debug', \var_export($this->parameterBag->get('kernel.debug'), true)],
             ['worker_count', $serverConfiguration->getWorkerCount()],
             ['memory_limit', format_bytes(get_max_memory())],
             ['trusted_hosts', \implode(', ', $runtimeConfiguration['trustedHosts'])],
