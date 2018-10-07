@@ -26,7 +26,7 @@ abstract class AbstractServerStartCommand extends Command
     private $serverFactory;
     private $serverConfiguration;
     private $bootManager;
-    private $parameterBag;
+    protected $parameterBag;
 
     /**
      * @param HttpServer              $server
@@ -75,8 +75,7 @@ abstract class AbstractServerStartCommand extends Command
             ->addOption('serve-static', 's', InputOption::VALUE_NONE, 'Enables serving static content from public directory.')
             ->addOption('public-dir', null, InputOption::VALUE_REQUIRED, 'Public directory', $this->getDefaultPublicDir())
             ->addOption('trusted-hosts', null, InputOption::VALUE_REQUIRED, 'Trusted hosts', $this->parameterBag->get('swoole.http_server.trusted_hosts'))
-            ->addOption('trusted-proxies', null, InputOption::VALUE_REQUIRED, 'Trusted proxies', $this->parameterBag->get('swoole.http_server.trusted_proxies'))
-        ;
+            ->addOption('trusted-proxies', null, InputOption::VALUE_REQUIRED, 'Trusted proxies', $this->parameterBag->get('swoole.http_server.trusted_proxies'));
     }
 
     /**
@@ -95,6 +94,11 @@ abstract class AbstractServerStartCommand extends Command
 
         $this->prepareServerConfiguration($this->serverConfiguration, $input);
 
+        if ($this->server->isRunning()) {
+            $io->error('Swoole HTTP Server is already running');
+            exit(1);
+        }
+
         $this->server->attach($this->serverFactory->make(
             $this->serverConfiguration->getDefaultSocket(),
             $this->serverConfiguration->getRunningMode()
@@ -109,11 +113,7 @@ abstract class AbstractServerStartCommand extends Command
         $io->success(\sprintf('Swoole HTTP Server started on http://%s', $this->serverConfiguration->getDefaultSocket()->addressPort()));
         $io->table(['Configuration', 'Values'], $this->prepareConfigurationRowsToPrint($this->serverConfiguration, $runtimeConfiguration));
 
-        if ($this->server->start()) {
-            $io->success('Swoole HTTP Server has been successfully shutdown.');
-        } else {
-            $io->error('Failure during starting Swoole HTTP Server.');
-        }
+        $this->startServer($this->serverConfiguration, $this->server, $io);
     }
 
     /**
@@ -232,5 +232,21 @@ abstract class AbstractServerStartCommand extends Command
         }
 
         return $rows;
+    }
+
+    /**
+     * @param HttpServerConfiguration $serverConfiguration
+     * @param HttpServer              $server
+     * @param SymfonyStyle            $io
+     *
+     * @throws \Assert\AssertionFailedException
+     */
+    protected function startServer(HttpServerConfiguration $serverConfiguration, HttpServer $server, SymfonyStyle $io): void
+    {
+        if ($server->start()) {
+            $io->success('Swoole HTTP Server has been successfully shutdown.');
+        } else {
+            $io->error('Failure during starting Swoole HTTP Server.');
+        }
     }
 }

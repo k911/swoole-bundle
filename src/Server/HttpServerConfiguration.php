@@ -17,6 +17,7 @@ final class HttpServerConfiguration
      */
     private const SWOOLE_HTTP_SERVER_CONFIGURATION = [
         'reactor_count' => 'reactor_num',
+        'daemonize' => 'daemonize',
         'worker_count' => 'worker_num',
         'serve_static' => 'enable_static_handler',
         'public_dir' => 'document_root',
@@ -109,6 +110,10 @@ final class HttpServerConfiguration
             Assertion::inArray($value, \array_keys(self::SWOOLE_SERVE_STATIC));
         }
 
+        if ('daemonize' === $key) {
+            Assertion::boolean($value);
+        }
+
         if ('public_dir' === $key) {
             Assertion::directory($value, 'Public directory does not exists. Tried "%s".');
         }
@@ -158,7 +163,8 @@ final class HttpServerConfiguration
             }
         }
 
-        Assertion::false(isset($settings['serve_static']) && 'off' !== $settings['serve_static'] && !isset($settings['public_dir']), 'Enabling static files serving requires providing "public_dir" setting.');
+        Assertion::false($this->isDaemon() && !$this->hasPidFile(), 'Pid file is required when using daemon mode');
+        Assertion::false($this->servingStaticContent() && !$this->hasPublicDir(), 'Enabling static files serving requires providing "public_dir" setting.');
     }
 
     public function getRunningMode(): string
@@ -173,12 +179,33 @@ final class HttpServerConfiguration
 
     public function hasPidFile(): bool
     {
-        return isset($this->settings['public_dir']);
+        return isset($this->settings['pid_file']);
+    }
+
+    public function servingStaticContent(): bool
+    {
+        return isset($this->settings['serve_static']) && 'off' !== $this->settings['serve_static'];
     }
 
     public function existsPidFile(): bool
     {
         return $this->hasPidFile() && \file_exists($this->getPidFile());
+    }
+
+    /**
+     * @throws \Assert\AssertionFailedException
+     *
+     * @return int
+     */
+    public function getPid(): int
+    {
+        Assertion::true($this->existsPidFile(), 'Could not get pid file. It does not exists or server is not running in background.');
+
+        /** @var string $contents */
+        $contents = \file_get_contents($this->getPidFile());
+        Assertion::numeric($contents, 'Contents in pid file is not an integer or it is empty');
+
+        return (int) $contents;
     }
 
     /**
@@ -275,5 +302,26 @@ final class HttpServerConfiguration
     public function getSwooleDocumentRoot(): ?string
     {
         return 'default' === $this->settings['serve_static'] ? $this->settings['public_dir'] : null;
+    }
+
+    public function isDaemon(): bool
+    {
+        return isset($this->settings['daemonize']);
+    }
+
+    /**
+     * @param null|string $pidFile
+     *
+     * @throws \Assert\AssertionFailedException
+     */
+    public function daemonize(?string $pidFile = null): void
+    {
+        $settings = ['daemonize' => true];
+
+        if (null !== $pidFile) {
+            $settings['pid_file'] = $pidFile;
+        }
+
+        $this->setSettings($settings);
     }
 }

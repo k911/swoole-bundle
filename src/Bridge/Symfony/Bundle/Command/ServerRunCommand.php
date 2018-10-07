@@ -12,7 +12,7 @@ final class ServerRunCommand extends AbstractServerStartCommand
     protected function configure(): void
     {
         $this->setName('swoole:server:run')
-            ->setDescription('Runs a local swoole http server');
+            ->setDescription('Runs a local Swoole HTTP server.');
 
         parent::configure();
     }

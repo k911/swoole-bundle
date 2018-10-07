@@ -4,37 +4,40 @@ declare(strict_types=1);
 
 namespace K911\Swoole;
 
+use Closure;
 use OutOfRangeException;
 
 /**
  * Replaces object property with provided value.
  * Property may not be public.
  *
- * @param object $obj
- * @param string $propertyName
- * @param mixed  $newValue
+ * @param object      $obj
+ * @param string      $propertyName
+ * @param mixed       $newValue
+ * @param null|string $scope        class scope useful when property is inherited
  */
-function replace_object_property(object $obj, string $propertyName, $newValue): void
+function replace_object_property(object $obj, string $propertyName, $newValue, ?string $scope = null): void
 {
-    (function (string $propertyName, $newValue): void {
+    Closure::bind(function (string $propertyName, $newValue): void {
         $this->$propertyName = $newValue;
-    })->call($obj, $propertyName, $newValue);
+    }, $obj, $scope ?? $obj)($propertyName, $newValue);
 }
 
 /**
- * Get object property.
+ * Get object property (even by reference).
  * Property may not be public.
  *
- * @param object $obj
- * @param string $propertyName
+ * @param object      $obj
+ * @param string      $propertyName
+ * @param null|string $scope        class scope useful when property is inherited
  *
  * @return mixed
  */
-function get_object_property(object $obj, string $propertyName)
+function &get_object_property(object $obj, string $propertyName, ?string $scope = null)
 {
-    return (function (string $propertyName) {
+    return Closure::bind(function &(string $propertyName) {
         return $this->$propertyName;
-    })->call($obj, $propertyName);
+    }, $obj, $scope ?? $obj)($propertyName);
 }
 
 /**
