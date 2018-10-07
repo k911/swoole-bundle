@@ -2,7 +2,7 @@
     "name": "k911/swoole-bundle",
     "type": "library",
     "description": "Swoole Symfony Bundle",
-    "version": "v0.1.0-dev",
+    "version": "v0.2.0-dev",
     "keywords": [
         "PHP",
         "Bundle",
