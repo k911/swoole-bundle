@@ -46,11 +46,8 @@ git tag "v${NEW_VERSION}"
 conventional-changelog -p angular -i CHANGELOG.md -s -r 0
 git tag -d "v${NEW_VERSION}"
 
-# Update version in composer.json
-sed -e "s/\"version\": \"v${VERSION}\",/\"version\": \"v${NEW_VERSION}\",/g" composer.json > composer.json.tmp && mv composer.json.tmp composer.json
-
 # Create release commit and tag
-git add CHANGELOG.md composer.json
+git add CHANGELOG.md
 git commit -m "chore(release): v${NEW_VERSION} :tada:
 $(conventional-changelog)
 "
