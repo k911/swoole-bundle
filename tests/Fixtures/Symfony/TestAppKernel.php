@@ -2,6 +2,10 @@
 
 declare(strict_types=1);
 
+namespace K911\Swoole\Tests\Fixtures\Symfony;
+
+use Exception;
+use Generator;
 use K911\Swoole\Bridge\Symfony\Bundle\SwooleBundle;
 use K911\Swoole\Tests\Fixtures\Symfony\TestBundle\TestBundle;
 use Symfony\Bundle\FrameworkBundle\FrameworkBundle;
@@ -54,7 +58,7 @@ class TestAppKernel extends Kernel
      */
     protected function configureRoutes(RouteCollectionBuilder $routes): void
     {
-        $routes->import('routing.yml');
+        $routes->import('app/routing.yml');
     }
 
     /**
@@ -64,9 +68,7 @@ class TestAppKernel extends Kernel
      */
     protected function configureContainer(ContainerBuilder $c, LoaderInterface $loader): void
     {
-        $c->setParameter('kernel.project_dir', __DIR__);
-
-        $confDir = __DIR__.'/config';
+        $confDir = $this->getProjectDir().'/config';
         $loader->load($confDir.'/*'.self::CONFIG_EXTENSIONS, 'glob');
         if (\is_dir($confDir.'/'.$this->environment)) {
             $loader->load($confDir.'/'.$this->environment.'/**/*'.self::CONFIG_EXTENSIONS, 'glob');
@@ -75,6 +77,14 @@ class TestAppKernel extends Kernel
 
     private function getVarDir(): string
     {
-        return __DIR__.'/var';
+        return $this->getProjectDir().'/var';
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getProjectDir(): string
+    {
+        return __DIR__.'/app';
     }
 }
