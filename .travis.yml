@@ -48,6 +48,7 @@ script:
 - 'if [[ "$COVERAGE" != "1" ]]; then composer test; fi'
 - 'if [[ "$COVERAGE" == "1" ]]; then composer analyse; fi'
 - 'if [[ "$COVERAGE" == "1" ]]; then composer code-coverage; fi'
+- 'for f in ./tests/Server/*.sh; do echo "[Test] $f"; bash "$f" -H || return 1; done;'
 
 before_deploy:
 - >-
