@@ -8,6 +8,9 @@ parameters:
     ignoreErrors:
         # Put false positives here
 
+        # On purpose
+        - '#K911\\Swoole\\Tests\\Unit\\Server\\SwooleServerOnEventSpy::__construct\(\) does not call parent constructor from Swoole\\Server#'
+
         # Prophecy "->shouldBeCalled()"
         - '#Result of method [\w\\]+::\w+\(\) \(void\) is used#'
 
