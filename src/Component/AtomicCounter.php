@@ -10,7 +10,7 @@ final class AtomicCounter
 {
     private $counter;
 
-    private function __construct(Atomic $counter)
+    public function __construct(Atomic $counter)
     {
         $this->counter = $counter;
     }
