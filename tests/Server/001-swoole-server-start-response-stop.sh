@@ -10,7 +10,7 @@ EXIT_CODE=0
 ./console swoole:server:start --port ${PORT} --ansi
 
 echo "[Info] Executing curl request: $CURL_REQUEST";
-RESULT=$(curl "http://$HOST:$PORT" -s)
+RESULT=$(curl ${CURL_REQUEST} -s)
 echo "[Info] Result: $RESULT";
 if [[ "$RESULT" = '{"hello":"world!"}' ]]; then
     echo "[Test] OK";

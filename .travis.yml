@@ -39,6 +39,7 @@ before_install:
 - 'export PATH="$PATH:$HOME/.composer/vendor/bin"'
 - 'composer global require phwoolcon/ci-pecl-cacher'
 - pecl update-channels
+- ci-pecl-install inotify
 - ci-pecl-install swoole-$SWOOLE_VERSION swoole
 
 install:
