@@ -12,10 +12,16 @@ use K911\Swoole\Bridge\Symfony\HttpFoundation\RequestFactoryInterface;
 use K911\Swoole\Bridge\Symfony\HttpFoundation\TrustAllProxiesRequestHandler;
 use K911\Swoole\Bridge\Symfony\HttpKernel\DebugHttpKernelRequestHandler;
 use K911\Swoole\Server\Config\Socket;
+use K911\Swoole\Server\Configurator\ConfiguratorInterface;
+use K911\Swoole\Server\Configurator\WithWorkerStartHandler;
 use K911\Swoole\Server\HttpServerConfiguration;
 use K911\Swoole\Server\RequestHandler\AdvancedStaticFilesServer;
 use K911\Swoole\Server\RequestHandler\RequestHandlerInterface;
 use K911\Swoole\Server\Runtime\BootableInterface;
+use K911\Swoole\Server\Runtime\HMR\HotModuleReloaderInterface;
+use K911\Swoole\Server\Runtime\HMR\InotifyHMR;
+use K911\Swoole\Server\WorkerHandler\HMRWorkerHandler;
+use K911\Swoole\Server\WorkerHandler\WorkerStartHandlerInterface;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Definition;
@@ -75,6 +81,7 @@ final class SwooleExtension extends Extension implements PrependExtensionInterfa
     {
         [
             'static' => $static,
+            'hmr' => $hmr,
             'host' => $host,
             'port' => $port,
             'running_mode' => $runningMode,
@@ -100,7 +107,11 @@ final class SwooleExtension extends Extension implements PrependExtensionInterfa
         $settings['public_dir'] = $static['public_dir'];
 
         if ('auto' === $settings['log_level']) {
-            $settings['log_level'] = $container->getParameter('kernel.debug') ? 'debug' : 'notice';
+            $settings['log_level'] = $this->isDebug($container) ? 'debug' : 'notice';
+        }
+
+        if ('auto' === $hmr) {
+            $hmr = $this->resolveAutoHMR();
         }
 
         $defaultSocket = new Definition(Socket::class, [$host, $port, $socketType, $sslEnabled]);
@@ -108,6 +119,47 @@ final class SwooleExtension extends Extension implements PrependExtensionInterfa
             ->addArgument($defaultSocket)
             ->addArgument($runningMode)
             ->addArgument($settings);
+
+        $this->registerHttpServerHMR($hmr, $container);
+
+        if ($container->has(WorkerStartHandlerInterface::class)) {
+            $container->register(WithWorkerStartHandler::class)
+                ->addArgument(new Reference(WithWorkerStartHandler::class.'.inner'))
+                ->setAutowired(true)
+                ->setAutoconfigured(true)
+                ->setPublic(false)
+                ->setDecoratedService(ConfiguratorInterface::class);
+        }
+    }
+
+    private function registerHttpServerHMR(string $hmr, ContainerBuilder $container): void
+    {
+        if ('off' === $hmr || !$this->isDebug($container)) {
+            return;
+        }
+
+        if ('inotify' === $hmr) {
+            $container->register(HotModuleReloaderInterface::class, InotifyHMR::class)
+                ->setAutowired(true)
+                ->setAutoconfigured(true)
+                ->setPublic(false);
+        }
+
+        if (!$container->has(WorkerStartHandlerInterface::class)) {
+            $container->register(WorkerStartHandlerInterface::class, HMRWorkerHandler::class)
+                ->setAutowired(true)
+                ->setAutoconfigured(true)
+                ->setPublic(false);
+        }
+    }
+
+    private function resolveAutoHMR(): string
+    {
+        if (\extension_loaded('inotify')) {
+            return 'inotify';
+        }
+
+        return 'off';
     }
 
     /**

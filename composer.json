@@ -48,6 +48,7 @@
         "symfony/yaml": "^4.1"
     },
     "suggest": {
+        "ext-inotify": "To enable HMR.",
         "doctrine/orm": "To use the EntityManager handler."
     },
     "autoload": {

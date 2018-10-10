@@ -22,6 +22,8 @@ final class BootManager implements BootableInterface
     /**
      * {@inheritdoc}
      *
+     * Method MUST be called directly before Swoole server start.
+     *
      * @throws \Assert\AssertionFailedException When already booted
      */
     public function boot(array $runtimeConfiguration = []): void
