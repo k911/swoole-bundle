@@ -44,6 +44,7 @@
         "symfony/framework-bundle": "^4.1",
         "symfony/monolog-bundle": "^3.3",
         "symfony/twig-bundle": "^4.1",
+        "symfony/var-dumper": "^4.1",
         "symfony/yaml": "^4.1"
     },
     "suggest": {
