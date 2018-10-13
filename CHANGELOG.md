@@ -1,5 +1,25 @@
 <a name=""></a>
-#  (2018-10-07)
+# [](https://github.com/k911/swoole-bundle/compare/v0.3.0...v) (2018-10-13)
+
+
+
+<a name="0.3.0"></a>
+# [0.3.0](https://github.com/k911/swoole-bundle/compare/v0.2.0...v0.3.0) (2018-10-12)
+
+
+### Bug Fixes
+
+* **io:** Properly close stdout/stderr ([94041e6](https://github.com/k911/swoole-bundle/commit/94041e6))
+
+
+### Features
+
+* **daemon-mode:** Daemonize Swoole HTTP server ([#8](https://github.com/k911/swoole-bundle/issues/8)) ([3cca5c4](https://github.com/k911/swoole-bundle/commit/3cca5c4))
+
+
+
+<a name="0.2.0"></a>
+# [0.2.0](https://github.com/k911/swoole-bundle/compare/04a7dcc...v0.2.0) (2018-10-07)
 
 
 ### Bug Fixes
