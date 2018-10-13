@@ -6,7 +6,7 @@ namespace K911\Swoole\Tests\Unit\Server\Configurator;
 
 use K911\Swoole\Server\Configurator\WithRequestHandler;
 use K911\Swoole\Tests\Unit\Server\RequestHandler\RequestHandlerDummy;
-use K911\Swoole\Tests\Unit\Server\SwooleServerOnEventSpy;
+use K911\Swoole\Tests\Unit\Server\SwooleHttpServerMock;
 use PHPUnit\Framework\TestCase;
 
 class WithRequestHandlerTest extends TestCase
@@ -36,13 +36,11 @@ class WithRequestHandlerTest extends TestCase
 
     public function testConfigure(): void
     {
-        $swooleServerOnEventSpy = new SwooleServerOnEventSpy();
+        $serverMock = new SwooleHttpServerMock();
 
-        $this->assertFalse($swooleServerOnEventSpy->registered);
+        $this->configurator->configure($serverMock);
 
-        $this->configurator->configure($swooleServerOnEventSpy);
-
-        $this->assertTrue($swooleServerOnEventSpy->registered);
-        $this->assertSame(['request', [$this->requestHandlerDummy, 'handle']], $swooleServerOnEventSpy->registeredEventCallbackPair);
+        $this->assertTrue($serverMock->registeredEvent);
+        $this->assertSame(['request', [$this->requestHandlerDummy, 'handle']], $serverMock->registeredEventPair);
     }
 }

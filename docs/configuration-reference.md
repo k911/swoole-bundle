@@ -21,6 +21,7 @@ swoole:
         static:
             strategy: 'advanced'
             public_dir: '%kernel.project_dir%/public'
+        hmr: 'auto'
         services:
             debug_handler: true
             trust_all_proxies_handler: true

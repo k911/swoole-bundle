@@ -20,7 +20,7 @@ use K911\Swoole\Server\RequestHandler\RequestHandlerInterface;
 use K911\Swoole\Server\Runtime\BootableInterface;
 use K911\Swoole\Server\Runtime\HMR\HotModuleReloaderInterface;
 use K911\Swoole\Server\Runtime\HMR\InotifyHMR;
-use K911\Swoole\Server\WorkerHandler\HMRWorkerHandler;
+use K911\Swoole\Server\WorkerHandler\HMRWorkerStartHandler;
 use K911\Swoole\Server\WorkerHandler\WorkerStartHandlerInterface;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
@@ -146,7 +146,7 @@ final class SwooleExtension extends Extension implements PrependExtensionInterfa
         }
 
         if (!$container->has(WorkerStartHandlerInterface::class)) {
-            $container->register(WorkerStartHandlerInterface::class, HMRWorkerHandler::class)
+            $container->register(WorkerStartHandlerInterface::class, HMRWorkerStartHandler::class)
                 ->setAutowired(true)
                 ->setAutoconfigured(true)
                 ->setPublic(false);
