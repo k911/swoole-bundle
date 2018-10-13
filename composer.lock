@@ -4,30 +4,29 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "747fc2761c910e97557ea1840815c185",
+    "content-hash": "9f04b6cf2ea7540f8e0ee0b9fa34bfd5",
     "packages": [
         {
             "name": "beberlei/assert",
-            "version": "v3.0.0",
+            "version": "v3.0.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/beberlei/assert.git",
-                "reference": "891103759a35926323be6296ebd3f1579a52d82a"
+                "reference": "12322a8ea8eb0561ccb91a7a6b28fd2f6a9fefec"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/beberlei/assert/zipball/891103759a35926323be6296ebd3f1579a52d82a",
-                "reference": "891103759a35926323be6296ebd3f1579a52d82a",
+                "url": "https://api.github.com/repos/beberlei/assert/zipball/12322a8ea8eb0561ccb91a7a6b28fd2f6a9fefec",
+                "reference": "12322a8ea8eb0561ccb91a7a6b28fd2f6a9fefec",
                 "shasum": ""
             },
             "require": {
-                "ext-mbstring": "*",
                 "php": "^7"
             },
             "require-dev": {
-                "friendsofphp/php-cs-fixer": "^2.1.1",
-                "phpstan/phpstan": "^0.9.2",
-                "phpunit/phpunit": "^5.7"
+                "friendsofphp/php-cs-fixer": "*",
+                "phpstan/phpstan-shim": "*",
+                "phpunit/phpunit": "*"
             },
             "type": "library",
             "autoload": {
@@ -60,7 +59,7 @@
                 "assertion",
                 "validation"
             ],
-            "time": "2018-07-04T11:02:54+00:00"
+            "time": "2018-10-11T22:24:24+00:00"
         },
         {
             "name": "composer/xdebug-handler",
@@ -1756,25 +1755,40 @@
             "version": "dev-master",
             "source": {
                 "type": "git",
-                "url": "https://github.com/eaglewu/swoole-ide-helper.git",
-                "reference": "1873beb3709ea9c5ece6e3ecb74a525f5ee4166f"
+                "url": "https://github.com/wudi/swoole-ide-helper.git",
+                "reference": "c5a10b242649f341a2aee399465833927c3b6ed8"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/eaglewu/swoole-ide-helper/zipball/1873beb3709ea9c5ece6e3ecb74a525f5ee4166f",
-                "reference": "1873beb3709ea9c5ece6e3ecb74a525f5ee4166f",
+                "url": "https://api.github.com/repos/wudi/swoole-ide-helper/zipball/c5a10b242649f341a2aee399465833927c3b6ed8",
+                "reference": "c5a10b242649f341a2aee399465833927c3b6ed8",
                 "shasum": ""
             },
             "type": "library",
             "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
             "authors": [
                 {
                     "name": "eagle",
-                    "email": "eaglewudi@gmail.com"
+                    "email": "eaglewudi@gmail.com",
+                    "role": "lead"
                 }
             ],
-            "description": "Swoole 在IDE下自动识别类、函数、宏，自动补全函数名",
-            "time": "2018-06-28T14:32:18+00:00"
+            "description": "Swoole IDE Helper, to improve auto-completion",
+            "keywords": [
+                "autocomplete",
+                "codeintel",
+                "helper",
+                "ide",
+                "netbeans",
+                "phpdoc",
+                "phpstorm",
+                "sublime",
+                "swoole"
+            ],
+            "time": "2018-10-10T05:10:09+00:00"
         },
         {
             "name": "friendsofphp/php-cs-fixer",
@@ -2528,16 +2542,16 @@
         },
         {
             "name": "nikic/php-parser",
-            "version": "v4.0.4",
+            "version": "v4.1.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/nikic/PHP-Parser.git",
-                "reference": "fa6ee28600d21d49b2b4e1006b48426cec8e579c"
+                "reference": "d0230c5c77a7e3cfa69446febf340978540958c0"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/nikic/PHP-Parser/zipball/fa6ee28600d21d49b2b4e1006b48426cec8e579c",
-                "reference": "fa6ee28600d21d49b2b4e1006b48426cec8e579c",
+                "url": "https://api.github.com/repos/nikic/PHP-Parser/zipball/d0230c5c77a7e3cfa69446febf340978540958c0",
+                "reference": "d0230c5c77a7e3cfa69446febf340978540958c0",
                 "shasum": ""
             },
             "require": {
@@ -2553,7 +2567,7 @@
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-master": "4.0-dev"
+                    "dev-master": "4.1-dev"
                 }
             },
             "autoload": {
@@ -2575,7 +2589,7 @@
                 "parser",
                 "php"
             ],
-            "time": "2018-09-18T07:03:24+00:00"
+            "time": "2018-10-10T09:24:14+00:00"
         },
         {
             "name": "ocramius/package-versions",
