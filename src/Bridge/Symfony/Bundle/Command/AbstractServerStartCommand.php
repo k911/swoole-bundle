@@ -244,7 +244,10 @@ abstract class AbstractServerStartCommand extends Command
      */
     protected function startServer(HttpServerConfiguration $serverConfiguration, HttpServer $server, SymfonyStyle $io): void
     {
+        $io->comment('Quit the server with CONTROL-C.');
+
         if ($server->start()) {
+            $io->newLine();
             $io->success('Swoole HTTP Server has been successfully shutdown.');
         } else {
             $io->error('Failure during starting Swoole HTTP Server.');
