@@ -45,6 +45,7 @@ install:
 - 'composer $COMPOSER_ARGS --prefer-dist --no-progress --no-suggest --no-scripts --ansi'
 
 script:
+- 'composer validate'
 - 'if [[ "$COVERAGE" != "1" ]]; then composer test; fi'
 - 'if [[ "$COVERAGE" == "1" ]]; then composer analyse; fi'
 - 'if [[ "$COVERAGE" == "1" ]]; then composer code-coverage; fi'
