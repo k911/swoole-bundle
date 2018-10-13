@@ -20,6 +20,8 @@ services:
 
     'K911\Swoole\Server\RequestHandler\LimitedRequestHandler':
 
+    'K911\Swoole\Server\LifecycleHandler\SigIntHandler':
+
     'K911\Swoole\Server\Runtime\BootableInterface':
         class: 'K911\Swoole\Server\Runtime\BootManager'
         arguments: [!tagged 'swoole_bundle.bootable_service']
@@ -46,10 +48,35 @@ services:
         class: K911\Swoole\Server\Configurator\WithRequestHandler
         autoconfigure: false
 
+    'swoole_bundle.server.http_server.configurator.with_sigint_and_request_handler':
+        class: K911\Swoole\Server\Configurator\WithServerStartHandler
+        autoconfigure: false
+        arguments:
+            $decorated: '@swoole_bundle.server.http_server.configurator.with_request_handler'
+            $handler: '@K911\Swoole\Server\LifecycleHandler\SigIntHandler'
+
+    'swoole_bundle.server.http_server.configurator.with_sigint_and_limited_request_handler':
+        class: K911\Swoole\Server\Configurator\WithServerStartHandler
+        autoconfigure: false
+        arguments:
+            $decorated: '@swoole_bundle.server.http_server.configurator.with_limited_request_handler'
+            $handler: '@K911\Swoole\Server\LifecycleHandler\SigIntHandler'
+
     'swoole_bundle.server.http_server.factory':
         class: K911\Swoole\Server\HttpServerFactory
         arguments:
             $configurator: '@swoole_bundle.server.http_server.configurator.with_request_handler'
+
+    'swoole_bundle.server.http_server.sigint_factory':
+        class: K911\Swoole\Server\HttpServerFactory
+        arguments:
+            $configurator: '@swoole_bundle.server.http_server.configurator.with_sigint_and_request_handler'
+
+    'swoole_bundle.server.http_server.sigint_and_limited_factory':
+        class: K911\Swoole\Server\HttpServerFactory
+        arguments:
+            $configurator: '@swoole_bundle.server.http_server.configurator.with_sigint_and_limited_request_handler'
+
 
     'K911\Swoole\Bridge\Symfony\Bundle\Command\ServerStartCommand':
         tags: ['console.command']
@@ -65,14 +92,9 @@ services:
     'K911\Swoole\Bridge\Symfony\Bundle\Command\ServerRunCommand':
         tags: ['console.command']
         arguments:
-            $serverFactory: '@swoole_bundle.server.http_server.factory'
-
-    'swoole_bundle.server.http_server.limited_factory':
-        class: K911\Swoole\Server\HttpServerFactory
-        arguments:
-            $configurator: '@swoole_bundle.server.http_server.configurator.with_limited_request_handler'
+            $serverFactory: '@swoole_bundle.server.http_server.sigint_factory'
 
     'K911\Swoole\Bridge\Symfony\Bundle\Command\ServerProfileCommand':
         tags: ['console.command']
         arguments:
-            $serverFactory: '@swoole_bundle.server.http_server.limited_factory'
+            $serverFactory: '@swoole_bundle.server.http_server.sigint_and_limited_factory'
