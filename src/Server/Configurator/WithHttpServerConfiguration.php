@@ -27,7 +27,5 @@ final class WithHttpServerConfiguration implements ConfiguratorInterface
         if (0 === $defaultSocket->port()) {
             $this->configuration->changeDefaultSocket($defaultSocket->withPort($server->port));
         }
-
-        // @todo $this->configuration->lock();
     }
 }

@@ -10,7 +10,7 @@ use Symfony\Component\Routing\Annotation\Route;
 
 class HMRTestController extends Controller
 {
-    private const BASH_REPLACE_PATTERN = 'Hello world from updated by HMR symfony controller!';
+    private const BASH_REPLACE_PATTERN = 'Hello world!';
 
     /**
      * @Route(
