@@ -9,6 +9,7 @@ use Composer\XdebugHandler\XdebugHandler;
 use K911\Swoole\Server\HttpServer;
 use K911\Swoole\Server\HttpServerConfiguration;
 use K911\Swoole\Server\HttpServerFactory;
+use K911\Swoole\Server\Runtime\BootableInterface;
 use K911\Swoole\Server\Runtime\BootManager;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
@@ -33,14 +34,14 @@ abstract class AbstractServerStartCommand extends Command
      * @param HttpServerFactory       $serverFactory
      * @param HttpServerConfiguration $serverConfiguration
      * @param ParameterBagInterface   $parameterBag
-     * @param BootManager             $bootManager
+     * @param BootableInterface       $bootManager
      */
     public function __construct(
         HttpServer $server,
         HttpServerFactory $serverFactory,
         HttpServerConfiguration $serverConfiguration,
         ParameterBagInterface $parameterBag,
-        BootManager $bootManager
+        BootableInterface $bootManager
     ) {
         $this->server = $server;
         $this->serverFactory = $serverFactory;
