@@ -86,7 +86,7 @@
     },
     "extra": {
         "branch-alias": {
-            "dev-develop": "v0.3.x-dev"
+            "dev-develop": "v0.4.x-dev"
         }
     },
     "config": {
