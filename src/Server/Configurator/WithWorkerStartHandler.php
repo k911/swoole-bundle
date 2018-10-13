@@ -9,13 +9,11 @@ use Swoole\Http\Server;
 
 final class WithWorkerStartHandler implements ConfiguratorInterface
 {
-    private $decorated;
     private $handler;
 
-    public function __construct(ConfiguratorInterface $decorated, WorkerStartHandlerInterface $handler)
+    public function __construct(WorkerStartHandlerInterface $handler)
     {
         $this->handler = $handler;
-        $this->decorated = $decorated;
     }
 
     /**
@@ -23,8 +21,6 @@ final class WithWorkerStartHandler implements ConfiguratorInterface
      */
     public function configure(Server $server): void
     {
-        $this->decorated->configure($server);
-
         $server->on('WorkerStart', [$this->handler, 'handle']);
     }
 }

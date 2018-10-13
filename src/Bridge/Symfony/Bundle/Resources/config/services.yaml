@@ -27,21 +27,27 @@ services:
 
     'K911\Swoole\Server\HttpServerConfiguration':
 
-    'K911\Swoole\Server\Configurator\ConfiguratorInterface':
-        class: K911\Swoole\Server\Configurator\WithHttpServerConfiguration
+    'K911\Swoole\Server\Configurator\WithHttpServerConfiguration':
 
-    'swoole_bundle.server.htt_server.configurator.with_limited_request_handler':
+    'K911\Swoole\Server\Configurator\ConfiguratorInterface':
+        class: K911\Swoole\Server\Configurator\ChainConfigurator
+        arguments: [!tagged 'swoole_bundle.server_configurator']
+        autoconfigure: false
+
+    'swoole_bundle.server.http_server.configurator.with_limited_request_handler':
         class: K911\Swoole\Server\Configurator\WithRequestHandler
+        autoconfigure: false
         arguments:
             $requestHandler: '@K911\Swoole\Server\RequestHandler\LimitedRequestHandler'
 
-    'swoole_bundle.server.htt_server.configurator.with_request_handler':
+    'swoole_bundle.server.http_server.configurator.with_request_handler':
         class: K911\Swoole\Server\Configurator\WithRequestHandler
+        autoconfigure: false
 
     'swoole_bundle.server.http_server.factory':
         class: K911\Swoole\Server\HttpServerFactory
         arguments:
-            $configurator: '@swoole_bundle.server.htt_server.configurator.with_request_handler'
+            $configurator: '@swoole_bundle.server.http_server.configurator.with_request_handler'
 
     'K911\Swoole\Bridge\Symfony\Bundle\Command\ServerStartCommand':
         tags: ['console.command']
@@ -62,7 +68,7 @@ services:
     'swoole_bundle.server.http_server.limited_factory':
         class: K911\Swoole\Server\HttpServerFactory
         arguments:
-            $configurator: '@swoole_bundle.server.htt_server.configurator.with_limited_request_handler'
+            $configurator: '@swoole_bundle.server.http_server.configurator.with_limited_request_handler'
 
     'K911\Swoole\Bridge\Symfony\Bundle\Command\ServerProfileCommand':
         tags: ['console.command']

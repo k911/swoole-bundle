@@ -47,12 +47,14 @@ final class SwooleExtension extends Extension implements PrependExtensionInterfa
     public function load(array $configs, ContainerBuilder $container): void
     {
         $configuration = Configuration::fromTreeBuilder();
-
         $loader = new YamlFileLoader($container, new FileLocator(__DIR__.'/../Resources/config'));
         $loader->load('services.yaml');
 
         $container->registerForAutoconfiguration(BootableInterface::class)
             ->addTag('swoole_bundle.bootable_service');
+
+        $container->registerForAutoconfiguration(ConfiguratorInterface::class)
+            ->addTag('swoole_bundle.server_configurator');
 
         $config = $this->processConfiguration($configuration, $configs);
 
@@ -124,11 +126,9 @@ final class SwooleExtension extends Extension implements PrependExtensionInterfa
 
         if ($container->has(WorkerStartHandlerInterface::class)) {
             $container->register(WithWorkerStartHandler::class)
-                ->addArgument(new Reference(WithWorkerStartHandler::class.'.inner'))
                 ->setAutowired(true)
                 ->setAutoconfigured(true)
-                ->setPublic(false)
-                ->setDecoratedService(ConfiguratorInterface::class);
+                ->setPublic(false);
         }
     }
 
