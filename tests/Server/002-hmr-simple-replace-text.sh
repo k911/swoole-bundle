@@ -5,6 +5,7 @@ cd "$( dirname "${BASH_SOURCE[0]}" )/../Fixtures/Symfony/app";
 HOST=localhost
 PORT=9999
 CURL_REQUEST=http://${HOST}:${PORT}/test/hmr
+ORIGINAL_TEXT="Wrong response!";
 RESPONSE_TEXT_1="Hello world!";
 RESPONSE_TEXT_2="Hello world from updated by HMR symfony controller!";
 CONTROLLER_TEMPLATE_FILE='../TestBundle/Controller/HMRTestController.php.tmpl'
@@ -46,5 +47,8 @@ else
 fi
 
 ./console swoole:server:stop --ansi
+
+CONTENTS=${TEMPLATE//"%REPLACE%"/$ORIGINAL_TEXT}
+echo "$CONTENTS" > ${CONTROLLER_FILE};
 
 exit ${EXIT_CODE};

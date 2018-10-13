@@ -9,7 +9,7 @@ parameters:
         # Put false positives here
 
         # On purpose
-        - '#K911\\Swoole\\Tests\\Unit\\Server\\SwooleServerOnEventSpy::__construct\(\) does not call parent constructor from Swoole\\Server#'
+        - '#K911\\Swoole\\Tests\\Unit\\Server\\Swoole(:?Http)?Server(:?Mock|Dummy)::__construct\(\) does not call parent constructor from Swoole\\#'
 
         # Prophecy "->shouldBeCalled()"
         - '#Result of method [\w\\]+::\w+\(\) \(void\) is used#'

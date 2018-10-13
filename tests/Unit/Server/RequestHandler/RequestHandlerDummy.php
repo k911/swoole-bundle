@@ -15,6 +15,5 @@ final class RequestHandlerDummy implements RequestHandlerInterface
      */
     public function handle(Request $request, Response $response): void
     {
-        // noop
     }
 }

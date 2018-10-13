@@ -7,7 +7,7 @@ namespace K911\Swoole\Server\WorkerHandler;
 use K911\Swoole\Server\Runtime\HMR\HotModuleReloaderInterface;
 use Swoole\Server;
 
-final class HMRWorkerHandler implements WorkerStartHandlerInterface
+final class HMRWorkerStartHandler implements WorkerStartHandlerInterface
 {
     private $hmr;
     private $interval;
@@ -23,10 +23,12 @@ final class HMRWorkerHandler implements WorkerStartHandlerInterface
      */
     public function handle(Server $worker, int $workerId): void
     {
-        if (!$worker->taskworker) {
-            $worker->tick($this->interval, function () use ($worker): void {
-                $this->hmr->tick($worker);
-            });
+        if ($worker->taskworker) {
+            return;
         }
+
+        $worker->tick($this->interval, function () use ($worker): void {
+            $this->hmr->tick($worker);
+        });
     }
 }
