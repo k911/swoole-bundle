@@ -20,7 +20,9 @@ services:
 
     'K911\Swoole\Server\RequestHandler\LimitedRequestHandler':
 
-    'K911\Swoole\Server\Runtime\BootManager':
+    'K911\Swoole\Server\Runtime\BootableInterface':
+        class: 'K911\Swoole\Server\Runtime\BootManager'
+        arguments: [!tagged 'swoole_bundle.bootable_service']
         autoconfigure: false
 
     'K911\Swoole\Server\HttpServer':

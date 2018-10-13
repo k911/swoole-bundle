@@ -6,17 +6,22 @@ namespace K911\Swoole\Server\Runtime;
 
 use Assert\Assertion;
 
+/**
+ * Chain of services implementing BootableInterface.
+ */
 final class BootManager implements BootableInterface
 {
     private $booted;
     private $services;
 
-    public function __construct(bool $booted = false, BootableInterface ...$services)
+    /**
+     * @param iterable<BootableInterface> $services
+     * @param bool                        $booted
+     */
+    public function __construct(iterable $services, bool $booted = false)
     {
+        $this->services = $services;
         $this->booted = $booted;
-        foreach ($services as $service) {
-            $this->addService($service);
-        }
     }
 
     /**
@@ -33,20 +38,13 @@ final class BootManager implements BootableInterface
 
         $booted = [];
 
-        /**
-         * @var int
-         * @var BootableInterface $service
-         */
-        foreach ($this->services as $id => $service) {
+        /** @var BootableInterface $service */
+        foreach ($this->services as $service) {
+            $id = \spl_object_id($service);
             if (!isset($booted[$id])) {
                 $service->boot($runtimeConfiguration);
                 $booted[$id] = true;
             }
         }
-    }
-
-    public function addService(BootableInterface $service): void
-    {
-        $this->services[\spl_object_id($service)] = $service;
     }
 }
