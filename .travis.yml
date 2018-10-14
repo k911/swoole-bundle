@@ -19,12 +19,11 @@ matrix:
       curl -L
       https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64
       > ./cc-test-reporter
-    - 'chmod +x ./cc-test-reporter'
-    - './cc-test-reporter before-build'
+    - chmod +x ./cc-test-reporter
+    - ./cc-test-reporter before-build
     after_success:
-    - >-
-      ./cc-test-reporter after-build -t clover --exit-code
-      $TRAVIS_TEST_RESULT
+    - composer merge-code-coverage
+    - ./cc-test-reporter after-build -t clover --exit-code $TRAVIS_TEST_RESULT
     env:
     - COVERAGE=1
     - DEPLOY=1
@@ -36,21 +35,21 @@ matrix:
     - COMPOSER_ARGS=update --prefer-lowest
 
 before_install:
-- 'export PATH="$PATH:$HOME/.composer/vendor/bin"'
-- 'composer global require phwoolcon/ci-pecl-cacher'
+- export PATH="$PATH:$HOME/.composer/vendor/bin"
+- composer global require phwoolcon/ci-pecl-cacher
 - pecl update-channels
 - ci-pecl-install inotify
 - ci-pecl-install swoole-$SWOOLE_VERSION swoole
 
 install:
-- 'composer $COMPOSER_ARGS --prefer-dist --no-progress --no-suggest --no-scripts --ansi'
+- composer $COMPOSER_ARGS --prefer-dist --no-progress --no-suggest --no-scripts --ansi
 
 script:
-- 'composer validate'
+- composer validate
 - 'if [[ "$COVERAGE" != "1" ]]; then composer test; fi'
 - 'if [[ "$COVERAGE" == "1" ]]; then composer analyse; fi'
 - 'if [[ "$COVERAGE" == "1" ]]; then composer code-coverage; fi'
-- 'for f in ./tests/Server/*.sh; do echo "[Test] $f"; bash "$f" -H || return 1; done;'
+- bash ./tests/run-server-tests.sh
 
 before_deploy:
 - >-

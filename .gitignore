@@ -1,4 +1,5 @@
 /vendor
+/cov
 swoole.pid
 .php_cs.cache
 clover.xml
