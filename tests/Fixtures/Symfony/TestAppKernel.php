@@ -7,6 +7,7 @@ namespace K911\Swoole\Tests\Fixtures\Symfony;
 use Exception;
 use Generator;
 use K911\Swoole\Bridge\Symfony\Bundle\SwooleBundle;
+use K911\Swoole\Tests\Fixtures\Symfony\CoverageBundle\CoverageBundle;
 use K911\Swoole\Tests\Fixtures\Symfony\TestBundle\TestBundle;
 use Symfony\Bundle\FrameworkBundle\FrameworkBundle;
 use Symfony\Bundle\FrameworkBundle\Kernel\MicroKernelTrait;
@@ -49,6 +50,10 @@ class TestAppKernel extends Kernel
         yield new MonologBundle();
         yield new SwooleBundle();
         yield new TestBundle();
+
+        if ('cov' === $this->environment) {
+            yield new CoverageBundle();
+        }
     }
 
     /**
@@ -68,6 +73,8 @@ class TestAppKernel extends Kernel
      */
     protected function configureContainer(ContainerBuilder $c, LoaderInterface $loader): void
     {
+        $c->setParameter('bundle.root_dir', \dirname(__DIR__, 3));
+
         $confDir = $this->getProjectDir().'/config';
         $loader->load($confDir.'/*'.self::CONFIG_EXTENSIONS, 'glob');
         if (\is_dir($confDir.'/'.$this->environment)) {

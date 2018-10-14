@@ -39,6 +39,8 @@
         "phpstan/phpstan-beberlei-assert": "^0.10.0",
         "phpstan/phpstan-doctrine": "^0.10.0",
         "phpstan/phpstan-phpunit": "^0.10.0",
+        "phpunit/php-code-coverage": "^6.0",
+        "phpunit/phpcov": "^5.0",
         "phpunit/phpunit": "^7.0",
         "symfony/debug": "^4.1",
         "symfony/framework-bundle": "^4.1",
@@ -78,7 +80,10 @@
             "@phpunit"
         ],
         "code-coverage": [
-            "phpunit --coverage-clover clover.xml --colors=always"
+            "phpunit --coverage-php cov/unit-test.cov --colors=always"
+        ],
+        "merge-code-coverage": [
+            "phpcov merge cov --clover clover.xml"
         ],
         "fix": "php-cs-fixer fix -v --ansi",
         "phpunit": [
