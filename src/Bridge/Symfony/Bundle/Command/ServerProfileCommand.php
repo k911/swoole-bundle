@@ -16,8 +16,7 @@ final class ServerProfileCommand extends AbstractServerStartCommand
      */
     protected function configure(): void
     {
-        $this->setName('swoole:server:profile')
-            ->setDescription('Handles specified amount of requests to a local swoole server. Useful for profiling.')
+        $this->setDescription('Handle specified amount of requests to Swoole HTTP server. Useful for profiling.')
             ->addArgument('requests', InputArgument::REQUIRED, 'Number of requests to handle by the server');
 
         parent::configure();
