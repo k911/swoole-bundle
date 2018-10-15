@@ -24,6 +24,22 @@ class TestAppKernel extends Kernel
 
     private const CONFIG_EXTENSIONS = '.{php,xml,yaml,yml}';
 
+    private $coverageEnabled;
+
+    public function __construct(string $environment, bool $debug)
+    {
+        if ('_cov' === \mb_substr($environment, -4, 4)) {
+            $environment = \mb_substr($environment, 0, -4);
+            $this->coverageEnabled = true;
+        } elseif ('cov' === $environment) {
+            $this->coverageEnabled = true;
+        } else {
+            $this->coverageEnabled = false;
+        }
+
+        parent::__construct($environment, $debug);
+    }
+
     /**
      * {@inheritdoc}
      */
@@ -51,7 +67,7 @@ class TestAppKernel extends Kernel
         yield new SwooleBundle();
         yield new TestBundle();
 
-        if ('cov' === $this->environment) {
+        if ($this->coverageEnabled) {
             yield new CoverageBundle();
         }
     }
@@ -79,6 +95,10 @@ class TestAppKernel extends Kernel
         $loader->load($confDir.'/*'.self::CONFIG_EXTENSIONS, 'glob');
         if (\is_dir($confDir.'/'.$this->environment)) {
             $loader->load($confDir.'/'.$this->environment.'/**/*'.self::CONFIG_EXTENSIONS, 'glob');
+        }
+
+        if ($this->coverageEnabled && 'cov' !== $this->environment) {
+            $loader->load($confDir.'/cov/**/*'.self::CONFIG_EXTENSIONS, 'glob');
         }
     }
 
