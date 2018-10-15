@@ -1,0 +1,49 @@
+services:
+    _defaults:
+        autowire: true
+        autoconfigure: true
+        public: false
+
+    'K911\Swoole\Bridge\Symfony\Bundle\Command\ServerStopCommand':
+        tags: ['console.command']
+
+    'K911\Swoole\Bridge\Symfony\Bundle\Command\ServerReloadCommand':
+        tags: ['console.command']
+
+    'swoole_bundle.server.http_server.configurator.for_server_start_command':
+        class: K911\Swoole\Server\Configurator\ChainConfigurator
+        arguments:
+        - '@swoole_bundle.server.http_server.configurator'
+        - '@swoole_bundle.server.http_server.configurator.with_request_handler'
+        autoconfigure: false
+
+    'K911\Swoole\Bridge\Symfony\Bundle\Command\ServerStartCommand':
+        tags: ['console.command']
+        arguments:
+            $serverConfigurator: '@swoole_bundle.server.http_server.configurator.for_server_start_command'
+
+    'swoole_bundle.server.http_server.configurator.for_server_run_command':
+        class: K911\Swoole\Server\Configurator\ChainConfigurator
+        arguments:
+        - '@swoole_bundle.server.http_server.configurator'
+        - '@swoole_bundle.server.http_server.configurator.with_request_handler'
+        - '@swoole_bundle.server.http_server.configurator.with_sigint_handler'
+        autoconfigure: false
+
+    'K911\Swoole\Bridge\Symfony\Bundle\Command\ServerRunCommand':
+        tags: ['console.command']
+        arguments:
+            $serverConfigurator: '@swoole_bundle.server.http_server.configurator.for_server_run_command'
+
+    'swoole_bundle.server.http_server.configurator.for_server_profile_command':
+        class: K911\Swoole\Server\Configurator\ChainConfigurator
+        arguments:
+        - '@swoole_bundle.server.http_server.configurator'
+        - '@swoole_bundle.server.http_server.configurator.with_limited_request_handler'
+        - '@swoole_bundle.server.http_server.configurator.with_sigint_handler'
+        autoconfigure: false
+
+    'K911\Swoole\Bridge\Symfony\Bundle\Command\ServerProfileCommand':
+        tags: ['console.command']
+        arguments:
+            $serverConfigurator: '@swoole_bundle.server.http_server.configurator.for_server_profile_command'

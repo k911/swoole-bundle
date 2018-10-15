@@ -17,11 +17,6 @@ class WithRequestHandlerTest extends TestCase
     private $requestHandlerDummy;
 
     /**
-     * @var ConfiguratorDummy
-     */
-    private $decoratedDummy;
-
-    /**
      * @var WithRequestHandler
      */
     private $configurator;
@@ -29,9 +24,8 @@ class WithRequestHandlerTest extends TestCase
     protected function setUp(): void
     {
         $this->requestHandlerDummy = new RequestHandlerDummy();
-        $this->decoratedDummy = new ConfiguratorDummy();
 
-        $this->configurator = new WithRequestHandler($this->decoratedDummy, $this->requestHandlerDummy);
+        $this->configurator = new WithRequestHandler($this->requestHandlerDummy);
     }
 
     public function testConfigure(): void

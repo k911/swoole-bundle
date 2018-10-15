@@ -49,10 +49,10 @@ final class SwooleExtension extends Extension implements PrependExtensionInterfa
         $configuration = Configuration::fromTreeBuilder();
         $loader = new YamlFileLoader($container, new FileLocator(__DIR__.'/../Resources/config'));
         $loader->load('services.yaml');
+        $loader->load('commands.yaml');
 
         $container->registerForAutoconfiguration(BootableInterface::class)
             ->addTag('swoole_bundle.bootable_service');
-
         $container->registerForAutoconfiguration(ConfiguratorInterface::class)
             ->addTag('swoole_bundle.server_configurator');
 

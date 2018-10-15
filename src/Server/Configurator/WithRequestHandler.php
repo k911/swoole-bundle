@@ -9,12 +9,10 @@ use Swoole\Http\Server;
 
 final class WithRequestHandler implements ConfiguratorInterface
 {
-    private $decorated;
     private $requestHandler;
 
-    public function __construct(ConfiguratorInterface $decorated, RequestHandlerInterface $requestHandler)
+    public function __construct(RequestHandlerInterface $requestHandler)
     {
-        $this->decorated = $decorated;
         $this->requestHandler = $requestHandler;
     }
 
@@ -23,8 +21,6 @@ final class WithRequestHandler implements ConfiguratorInterface
      */
     public function configure(Server $server): void
     {
-        $this->decorated->configure($server);
-
         $server->on('request', [$this->requestHandler, 'handle']);
     }
 }

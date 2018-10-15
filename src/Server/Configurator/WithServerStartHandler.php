@@ -10,12 +10,10 @@ use Swoole\Http\Server;
 final class WithServerStartHandler implements ConfiguratorInterface
 {
     private $handler;
-    private $decorated;
 
-    public function __construct(ConfiguratorInterface $decorated, ServerStartHandlerInterface $handler)
+    public function __construct(ServerStartHandlerInterface $handler)
     {
         $this->handler = $handler;
-        $this->decorated = $decorated;
     }
 
     /**
@@ -23,8 +21,6 @@ final class WithServerStartHandler implements ConfiguratorInterface
      */
     public function configure(Server $server): void
     {
-        $this->decorated->configure($server);
-
         $server->on('start', [$this->handler, 'handle']);
     }
 }
