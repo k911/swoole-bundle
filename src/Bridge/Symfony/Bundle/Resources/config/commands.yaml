@@ -5,10 +5,10 @@ services:
         public: false
 
     'K911\Swoole\Bridge\Symfony\Bundle\Command\ServerStopCommand':
-        tags: ['console.command']
+        tags: [ { name: console.command, command: 'swoole:server:stop' } ]
 
     'K911\Swoole\Bridge\Symfony\Bundle\Command\ServerReloadCommand':
-        tags: ['console.command']
+        tags: [ { name: console.command, command: 'swoole:server:reload' } ]
 
     'swoole_bundle.server.http_server.configurator.for_server_start_command':
         class: K911\Swoole\Server\Configurator\ChainConfigurator
@@ -18,7 +18,7 @@ services:
         autoconfigure: false
 
     'K911\Swoole\Bridge\Symfony\Bundle\Command\ServerStartCommand':
-        tags: ['console.command']
+        tags: [ { name: console.command, command: 'swoole:server:start' } ]
         arguments:
             $serverConfigurator: '@swoole_bundle.server.http_server.configurator.for_server_start_command'
 
@@ -31,7 +31,7 @@ services:
         autoconfigure: false
 
     'K911\Swoole\Bridge\Symfony\Bundle\Command\ServerRunCommand':
-        tags: ['console.command']
+        tags: [ { name: console.command, command: 'swoole:server:run' } ]
         arguments:
             $serverConfigurator: '@swoole_bundle.server.http_server.configurator.for_server_run_command'
 
@@ -44,6 +44,6 @@ services:
         autoconfigure: false
 
     'K911\Swoole\Bridge\Symfony\Bundle\Command\ServerProfileCommand':
-        tags: ['console.command']
+        tags: [ { name: console.command, command: 'swoole:server:profile' } ]
         arguments:
             $serverConfigurator: '@swoole_bundle.server.http_server.configurator.for_server_profile_command'

@@ -37,8 +37,7 @@ final class ServerStopCommand extends Command
      */
     protected function configure(): void
     {
-        $this->setName('swoole:server:stop')
-            ->setDescription('Stops a local Swoole HTTP server running in background')
+        $this->setDescription('Stop Swoole HTTP server running in the background.')
             ->addOption('pid_file', null, InputOption::VALUE_REQUIRED, 'Pid file', $this->parameterBag->get('kernel.project_dir').'/var/swoole.pid');
     }
 
