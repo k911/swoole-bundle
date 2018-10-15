@@ -23,8 +23,8 @@ final class ServerStopCommand extends Command
     public function __construct(
         HttpServer $server,
         HttpServerConfiguration $serverConfiguration,
-        ParameterBagInterface $parameterBag)
-    {
+        ParameterBagInterface $parameterBag
+    ) {
         $this->server = $server;
         $this->serverConfiguration = $serverConfiguration;
         $this->parameterBag = $parameterBag;

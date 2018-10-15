@@ -6,11 +6,11 @@ namespace K911\Swoole\Bridge\Symfony\Bundle\Command;
 
 use Assert\Assertion;
 use Composer\XdebugHandler\XdebugHandler;
+use K911\Swoole\Server\Configurator\ConfiguratorInterface;
 use K911\Swoole\Server\HttpServer;
 use K911\Swoole\Server\HttpServerConfiguration;
 use K911\Swoole\Server\HttpServerFactory;
 use K911\Swoole\Server\Runtime\BootableInterface;
-use K911\Swoole\Server\Runtime\BootManager;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -23,31 +23,32 @@ use function K911\Swoole\get_max_memory;
 
 abstract class AbstractServerStartCommand extends Command
 {
-    private $server;
-    private $serverFactory;
-    private $serverConfiguration;
-    private $bootManager;
     protected $parameterBag;
+
+    private $server;
+    private $bootManager;
+    private $serverConfiguration;
+    private $serverConfigurator;
 
     /**
      * @param HttpServer              $server
-     * @param HttpServerFactory       $serverFactory
      * @param HttpServerConfiguration $serverConfiguration
+     * @param ConfiguratorInterface   $serverConfigurator
      * @param ParameterBagInterface   $parameterBag
      * @param BootableInterface       $bootManager
      */
     public function __construct(
         HttpServer $server,
-        HttpServerFactory $serverFactory,
         HttpServerConfiguration $serverConfiguration,
+        ConfiguratorInterface $serverConfigurator,
         ParameterBagInterface $parameterBag,
         BootableInterface $bootManager
     ) {
         $this->server = $server;
-        $this->serverFactory = $serverFactory;
-        $this->serverConfiguration = $serverConfiguration;
-        $this->parameterBag = $parameterBag;
         $this->bootManager = $bootManager;
+        $this->parameterBag = $parameterBag;
+        $this->serverConfigurator = $serverConfigurator;
+        $this->serverConfiguration = $serverConfiguration;
 
         parent::__construct();
     }
@@ -100,10 +101,12 @@ abstract class AbstractServerStartCommand extends Command
             exit(1);
         }
 
-        $this->server->attach($this->serverFactory->make(
+        $server = HttpServerFactory::make(
             $this->serverConfiguration->getDefaultSocket(),
             $this->serverConfiguration->getRunningMode()
-        ));
+        );
+        $this->serverConfigurator->configure($server);
+        $this->server->attach($server);
 
         // TODO: Lock server configuration here
 //        $this->serverConfiguration->lock();
