@@ -8,14 +8,14 @@ use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
-class HMRTestController extends Controller
+class ReplacedContentTestController extends Controller
 {
     private const BASH_REPLACE_PATTERN = 'Wrong response!';
 
     /**
      * @Route(
      *     methods={"GET"},
-     *     path="/test/hmr"
+     *     path="/test/replaced/content"
      * )
      *
      * @return Response

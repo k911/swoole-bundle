@@ -9,5 +9,6 @@ swoole:
         port: '%env(int:PORT)%'
         host: '%env(HOST)%'
         static: 'auto'
+        hmr: 'off'
         trusted_hosts: '%env(TRUSTED_HOSTS)%'
         trusted_proxies: '%env(TRUSTED_PROXIES)%'
