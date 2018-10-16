@@ -33,10 +33,11 @@ services:
 
     'K911\Swoole\Server\Configurator\WithHttpServerConfiguration':
 
-    'swoole_bundle.server.http_server.configurator':
-        class: K911\Swoole\Server\Configurator\ChainConfigurator
+    'K911\Swoole\Server\Configurator\CallableChainConfiguratorFactory':
+
+    'swoole_bundle.server.http_server.configurator_collection':
+        class: K911\Swoole\Component\GeneratedCollection
         arguments: [!tagged 'swoole_bundle.server_configurator']
-        autoconfigure: false
 
     'K911\Swoole\Server\Configurator\ConfiguratorInterface':
         alias: 'swoole_bundle.server.http_server.configurator'
