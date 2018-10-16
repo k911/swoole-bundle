@@ -11,9 +11,10 @@ services:
         tags: [ { name: console.command, command: 'swoole:server:reload' } ]
 
     'swoole_bundle.server.http_server.configurator.for_server_start_command':
-        class: K911\Swoole\Server\Configurator\ChainConfigurator
+        class: K911\Swoole\Server\Configurator\CallableChainConfigurator
+        factory: 'K911\Swoole\Server\Configurator\CallableChainConfiguratorFactory:make'
         arguments:
-        - '@swoole_bundle.server.http_server.configurator'
+        - '@swoole_bundle.server.http_server.configurator_collection'
         - '@swoole_bundle.server.http_server.configurator.with_request_handler'
         autoconfigure: false
 
@@ -23,9 +24,10 @@ services:
             $serverConfigurator: '@swoole_bundle.server.http_server.configurator.for_server_start_command'
 
     'swoole_bundle.server.http_server.configurator.for_server_run_command':
-        class: K911\Swoole\Server\Configurator\ChainConfigurator
+        class: K911\Swoole\Server\Configurator\CallableChainConfigurator
+        factory: 'K911\Swoole\Server\Configurator\CallableChainConfiguratorFactory:make'
         arguments:
-        - '@swoole_bundle.server.http_server.configurator'
+        - '@swoole_bundle.server.http_server.configurator_collection'
         - '@swoole_bundle.server.http_server.configurator.with_request_handler'
         - '@swoole_bundle.server.http_server.configurator.with_sigint_handler'
         autoconfigure: false
@@ -36,9 +38,10 @@ services:
             $serverConfigurator: '@swoole_bundle.server.http_server.configurator.for_server_run_command'
 
     'swoole_bundle.server.http_server.configurator.for_server_profile_command':
-        class: K911\Swoole\Server\Configurator\ChainConfigurator
+        class: K911\Swoole\Server\Configurator\CallableChainConfigurator
+        factory: 'K911\Swoole\Server\Configurator\CallableChainConfiguratorFactory:make'
         arguments:
-        - '@swoole_bundle.server.http_server.configurator'
+        - '@swoole_bundle.server.http_server.configurator_collection'
         - '@swoole_bundle.server.http_server.configurator.with_limited_request_handler'
         - '@swoole_bundle.server.http_server.configurator.with_sigint_handler'
         autoconfigure: false
