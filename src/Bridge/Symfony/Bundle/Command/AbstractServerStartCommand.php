@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace K911\Swoole\Bridge\Symfony\Bundle\Command;
 
 use Assert\Assertion;
-use Composer\XdebugHandler\XdebugHandler;
+use K911\Swoole\Common\XdebugHandler\XdebugHandler;
 use K911\Swoole\Server\Configurator\ConfiguratorInterface;
 use K911\Swoole\Server\HttpServer;
 use K911\Swoole\Server\HttpServerConfiguration;
@@ -80,6 +80,39 @@ abstract class AbstractServerStartCommand extends Command
             ->addOption('trusted-proxies', null, InputOption::VALUE_REQUIRED, 'Trusted proxies', $this->parameterBag->get('swoole.http_server.trusted_proxies'));
     }
 
+    private function ensureXdebugDisabled(SymfonyStyle $io): void
+    {
+        $xdebugHandler = new XdebugHandler();
+        if (!$xdebugHandler->shouldRestart()) {
+            return;
+        }
+
+        if ($xdebugHandler->canBeRestarted()) {
+            $restartedProcess = $xdebugHandler->prepareRestartedProcess();
+            $xdebugHandler->forwardSignals($restartedProcess);
+
+            $io->note('Restarting command without Xdebug..');
+            $io->comment(\sprintf(
+                "%s\n%s",
+                'Swoole is incompatible with Xdebug. Check https://github.com/swoole/swoole-src/issues/1681 for more information.',
+                \sprintf('Set environment variable "%s=1" to use it anyway.', $xdebugHandler->allowXdebugEnvName())
+            ));
+
+            $restartedProcess->start();
+
+            foreach ($restartedProcess as $processOutput) {
+                echo $processOutput;
+            }
+
+            exit($restartedProcess->getExitCode());
+        }
+
+        $io->warning(\sprintf(
+            "Xdebug is enabled! Command could not be restarted automatically due to lack of \"pcntl\" extension.\nPlease either disable Xdebug or set environment variable \"%s=1\" to disable this message.",
+            $xdebugHandler->allowXdebugEnvName()
+        ));
+    }
+
     /**
      * {@inheritdoc}
      *
@@ -90,9 +123,9 @@ abstract class AbstractServerStartCommand extends Command
      */
     final protected function execute(InputInterface $input, OutputInterface $output): void
     {
-        $this->ensureXdebugDisabled();
-
         $io = new SymfonyStyle($input, $output);
+
+        $this->ensureXdebugDisabled($io);
 
         $this->prepareServerConfiguration($this->serverConfiguration, $input);
 
@@ -118,16 +151,6 @@ abstract class AbstractServerStartCommand extends Command
         $io->table(['Configuration', 'Values'], $this->prepareConfigurationRowsToPrint($this->serverConfiguration, $runtimeConfiguration));
 
         $this->startServer($this->serverConfiguration, $this->server, $io);
-    }
-
-    /**
-     * Xdebug must be disabled when using swoole due to possibility of core dump.
-     */
-    private function ensureXdebugDisabled(): void
-    {
-        $xdebug = new XdebugHandler('swoole');
-        $xdebug->check();
-        unset($xdebug);
     }
 
     /**
