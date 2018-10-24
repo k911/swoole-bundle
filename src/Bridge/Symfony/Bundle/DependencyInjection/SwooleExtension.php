@@ -69,9 +69,7 @@ final class SwooleExtension extends Extension implements PrependExtensionInterfa
      */
     private function registerHttpServer(array $config, ContainerBuilder $container): void
     {
-        if (!empty($config['services'])) {
-            $this->registerHttpServerServices($config['services'], $container);
-        }
+        $this->registerHttpServerServices($config['services'], $container);
 
         $container->setParameter('swoole.http_server.trusted_proxies', $config['trusted_proxies']);
         $container->setParameter('swoole.http_server.trusted_hosts', $config['trusted_hosts']);
@@ -196,16 +194,16 @@ final class SwooleExtension extends Extension implements PrependExtensionInterfa
             $container->register(EntityManagerHandler::class)
                 ->addArgument(new Reference(EntityManagerHandler::class.'.inner'))
                 ->setAutowired(true)
-                ->setAutoconfigured(true)
+                ->setAutoconfigured(false)
                 ->setPublic(false)
                 ->setDecoratedService(RequestHandlerInterface::class, null, -20);
         }
 
-        if ($config['debug_handler'] || (null === $config['debug_handler'] && $container->getParameter('kernel.debug'))) {
+        if ($config['debug_handler'] || (null === $config['debug_handler'] && $this->isDebug($container))) {
             $container->register(DebugHttpKernelRequestHandler::class)
                 ->addArgument(new Reference(DebugHttpKernelRequestHandler::class.'.inner'))
                 ->setAutowired(true)
-                ->setAutoconfigured(true)
+                ->setAutoconfigured(false)
                 ->setPublic(false)
                 ->setDecoratedService(RequestHandlerInterface::class, null, -50);
         }
