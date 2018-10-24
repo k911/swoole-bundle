@@ -17,13 +17,17 @@ services:
 
     'K911\Swoole\Server\RequestHandler\RequestHandlerInterface':
         class: K911\Swoole\Bridge\Symfony\HttpKernel\HttpKernelRequestHandler
+        autoconfigure: false
 
     'K911\Swoole\Server\RequestHandler\LimitedRequestHandler':
 
     'K911\Swoole\Server\LifecycleHandler\SigIntHandler':
 
+    'K911\Swoole\Server\Runtime\CallableBootManagerFactory':
+
     'K911\Swoole\Server\Runtime\BootableInterface':
-        class: 'K911\Swoole\Server\Runtime\BootManager'
+        class: 'K911\Swoole\Server\Runtime\CallableBootManager'
+        factory: 'K911\Swoole\Server\Runtime\CallableBootManagerFactory:make'
         arguments: [!tagged 'swoole_bundle.bootable_service']
         autoconfigure: false
 

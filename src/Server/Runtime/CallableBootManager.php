@@ -9,18 +9,18 @@ use Assert\Assertion;
 /**
  * Chain of services implementing BootableInterface.
  */
-final class BootManager implements BootableInterface
+final class CallableBootManager implements BootableInterface
 {
     private $booted;
-    private $services;
+    private $bootables;
 
     /**
-     * @param iterable<BootableInterface> $services
-     * @param bool                        $booted
+     * @param iterable<callable> $bootables
+     * @param bool               $booted
      */
-    public function __construct(iterable $services, bool $booted = false)
+    public function __construct(iterable $bootables, bool $booted = false)
     {
-        $this->services = $services;
+        $this->bootables = $bootables;
         $this->booted = $booted;
     }
 
@@ -36,15 +36,9 @@ final class BootManager implements BootableInterface
         Assertion::false($this->booted, 'Boot method has already been called. Cannot boot services multiple times.');
         $this->booted = true;
 
-        $booted = [];
-
-        /** @var BootableInterface $service */
-        foreach ($this->services as $service) {
-            $id = \spl_object_id($service);
-            if (!isset($booted[$id])) {
-                $service->boot($runtimeConfiguration);
-                $booted[$id] = true;
-            }
+        /** @var callable $bootable */
+        foreach ($this->bootables as $bootable) {
+            $bootable($runtimeConfiguration);
         }
     }
 }
