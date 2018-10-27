@@ -41,9 +41,9 @@ NEW_VERSION=${VERSION//${OLD_VERSION_SEM}/${NEW_VERSION_SEM}}
 
 echo "Releasing version: ${NEW_VERSION}"
 
-# Tag to regenerate changelog with new version included
+# Tag to update changelog with new version included
 git tag "v${NEW_VERSION}"
-conventional-changelog -p angular -i CHANGELOG.md -s -r 0
+conventional-changelog -p angular -i CHANGELOG.md -s
 git tag -d "v${NEW_VERSION}"
 
 # Create release commit and tag
