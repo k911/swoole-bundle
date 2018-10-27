@@ -3,71 +3,78 @@ sudo: false
 
 cache:
   directories:
-  - $HOME/.composer/cache
-  - $HOME/pecl_cache
+    - $HOME/.composer/cache
+    - $HOME/pecl_cache
 
 env:
   global:
-  - COMPOSER_ARGS=install
-  - SWOOLE_VERSION=4.2.5
+    - COMPOSER_ARGS=install
+    - SWOOLE_VERSION=4.2.5
 
 matrix:
+  allow_failures:
+    - php: "7.3"
   include:
-  - php: '7.2'
-    before_script:
-    - >-
-      curl -L
-      https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64
-      > ./cc-test-reporter
-    - chmod +x ./cc-test-reporter
-    - ./cc-test-reporter before-build
-    after_success:
-    - composer merge-code-coverage
-    - ./cc-test-reporter after-build -t clover --exit-code $TRAVIS_TEST_RESULT
-    env:
-    - COVERAGE=1
-    - DEPLOY=1
-  - php: '7.2'
-    env:
-    - COMPOSER_ARGS=update
-  - php: '7.2'
-    env:
-    - COMPOSER_ARGS=update --prefer-lowest
-  - php: '7.2'
-    env:
-    - SWOOLE_LATEST=1
+    - php: "7.2"
+      before_script:
+        - >-
+          curl -L
+          https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64
+          > ./cc-test-reporter
+        - chmod +x ./cc-test-reporter
+        - ./cc-test-reporter before-build
+      after_success:
+        - composer merge-code-coverage
+        - ./cc-test-reporter after-build -t clover --exit-code $TRAVIS_TEST_RESULT
+      env:
+        - COVERAGE=1
+        - DEPLOY=1
+    - php: "7.2"
+      env:
+        - COMPOSER_ARGS=update
+    - php: "7.2"
+      env:
+        - "COMPOSER_ARGS='update --prefer-lowest'"
+    - php: "7.2"
+      env:
+        - SWOOLE_LATEST=1
+    - php: "7.3"
+      env:
+        - "COMPOSER_ARGS='install --ignore-platform-reqs'"
 
 before_install:
-- export PATH="$PATH:$HOME/.composer/vendor/bin"
-- composer global require phwoolcon/ci-pecl-cacher
-- pecl update-channels
-- ci-pecl-install inotify
-- >-
-  if [[ "$SWOOLE_LATEST" = "1" ]]; then
-    ci-pecl-install swoole;
-  else
-    ci-pecl-install swoole-$SWOOLE_VERSION swoole;
-  fi
+  - export PATH="$PATH:$HOME/.composer/vendor/bin"
+  - composer global require phwoolcon/ci-pecl-cacher
+  - pecl update-channels
+  - ci-pecl-install inotify
+  - >-
+    if [[ "$SWOOLE_LATEST" = "1" ]]; then
+      ci-pecl-install swoole;
+    else
+      ci-pecl-install swoole-$SWOOLE_VERSION swoole;
+    fi
 
 install:
-- composer $COMPOSER_ARGS --prefer-dist --no-progress --no-suggest --no-scripts --ansi
+  - export COMPOSER_ARGS="$COMPOSER_ARGS --prefer-dist --no-progress --no-suggest --no-scripts --ansi"
+  - echo "composer $COMPOSER_ARGS"
+  - composer $COMPOSER_ARGS
 
 script:
-- composer validate
-- 'if [[ "$COVERAGE" != "1" ]]; then composer test; fi'
-- 'if [[ "$COVERAGE" == "1" ]]; then composer analyse; fi'
-- 'if [[ "$COVERAGE" == "1" ]]; then composer code-coverage; fi'
-- bash ./tests/run-server-tests.sh
+  - composer validate
+  - 'if [[ "$COVERAGE" != "1" ]]; then composer test; fi'
+  - 'if [[ "$COVERAGE" == "1" ]]; then composer analyse; fi'
+  - 'if [[ "$COVERAGE" == "1" ]]; then composer code-coverage; fi'
+  - bash ./tests/run-server-tests.sh
 
 before_deploy:
-- >-
-  export VERSION=$(git tag -l | sort -V -r | head -1 | sed -E 's/v(.*)/\1/') && echo "VERSION=${VERSION}"
-- yarn global add conventional-changelog-cli conventional-recommended-bump conventional-github-releaser
+  - >-
+    export VERSION=$(git tag -l | sort -V -r | head -1 | sed -E 's/v(.*)/\1/') && echo "VERSION=${VERSION}"
+  - yarn global add conventional-changelog-cli conventional-recommended-bump conventional-github-releaser
 
 deploy:
-- provider: script
-  skip_cleanup: true
-  script: bash ./deploy/releaser.sh
-  on:
-    branch: master
-    condition: $DEPLOY = 1
+  - provider: script
+    skip_cleanup: true
+    script: bash ./deploy/releaser.sh
+    on:
+      branch: master
+      condition: $DEPLOY = 1
