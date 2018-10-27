@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "4804594d4e29e483a74800bde678ba72",
+    "content-hash": "38353214e9ee395954ca4ecef62cf13a",
     "packages": [
         {
             "name": "beberlei/assert",
@@ -1805,12 +1805,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/wudi/swoole-ide-helper.git",
-                "reference": "c5a10b242649f341a2aee399465833927c3b6ed8"
+                "reference": "d5ba04bca84302713dc4ae288dcdf11febb82d35"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/wudi/swoole-ide-helper/zipball/c5a10b242649f341a2aee399465833927c3b6ed8",
-                "reference": "c5a10b242649f341a2aee399465833927c3b6ed8",
+                "url": "https://api.github.com/repos/wudi/swoole-ide-helper/zipball/d5ba04bca84302713dc4ae288dcdf11febb82d35",
+                "reference": "d5ba04bca84302713dc4ae288dcdf11febb82d35",
                 "shasum": ""
             },
             "type": "library",
@@ -1837,7 +1837,7 @@
                 "sublime",
                 "swoole"
             ],
-            "time": "2018-10-10T05:10:09+00:00"
+            "time": "2018-10-25T04:44:48+00:00"
         },
         {
             "name": "friendsofphp/php-cs-fixer",

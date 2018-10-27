@@ -32,7 +32,7 @@
     },
     "require-dev": {
         "doctrine/annotations": "^1.6",
-        "doctrine/orm": "^2.6",
+        "doctrine/orm": "^2.6.2",
         "eaglewu/swoole-ide-helper": "dev-master",
         "friendsofphp/php-cs-fixer": "^2.13",
         "phpstan/phpstan": "^0.10.3",
@@ -44,6 +44,7 @@
         "phpunit/phpunit": "^7.0",
         "symfony/debug": "^4.1",
         "symfony/framework-bundle": "^4.1",
+        "symfony/monolog-bridge": "^4.1",
         "symfony/monolog-bundle": "^3.3",
         "symfony/twig-bundle": "^4.1",
         "symfony/var-dumper": "^4.1",
