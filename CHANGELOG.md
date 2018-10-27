@@ -35,15 +35,12 @@
 
 ### BREAKING CHANGES
 
-* **di:** - Server\HttpServerFactory should not be instantiated anymore, due to
-removed hard coupling with ConfiguratorInterface, and `make()` method
-becomig static. Now use directly: `HttpServerFactory::make()`
-- Configuring server (using object implementing ConfiguratorInterface)
+- `Server\HttpServerFactory` should not be instantiated anymore, due to
+removed hard coupling with `Server\Configurator\ConfiguratorInterface`, and `make()` method
+becomig static. Now use directly: `Server\HttpServerFactory::make()`
+- Configuring server (using object implementing `Server\Configurator\ConfiguratorInterface`)
 now happens in execute method of AbstractServerStartCommand
-- Server\Configurator\ChainConfigurator now accepts
-ConfiguratorInterface variadic starting from second argument and
-implements IteratorAggregate retruning its configurators to ease DI usage (see
-src/Bridge/Symfony/Bundle/Resources/commands.yaml)
+- `Server\Configurator\ChainConfigurator` is now replaced by `Server\Configurator\GeneratedChainConfigurator`
 
 
 
@@ -80,10 +77,10 @@ src/Bridge/Symfony/Bundle/Resources/commands.yaml)
 
 ### BREAKING CHANGES
 
-* **config:**   - Env APP_TRUSTED_HOSTS is no longer supported
-  - Env APP_TRUSTED_PROXIES is no longer supported
-  - Configuration 'swoole.http_server.services.debug' is renamed to 'swoole.http_server.services.debug_handler'
-  - Configuration 'swoole.http_server.services.trust_all_proxies' is renamed to 'swoole.http_server.services.trust_all_proxies_handler'
+* Env `APP_TRUSTED_HOSTS` is no longer supported
+* Env `APP_TRUSTED_PROXIES` is no longer supported
+* Configuration `swoole.http_server.services.debug` is renamed to `swoole.http_server.services.debug_handler`
+* Configuration `swoole.http_server.services.trust_all_proxies` is renamed to `swoole.http_server.services.trust_all_proxies_handler`
 
 
 
