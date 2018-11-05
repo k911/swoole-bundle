@@ -3,6 +3,15 @@
 
 
 
+<a name="0.4.2"></a>
+## [0.4.2](https://github.com/k911/swoole-bundle/compare/v0.4.1...v0.4.2) (2018-11-05)
+
+
+### Bug Fixes
+
+* **xdebug-handler:** Remove process timeout ([#23](https://github.com/k911/swoole-bundle/issues/23)) ([29148af](https://github.com/k911/swoole-bundle/commit/29148af))
+
+
 <a name=""></a>
 # [](https://github.com/k911/swoole-bundle/compare/v0.4.1...v) (2018-10-24)
 

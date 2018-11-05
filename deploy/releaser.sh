@@ -43,7 +43,7 @@ echo "Releasing version: ${NEW_VERSION}"
 
 # Tag to update changelog with new version included
 git tag "v${NEW_VERSION}"
-conventional-changelog -p angular -i CHANGELOG.md -s
+conventional-changelog -p angular -i CHANGELOG.md -s -r 2
 git tag -d "v${NEW_VERSION}"
 
 # Create release commit and tag
