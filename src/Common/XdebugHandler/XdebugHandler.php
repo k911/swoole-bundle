@@ -72,6 +72,7 @@ final class XdebugHandler
 
         $process = new Process($command, null, $this->prepareEnvs());
         $process->setTty(Process::isTtySupported());
+        $process->setTimeout(null);
 
         return $process;
     }
