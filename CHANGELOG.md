@@ -1,4 +1,9 @@
 <a name=""></a>
+# [](https://github.com/k911/swoole-bundle/compare/v0.4.2...v) (2018-11-05)
+
+
+
+<a name=""></a>
 # [](https://github.com/k911/swoole-bundle/compare/v0.4.1...v) (2018-10-24)
 
 
