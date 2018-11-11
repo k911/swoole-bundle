@@ -1,0 +1,339 @@
+version: "3.6"
+services:
+  ext-builder:
+    image: "k911/swoole-bundle:ext-builder"
+    build:
+      context: .
+      cache_from:
+        - "k911/swoole-bundle:ext-builder"
+      target: ext-builder
+
+  ext-inotify:
+    image: "k911/swoole-bundle:ext-inotify"
+    depends_on:
+      - ext-builder
+    build:
+      context: .
+      cache_from:
+        - "k911/swoole-bundle:ext-builder"
+        - "k911/swoole-bundle:ext-inotify"
+      target: ext-inotify
+
+  ext-pcntl:
+    image: "k911/swoole-bundle:ext-pcntl"
+    depends_on:
+      - ext-inotify
+    build:
+      context: .
+      cache_from:
+        - "k911/swoole-bundle:ext-builder"
+        - "k911/swoole-bundle:ext-inotify"
+        - "k911/swoole-bundle:ext-pcntl"
+      target: ext-pcntl
+
+  ext-xdebug:
+    image: "k911/swoole-bundle:ext-xdebug"
+    depends_on:
+      - ext-pcntl
+    build:
+      context: .
+      cache_from:
+        - "k911/swoole-bundle:ext-builder"
+        - "k911/swoole-bundle:ext-inotify"
+        - "k911/swoole-bundle:ext-pcntl"
+        - "k911/swoole-bundle:ext-xdebug"
+      target: ext-xdebug
+
+  ext-swoole:
+    image: "k911/swoole-bundle:ext-swoole"
+    depends_on:
+      - ext-xdebug
+    build:
+      context: .
+      cache_from:
+        - "k911/swoole-bundle:ext-builder"
+        - "k911/swoole-bundle:ext-inotify"
+        - "k911/swoole-bundle:ext-pcntl"
+        - "k911/swoole-bundle:ext-xdebug"
+        - "k911/swoole-bundle:ext-swoole"
+      target: ext-swoole
+
+  app-installer:
+    image: "k911/swoole-bundle:app-installer"
+    depends_on:
+      - ext-swoole
+    build:
+      context: .
+      cache_from:
+        - "k911/swoole-bundle:ext-builder"
+        - "k911/swoole-bundle:ext-inotify"
+        - "k911/swoole-bundle:ext-pcntl"
+        - "k911/swoole-bundle:ext-xdebug"
+        - "k911/swoole-bundle:ext-swoole"
+        - "k911/swoole-bundle:app-installer"
+      target: app-installer
+
+  base:
+    image: "k911/swoole-bundle:base"
+    depends_on:
+      - app-installer
+    build:
+      context: .
+      cache_from:
+        - "k911/swoole-bundle:ext-builder"
+        - "k911/swoole-bundle:ext-inotify"
+        - "k911/swoole-bundle:ext-pcntl"
+        - "k911/swoole-bundle:ext-xdebug"
+        - "k911/swoole-bundle:ext-swoole"
+        - "k911/swoole-bundle:app-installer"
+        - "k911/swoole-bundle:base"
+      target: base
+
+  base-with-xdebug:
+    image: "k911/swoole-bundle:base-with-xdebug"
+    depends_on:
+      - base
+    build:
+      context: .
+      cache_from:
+        - "k911/swoole-bundle:ext-builder"
+        - "k911/swoole-bundle:ext-inotify"
+        - "k911/swoole-bundle:ext-pcntl"
+        - "k911/swoole-bundle:ext-xdebug"
+        - "k911/swoole-bundle:ext-swoole"
+        - "k911/swoole-bundle:app-installer"
+        - "k911/swoole-bundle:base"
+        - "k911/swoole-bundle:base-with-xdebug"
+      target: base-with-xdebug
+
+  base-cli:
+    image: "k911/swoole-bundle:base-cli"
+    depends_on:
+      - base-with-xdebug
+    build:
+      context: .
+      cache_from:
+        - "k911/swoole-bundle:ext-builder"
+        - "k911/swoole-bundle:ext-inotify"
+        - "k911/swoole-bundle:ext-pcntl"
+        - "k911/swoole-bundle:ext-xdebug"
+        - "k911/swoole-bundle:ext-swoole"
+        - "k911/swoole-bundle:app-installer"
+        - "k911/swoole-bundle:base"
+        - "k911/swoole-bundle:base-with-xdebug"
+        - "k911/swoole-bundle:base-cli"
+      target: base-cli
+
+  base-server:
+    image: "k911/swoole-bundle:base-server"
+    depends_on:
+      - base-cli
+    build:
+      context: .
+      cache_from:
+        - "k911/swoole-bundle:ext-builder"
+        - "k911/swoole-bundle:ext-inotify"
+        - "k911/swoole-bundle:ext-pcntl"
+        - "k911/swoole-bundle:ext-xdebug"
+        - "k911/swoole-bundle:ext-swoole"
+        - "k911/swoole-bundle:app-installer"
+        - "k911/swoole-bundle:base"
+        - "k911/swoole-bundle:base-with-xdebug"
+        - "k911/swoole-bundle:base-cli"
+        - "k911/swoole-bundle:base-server"
+      target: base-server
+
+  base-coverage:
+    image: "k911/swoole-bundle:base-coverage"
+    depends_on:
+      - base-server
+    build:
+      context: .
+      cache_from:
+        - "k911/swoole-bundle:ext-builder"
+        - "k911/swoole-bundle:ext-inotify"
+        - "k911/swoole-bundle:ext-pcntl"
+        - "k911/swoole-bundle:ext-xdebug"
+        - "k911/swoole-bundle:ext-swoole"
+        - "k911/swoole-bundle:app-installer"
+        - "k911/swoole-bundle:base"
+        - "k911/swoole-bundle:base-with-xdebug"
+        - "k911/swoole-bundle:base-cli"
+        - "k911/swoole-bundle:base-server"
+        - "k911/swoole-bundle:base-coverage"
+      target: base-server
+
+  base-server-coverage:
+    image: "k911/swoole-bundle:base-server-coverage"
+    depends_on:
+      - base-coverage
+    build:
+      context: .
+      cache_from:
+        - "k911/swoole-bundle:ext-builder"
+        - "k911/swoole-bundle:ext-inotify"
+        - "k911/swoole-bundle:ext-pcntl"
+        - "k911/swoole-bundle:ext-xdebug"
+        - "k911/swoole-bundle:ext-swoole"
+        - "k911/swoole-bundle:app-installer"
+        - "k911/swoole-bundle:base"
+        - "k911/swoole-bundle:base-with-xdebug"
+        - "k911/swoole-bundle:base-cli"
+        - "k911/swoole-bundle:base-server"
+        - "k911/swoole-bundle:base-coverage"
+        - "k911/swoole-bundle:base-server-coverage"
+      target: base-server-coverage
+
+  cli:
+    image: "k911/swoole-bundle:cli"
+    depends_on:
+      - base-server-coverage
+    build:
+      context: .
+      target: Cli
+      cache_from:
+        - "k911/swoole-bundle:ext-builder"
+        - "k911/swoole-bundle:ext-inotify"
+        - "k911/swoole-bundle:ext-pcntl"
+        - "k911/swoole-bundle:ext-xdebug"
+        - "k911/swoole-bundle:ext-swoole"
+        - "k911/swoole-bundle:app-installer"
+        - "k911/swoole-bundle:base"
+        - "k911/swoole-bundle:base-with-xdebug"
+        - "k911/swoole-bundle:base-cli"
+        - "k911/swoole-bundle:base-server"
+        - "k911/swoole-bundle:base-coverage"
+        - "k911/swoole-bundle:base-server-coverage"
+        - "k911/swoole-bundle:cli"
+    ports:
+      - 9501:9501
+
+  composer:
+    image: "k911/swoole-bundle:composer"
+    depends_on:
+      - cli
+    build:
+      context: .
+      cache_from:
+        - "k911/swoole-bundle:ext-builder"
+        - "k911/swoole-bundle:ext-inotify"
+        - "k911/swoole-bundle:ext-pcntl"
+        - "k911/swoole-bundle:ext-xdebug"
+        - "k911/swoole-bundle:ext-swoole"
+        - "k911/swoole-bundle:app-installer"
+        - "k911/swoole-bundle:base"
+        - "k911/swoole-bundle:base-with-xdebug"
+        - "k911/swoole-bundle:base-cli"
+        - "k911/swoole-bundle:base-server"
+        - "k911/swoole-bundle:base-coverage"
+        - "k911/swoole-bundle:base-server-coverage"
+        - "k911/swoole-bundle:cli"
+        - "k911/swoole-bundle:composer"
+      target: Composer
+
+  composer-coverage:
+    image: "k911/swoole-bundle:composer-coverage"
+    depends_on:
+      - composer
+    build:
+      context: .
+      target: ComposerCoverage
+      cache_from:
+        - "k911/swoole-bundle:ext-builder"
+        - "k911/swoole-bundle:ext-inotify"
+        - "k911/swoole-bundle:ext-pcntl"
+        - "k911/swoole-bundle:ext-xdebug"
+        - "k911/swoole-bundle:ext-swoole"
+        - "k911/swoole-bundle:app-installer"
+        - "k911/swoole-bundle:base"
+        - "k911/swoole-bundle:base-with-xdebug"
+        - "k911/swoole-bundle:base-cli"
+        - "k911/swoole-bundle:base-server"
+        - "k911/swoole-bundle:base-coverage"
+        - "k911/swoole-bundle:base-server-coverage"
+        - "k911/swoole-bundle:cli"
+        - "k911/swoole-bundle:composer"
+        - "k911/swoole-bundle:composer-coverage"
+    volumes:
+      - "./cov:/usr/src/app/cov"
+
+  server:
+    image: "k911/swoole-bundle:server"
+    depends_on:
+      - composer-coverage
+    build:
+      context: .
+      cache_from:
+        - "k911/swoole-bundle:ext-builder"
+        - "k911/swoole-bundle:ext-inotify"
+        - "k911/swoole-bundle:ext-pcntl"
+        - "k911/swoole-bundle:ext-xdebug"
+        - "k911/swoole-bundle:ext-swoole"
+        - "k911/swoole-bundle:app-installer"
+        - "k911/swoole-bundle:base"
+        - "k911/swoole-bundle:base-with-xdebug"
+        - "k911/swoole-bundle:base-cli"
+        - "k911/swoole-bundle:base-server"
+        - "k911/swoole-bundle:base-coverage"
+        - "k911/swoole-bundle:base-server-coverage"
+        - "k911/swoole-bundle:cli"
+        - "k911/swoole-bundle:composer"
+        - "k911/swoole-bundle:composer-coverage"
+        - "k911/swoole-bundle:server"
+      target: Server
+
+  server-coverage:
+    image: "k911/swoole-bundle:server-coverage"
+    depends_on:
+      - server
+    build:
+      context: .
+      target: ServerCoverage
+      cache_from:
+        - "k911/swoole-bundle:ext-builder"
+        - "k911/swoole-bundle:ext-inotify"
+        - "k911/swoole-bundle:ext-pcntl"
+        - "k911/swoole-bundle:ext-xdebug"
+        - "k911/swoole-bundle:ext-swoole"
+        - "k911/swoole-bundle:app-installer"
+        - "k911/swoole-bundle:base"
+        - "k911/swoole-bundle:base-with-xdebug"
+        - "k911/swoole-bundle:base-cli"
+        - "k911/swoole-bundle:base-server"
+        - "k911/swoole-bundle:base-coverage"
+        - "k911/swoole-bundle:base-server-coverage"
+        - "k911/swoole-bundle:cli"
+        - "k911/swoole-bundle:composer"
+        - "k911/swoole-bundle:composer-coverage"
+        - "k911/swoole-bundle:server"
+        - "k911/swoole-bundle:server-coverage"
+    volumes:
+      - "./cov:/usr/src/app/cov"
+
+  merge-code-coverage:
+    image: "k911/swoole-bundle:composer-coverage"
+    command: "merge-code-coverage"
+    depends_on:
+      - composer
+    build:
+      context: .
+      target: ComposerCoverage
+      cache_from:
+        - "k911/swoole-bundle:ext-builder"
+        - "k911/swoole-bundle:ext-inotify"
+        - "k911/swoole-bundle:ext-pcntl"
+        - "k911/swoole-bundle:ext-xdebug"
+        - "k911/swoole-bundle:ext-swoole"
+        - "k911/swoole-bundle:app-installer"
+        - "k911/swoole-bundle:base"
+        - "k911/swoole-bundle:base-with-xdebug"
+        - "k911/swoole-bundle:base-cli"
+        - "k911/swoole-bundle:base-server"
+        - "k911/swoole-bundle:base-coverage"
+        - "k911/swoole-bundle:base-server-coverage"
+        - "k911/swoole-bundle:cli"
+        - "k911/swoole-bundle:composer"
+        - "k911/swoole-bundle:composer-coverage"
+    volumes:
+      - "./cov:/usr/src/app/cov:ro"
+      - "./clover.xml:/usr/src/app/clover.xml"

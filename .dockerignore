@@ -1,0 +1,9 @@
+*
+!/src
+!/tests
+!composer.json
+!composer.lock
+!phpstan.neon.dist
+!phpstan.tests.neon
+!phpunit.xml
+!.php_cs.dist
