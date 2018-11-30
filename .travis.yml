@@ -50,7 +50,7 @@ before_install:
     if [[ "$SWOOLE_LATEST" = "1" ]]; then
       ci-pecl-install swoole;
     else
-      ci-pecl-install swoole-$SWOOLE_VERSION swoole;
+      ci-pecl-install swoole-$SWOOLE_VERSION swoole skip-update;
     fi
 
 install:
