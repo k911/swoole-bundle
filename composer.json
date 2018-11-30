@@ -32,7 +32,7 @@
     },
     "require-dev": {
         "doctrine/annotations": "^1.6",
-        "doctrine/orm": "^2.6.2",
+        "doctrine/orm": "^2.6.3",
         "eaglewu/swoole-ide-helper": "dev-master",
         "friendsofphp/php-cs-fixer": "^2.13",
         "phpstan/phpstan": "^0.10.3",
