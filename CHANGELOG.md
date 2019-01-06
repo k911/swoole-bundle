@@ -1,4 +1,19 @@
 <a name=""></a>
+# [](https://github.com/k911/swoole-bundle/compare/v0.4.4...v) (2019-01-06)
+
+
+
+<a name="0.4.4"></a>
+## [0.4.4](https://github.com/k911/swoole-bundle/compare/v0.4.3...v0.4.4) (2019-01-06)
+
+
+### Bug Fixes
+
+* **di:** Fix regression introduced in v0.4.3 ([#29](https://github.com/k911/swoole-bundle/issues/29)) ([c88fcf2](https://github.com/k911/swoole-bundle/commit/c88fcf2))
+
+
+
+<a name=""></a>
 # [](https://github.com/k911/swoole-bundle/compare/v0.4.3...v) (2019-01-06)
 
 
