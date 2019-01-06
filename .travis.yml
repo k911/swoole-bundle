@@ -8,11 +8,9 @@ cache:
 env:
   global:
     - COMPOSER_ARGS=install
-    - SWOOLE_VERSION=4.2.8
+    - SWOOLE_VERSION=4.2.12
 
 matrix:
-  allow_failures:
-    - php: "7.3"
   include:
     - php: "7.2"
       before_script:
@@ -30,16 +28,13 @@ matrix:
         - DEPLOY=1
     - php: "7.2"
       env:
-        - COMPOSER_ARGS=update
-    - php: "7.2"
-      env:
         - "COMPOSER_ARGS='update --prefer-lowest'"
     - php: "7.2"
-      env:
-        - SWOOLE_LATEST=1
+    - php: "7.3"
     - php: "7.3"
       env:
-        - "COMPOSER_ARGS='install --ignore-platform-reqs'"
+        - SWOOLE_LATEST=1
+        - COMPOSER_ARGS=update
 
 before_install:
   - export PATH="$PATH:$HOME/.composer/vendor/bin"
