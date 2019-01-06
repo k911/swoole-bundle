@@ -238,7 +238,7 @@ final class HttpServerConfiguration
     /**
      * @throws \Assert\AssertionFailedException
      *
-     * @return null|string
+     * @return string|null
      */
     public function getPublicDir(): ?string
     {
@@ -310,7 +310,7 @@ final class HttpServerConfiguration
     }
 
     /**
-     * @param null|string $pidFile
+     * @param string|null $pidFile
      *
      * @throws \Assert\AssertionFailedException
      */
