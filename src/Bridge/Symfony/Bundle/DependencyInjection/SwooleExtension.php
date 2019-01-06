@@ -189,7 +189,7 @@ final class SwooleExtension extends Extension implements PrependExtensionInterfa
                 ->setDecoratedService(RequestHandlerInterface::class, null, -10);
         }
 
-        if ($config['entity_manager_handler'] || (null === $config['entity_manager_handler'] && \class_exists(EntityManagerInterface::class) && $this->isBundleLoaded($container, 'doctrine'))) {
+        if ($config['entity_manager_handler'] || (null === $config['entity_manager_handler'] && \interface_exists(EntityManagerInterface::class) && $this->isBundleLoaded($container, 'doctrine'))) {
             $container->register(EntityManagerHandler::class)
                 ->addArgument(new Reference(EntityManagerHandler::class.'.inner'))
                 ->setAutowired(true)
