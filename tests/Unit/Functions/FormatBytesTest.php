@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace K911\Swoole\Tests\Unit\Functions;
 
-use PHPUnit\Framework\TestCase;
 use function K911\Swoole\format_bytes;
+use PHPUnit\Framework\TestCase;
 
 class FormatBytesTest extends TestCase
 {

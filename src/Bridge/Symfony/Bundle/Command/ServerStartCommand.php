@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace K911\Swoole\Bridge\Symfony\Bundle\Command;
 
+use function K911\Swoole\get_object_property;
 use K911\Swoole\Server\HttpServer;
 use K911\Swoole\Server\HttpServerConfiguration;
 use RuntimeException;
@@ -13,7 +14,6 @@ use Symfony\Component\Console\Output\ConsoleOutput;
 use Symfony\Component\Console\Output\StreamOutput;
 use Symfony\Component\Console\Style\OutputStyle;
 use Symfony\Component\Console\Style\SymfonyStyle;
-use function K911\Swoole\get_object_property;
 
 final class ServerStartCommand extends AbstractServerStartCommand
 {

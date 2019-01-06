@@ -6,6 +6,9 @@ namespace K911\Swoole\Bridge\Symfony\Bundle\Command;
 
 use Assert\Assertion;
 use K911\Swoole\Common\XdebugHandler\XdebugHandler;
+use function K911\Swoole\decode_string_as_set;
+use function K911\Swoole\format_bytes;
+use function K911\Swoole\get_max_memory;
 use K911\Swoole\Server\Configurator\ConfiguratorInterface;
 use K911\Swoole\Server\HttpServer;
 use K911\Swoole\Server\HttpServerConfiguration;
@@ -17,9 +20,6 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
-use function K911\Swoole\decode_string_as_set;
-use function K911\Swoole\format_bytes;
-use function K911\Swoole\get_max_memory;
 
 abstract class AbstractServerStartCommand extends Command
 {
