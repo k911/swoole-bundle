@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace K911\Swoole\Bridge\Symfony\Bundle\DependencyInjection;
 
-use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\EntityManagerInterface;
 use K911\Swoole\Bridge\Doctrine\ORM\EntityManagerHandler;
 use K911\Swoole\Bridge\Symfony\HttpFoundation\CloudFrontRequestFactory;
@@ -190,7 +189,7 @@ final class SwooleExtension extends Extension implements PrependExtensionInterfa
                 ->setDecoratedService(RequestHandlerInterface::class, null, -10);
         }
 
-        if ($config['entity_manager_handler'] || (null === $config['entity_manager_handler'] && \class_exists(EntityManager::class) && $container->has(EntityManagerInterface::class))) {
+        if ($config['entity_manager_handler'] || (null === $config['entity_manager_handler'] && \class_exists(EntityManagerInterface::class) && $this->isBundleLoaded($container, 'doctrine'))) {
             $container->register(EntityManagerHandler::class)
                 ->addArgument(new Reference(EntityManagerHandler::class.'.inner'))
                 ->setAutowired(true)
@@ -223,6 +222,16 @@ final class SwooleExtension extends Extension implements PrependExtensionInterfa
     public function getConfiguration(array $config, ContainerBuilder $container): Configuration
     {
         return Configuration::fromTreeBuilder();
+    }
+
+    private function isBundleLoaded(ContainerBuilder $container, string $bundleName): bool
+    {
+        $bundles = $container->getParameter('kernel.bundles');
+
+        $bundleNameOnly = \str_replace('bundle', '', \mb_strtolower($bundleName));
+        $fullBundleName = \ucfirst($bundleNameOnly).'Bundle';
+
+        return isset($bundles[$fullBundleName]);
     }
 
     private function isDebug(ContainerBuilder $container): bool
