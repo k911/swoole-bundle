@@ -1,4 +1,19 @@
 <a name=""></a>
+# [](https://github.com/k911/swoole-bundle/compare/v0.4.3...v) (2019-01-06)
+
+
+
+<a name="0.4.3"></a>
+## [0.4.3](https://github.com/k911/swoole-bundle/compare/v0.4.2...v0.4.3) (2019-01-06)
+
+
+### Bug Fixes
+
+* **di:** Fix detection of doctrine bundle ([ef5920c](https://github.com/k911/swoole-bundle/commit/ef5920c))
+
+
+
+<a name=""></a>
 # [](https://github.com/k911/swoole-bundle/compare/v0.4.2...v) (2018-11-05)
 
 
