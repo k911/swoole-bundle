@@ -1,4 +1,3 @@
-ARG ALPINE_TAG="3.8"
 ARG PHP_TAG="7.2-cli-alpine3.8"
 
 FROM php:$PHP_TAG as ext-builder

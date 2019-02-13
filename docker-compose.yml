@@ -1,339 +1,411 @@
 version: "3.6"
 services:
   ext-builder:
-    image: "k911/swoole-bundle:ext-builder"
+    image: "k911/swoole-bundle:ext-builder--${BUILD_METADATA:-latest}"
     build:
       context: .
       cache_from:
-        - "k911/swoole-bundle:ext-builder"
+        - "k911/swoole-bundle:ext-builder--${CACHE_METADATA:-latest}"
       target: ext-builder
+      args:
+        PHP_TAG: "${PHP_VERSION:-7.2}-cli-alpine${ALPINE_VERSION:-3.8}"
+        COMPOSER_ARGS: "${COMPOSER_ARGS:-install}"
+        SWOOLE_VERSION: "${SWOOLE_VERSION:-4.2.13}"
 
   ext-inotify:
-    image: "k911/swoole-bundle:ext-inotify"
+    image: "k911/swoole-bundle:ext-inotify--${BUILD_METADATA:-latest}"
     depends_on:
       - ext-builder
     build:
       context: .
       cache_from:
-        - "k911/swoole-bundle:ext-builder"
-        - "k911/swoole-bundle:ext-inotify"
+        - "k911/swoole-bundle:ext-builder--${CACHE_METADATA:-latest}"
+        - "k911/swoole-bundle:ext-inotify--${CACHE_METADATA:-latest}"
       target: ext-inotify
+      args:
+        PHP_TAG: "${PHP_VERSION:-7.2}-cli-alpine${ALPINE_VERSION:-3.8}"
+        COMPOSER_ARGS: "${COMPOSER_ARGS:-install}"
+        SWOOLE_VERSION: "${SWOOLE_VERSION:-4.2.13}"
 
   ext-pcntl:
-    image: "k911/swoole-bundle:ext-pcntl"
+    image: "k911/swoole-bundle:ext-pcntl--${BUILD_METADATA:-latest}"
     depends_on:
       - ext-inotify
     build:
       context: .
       cache_from:
-        - "k911/swoole-bundle:ext-builder"
-        - "k911/swoole-bundle:ext-inotify"
-        - "k911/swoole-bundle:ext-pcntl"
+        - "k911/swoole-bundle:ext-builder--${CACHE_METADATA:-latest}"
+        - "k911/swoole-bundle:ext-inotify--${CACHE_METADATA:-latest}"
+        - "k911/swoole-bundle:ext-pcntl--${CACHE_METADATA:-latest}"
       target: ext-pcntl
+      args:
+        PHP_TAG: "${PHP_VERSION:-7.2}-cli-alpine${ALPINE_VERSION:-3.8}"
+        COMPOSER_ARGS: "${COMPOSER_ARGS:-install}"
+        SWOOLE_VERSION: "${SWOOLE_VERSION:-4.2.13}"
 
   ext-xdebug:
-    image: "k911/swoole-bundle:ext-xdebug"
+    image: "k911/swoole-bundle:ext-xdebug--${BUILD_METADATA:-latest}"
     depends_on:
       - ext-pcntl
     build:
       context: .
       cache_from:
-        - "k911/swoole-bundle:ext-builder"
-        - "k911/swoole-bundle:ext-inotify"
-        - "k911/swoole-bundle:ext-pcntl"
-        - "k911/swoole-bundle:ext-xdebug"
+        - "k911/swoole-bundle:ext-builder--${CACHE_METADATA:-latest}"
+        - "k911/swoole-bundle:ext-inotify--${CACHE_METADATA:-latest}"
+        - "k911/swoole-bundle:ext-pcntl--${CACHE_METADATA:-latest}"
+        - "k911/swoole-bundle:ext-xdebug--${CACHE_METADATA:-latest}"
       target: ext-xdebug
+      args:
+        PHP_TAG: "${PHP_VERSION:-7.2}-cli-alpine${ALPINE_VERSION:-3.8}"
+        COMPOSER_ARGS: "${COMPOSER_ARGS:-install}"
+        SWOOLE_VERSION: "${SWOOLE_VERSION:-4.2.13}"
 
   ext-swoole:
-    image: "k911/swoole-bundle:ext-swoole"
+    image: "k911/swoole-bundle:ext-swoole--${BUILD_METADATA:-latest}"
     depends_on:
       - ext-xdebug
     build:
       context: .
       cache_from:
-        - "k911/swoole-bundle:ext-builder"
-        - "k911/swoole-bundle:ext-inotify"
-        - "k911/swoole-bundle:ext-pcntl"
-        - "k911/swoole-bundle:ext-xdebug"
-        - "k911/swoole-bundle:ext-swoole"
+        - "k911/swoole-bundle:ext-builder--${CACHE_METADATA:-latest}"
+        - "k911/swoole-bundle:ext-inotify--${CACHE_METADATA:-latest}"
+        - "k911/swoole-bundle:ext-pcntl--${CACHE_METADATA:-latest}"
+        - "k911/swoole-bundle:ext-xdebug--${CACHE_METADATA:-latest}"
+        - "k911/swoole-bundle:ext-swoole--${CACHE_METADATA:-latest}"
       target: ext-swoole
+      args:
+        PHP_TAG: "${PHP_VERSION:-7.2}-cli-alpine${ALPINE_VERSION:-3.8}"
+        COMPOSER_ARGS: "${COMPOSER_ARGS:-install}"
+        SWOOLE_VERSION: "${SWOOLE_VERSION:-4.2.13}"
 
   app-installer:
-    image: "k911/swoole-bundle:app-installer"
+    image: "k911/swoole-bundle:app-installer--${BUILD_METADATA:-latest}"
     depends_on:
       - ext-swoole
     build:
       context: .
       cache_from:
-        - "k911/swoole-bundle:ext-builder"
-        - "k911/swoole-bundle:ext-inotify"
-        - "k911/swoole-bundle:ext-pcntl"
-        - "k911/swoole-bundle:ext-xdebug"
-        - "k911/swoole-bundle:ext-swoole"
-        - "k911/swoole-bundle:app-installer"
+        - "k911/swoole-bundle:ext-builder--${CACHE_METADATA:-latest}"
+        - "k911/swoole-bundle:ext-inotify--${CACHE_METADATA:-latest}"
+        - "k911/swoole-bundle:ext-pcntl--${CACHE_METADATA:-latest}"
+        - "k911/swoole-bundle:ext-xdebug--${CACHE_METADATA:-latest}"
+        - "k911/swoole-bundle:ext-swoole--${CACHE_METADATA:-latest}"
+        - "k911/swoole-bundle:app-installer--${CACHE_METADATA:-latest}"
       target: app-installer
+      args:
+        PHP_TAG: "${PHP_VERSION:-7.2}-cli-alpine${ALPINE_VERSION:-3.8}"
+        COMPOSER_ARGS: "${COMPOSER_ARGS:-install}"
+        SWOOLE_VERSION: "${SWOOLE_VERSION:-4.2.13}"
 
   base:
-    image: "k911/swoole-bundle:base"
+    image: "k911/swoole-bundle:base--${BUILD_METADATA:-latest}"
     depends_on:
       - app-installer
     build:
       context: .
       cache_from:
-        - "k911/swoole-bundle:ext-builder"
-        - "k911/swoole-bundle:ext-inotify"
-        - "k911/swoole-bundle:ext-pcntl"
-        - "k911/swoole-bundle:ext-xdebug"
-        - "k911/swoole-bundle:ext-swoole"
-        - "k911/swoole-bundle:app-installer"
-        - "k911/swoole-bundle:base"
+        - "k911/swoole-bundle:ext-builder--${CACHE_METADATA:-latest}"
+        - "k911/swoole-bundle:ext-inotify--${CACHE_METADATA:-latest}"
+        - "k911/swoole-bundle:ext-pcntl--${CACHE_METADATA:-latest}"
+        - "k911/swoole-bundle:ext-xdebug--${CACHE_METADATA:-latest}"
+        - "k911/swoole-bundle:ext-swoole--${CACHE_METADATA:-latest}"
+        - "k911/swoole-bundle:app-installer--${CACHE_METADATA:-latest}"
+        - "k911/swoole-bundle:base--${CACHE_METADATA:-latest}"
       target: base
+      args:
+        PHP_TAG: "${PHP_VERSION:-7.2}-cli-alpine${ALPINE_VERSION:-3.8}"
+        COMPOSER_ARGS: "${COMPOSER_ARGS:-install}"
+        SWOOLE_VERSION: "${SWOOLE_VERSION:-4.2.13}"
 
   base-with-xdebug:
-    image: "k911/swoole-bundle:base-with-xdebug"
+    image: "k911/swoole-bundle:base-with-xdebug--${BUILD_METADATA:-latest}"
     depends_on:
       - base
     build:
       context: .
       cache_from:
-        - "k911/swoole-bundle:ext-builder"
-        - "k911/swoole-bundle:ext-inotify"
-        - "k911/swoole-bundle:ext-pcntl"
-        - "k911/swoole-bundle:ext-xdebug"
-        - "k911/swoole-bundle:ext-swoole"
-        - "k911/swoole-bundle:app-installer"
-        - "k911/swoole-bundle:base"
-        - "k911/swoole-bundle:base-with-xdebug"
+        - "k911/swoole-bundle:ext-builder--${CACHE_METADATA:-latest}"
+        - "k911/swoole-bundle:ext-inotify--${CACHE_METADATA:-latest}"
+        - "k911/swoole-bundle:ext-pcntl--${CACHE_METADATA:-latest}"
+        - "k911/swoole-bundle:ext-xdebug--${CACHE_METADATA:-latest}"
+        - "k911/swoole-bundle:ext-swoole--${CACHE_METADATA:-latest}"
+        - "k911/swoole-bundle:app-installer--${CACHE_METADATA:-latest}"
+        - "k911/swoole-bundle:base--${CACHE_METADATA:-latest}"
+        - "k911/swoole-bundle:base-with-xdebug--${CACHE_METADATA:-latest}"
       target: base-with-xdebug
+      args:
+        PHP_TAG: "${PHP_VERSION:-7.2}-cli-alpine${ALPINE_VERSION:-3.8}"
+        COMPOSER_ARGS: "${COMPOSER_ARGS:-install}"
+        SWOOLE_VERSION: "${SWOOLE_VERSION:-4.2.13}"
 
   base-cli:
-    image: "k911/swoole-bundle:base-cli"
+    image: "k911/swoole-bundle:base-cli--${BUILD_METADATA:-latest}"
     depends_on:
       - base-with-xdebug
     build:
       context: .
       cache_from:
-        - "k911/swoole-bundle:ext-builder"
-        - "k911/swoole-bundle:ext-inotify"
-        - "k911/swoole-bundle:ext-pcntl"
-        - "k911/swoole-bundle:ext-xdebug"
-        - "k911/swoole-bundle:ext-swoole"
-        - "k911/swoole-bundle:app-installer"
-        - "k911/swoole-bundle:base"
-        - "k911/swoole-bundle:base-with-xdebug"
-        - "k911/swoole-bundle:base-cli"
+        - "k911/swoole-bundle:ext-builder--${CACHE_METADATA:-latest}"
+        - "k911/swoole-bundle:ext-inotify--${CACHE_METADATA:-latest}"
+        - "k911/swoole-bundle:ext-pcntl--${CACHE_METADATA:-latest}"
+        - "k911/swoole-bundle:ext-xdebug--${CACHE_METADATA:-latest}"
+        - "k911/swoole-bundle:ext-swoole--${CACHE_METADATA:-latest}"
+        - "k911/swoole-bundle:app-installer--${CACHE_METADATA:-latest}"
+        - "k911/swoole-bundle:base--${CACHE_METADATA:-latest}"
+        - "k911/swoole-bundle:base-with-xdebug--${CACHE_METADATA:-latest}"
+        - "k911/swoole-bundle:base-cli--${CACHE_METADATA:-latest}"
       target: base-cli
+      args:
+        PHP_TAG: "${PHP_VERSION:-7.2}-cli-alpine${ALPINE_VERSION:-3.8}"
+        COMPOSER_ARGS: "${COMPOSER_ARGS:-install}"
+        SWOOLE_VERSION: "${SWOOLE_VERSION:-4.2.13}"
 
   base-server:
-    image: "k911/swoole-bundle:base-server"
+    image: "k911/swoole-bundle:base-server--${BUILD_METADATA:-latest}"
     depends_on:
       - base-cli
     build:
       context: .
       cache_from:
-        - "k911/swoole-bundle:ext-builder"
-        - "k911/swoole-bundle:ext-inotify"
-        - "k911/swoole-bundle:ext-pcntl"
-        - "k911/swoole-bundle:ext-xdebug"
-        - "k911/swoole-bundle:ext-swoole"
-        - "k911/swoole-bundle:app-installer"
-        - "k911/swoole-bundle:base"
-        - "k911/swoole-bundle:base-with-xdebug"
-        - "k911/swoole-bundle:base-cli"
-        - "k911/swoole-bundle:base-server"
+        - "k911/swoole-bundle:ext-builder--${CACHE_METADATA:-latest}"
+        - "k911/swoole-bundle:ext-inotify--${CACHE_METADATA:-latest}"
+        - "k911/swoole-bundle:ext-pcntl--${CACHE_METADATA:-latest}"
+        - "k911/swoole-bundle:ext-xdebug--${CACHE_METADATA:-latest}"
+        - "k911/swoole-bundle:ext-swoole--${CACHE_METADATA:-latest}"
+        - "k911/swoole-bundle:app-installer--${CACHE_METADATA:-latest}"
+        - "k911/swoole-bundle:base--${CACHE_METADATA:-latest}"
+        - "k911/swoole-bundle:base-with-xdebug--${CACHE_METADATA:-latest}"
+        - "k911/swoole-bundle:base-cli--${CACHE_METADATA:-latest}"
+        - "k911/swoole-bundle:base-server--${CACHE_METADATA:-latest}"
       target: base-server
+      args:
+        PHP_TAG: "${PHP_VERSION:-7.2}-cli-alpine${ALPINE_VERSION:-3.8}"
+        COMPOSER_ARGS: "${COMPOSER_ARGS:-install}"
+        SWOOLE_VERSION: "${SWOOLE_VERSION:-4.2.13}"
 
   base-coverage:
-    image: "k911/swoole-bundle:base-coverage"
+    image: "k911/swoole-bundle:base-coverage--${BUILD_METADATA:-latest}"
     depends_on:
       - base-server
     build:
       context: .
       cache_from:
-        - "k911/swoole-bundle:ext-builder"
-        - "k911/swoole-bundle:ext-inotify"
-        - "k911/swoole-bundle:ext-pcntl"
-        - "k911/swoole-bundle:ext-xdebug"
-        - "k911/swoole-bundle:ext-swoole"
-        - "k911/swoole-bundle:app-installer"
-        - "k911/swoole-bundle:base"
-        - "k911/swoole-bundle:base-with-xdebug"
-        - "k911/swoole-bundle:base-cli"
-        - "k911/swoole-bundle:base-server"
-        - "k911/swoole-bundle:base-coverage"
+        - "k911/swoole-bundle:ext-builder--${CACHE_METADATA:-latest}"
+        - "k911/swoole-bundle:ext-inotify--${CACHE_METADATA:-latest}"
+        - "k911/swoole-bundle:ext-pcntl--${CACHE_METADATA:-latest}"
+        - "k911/swoole-bundle:ext-xdebug--${CACHE_METADATA:-latest}"
+        - "k911/swoole-bundle:ext-swoole--${CACHE_METADATA:-latest}"
+        - "k911/swoole-bundle:app-installer--${CACHE_METADATA:-latest}"
+        - "k911/swoole-bundle:base--${CACHE_METADATA:-latest}"
+        - "k911/swoole-bundle:base-with-xdebug--${CACHE_METADATA:-latest}"
+        - "k911/swoole-bundle:base-cli--${CACHE_METADATA:-latest}"
+        - "k911/swoole-bundle:base-server--${CACHE_METADATA:-latest}"
+        - "k911/swoole-bundle:base-coverage--${CACHE_METADATA:-latest}"
       target: base-server
+      args:
+        PHP_TAG: "${PHP_VERSION:-7.2}-cli-alpine${ALPINE_VERSION:-3.8}"
+        COMPOSER_ARGS: "${COMPOSER_ARGS:-install}"
+        SWOOLE_VERSION: "${SWOOLE_VERSION:-4.2.13}"
 
   base-server-coverage:
-    image: "k911/swoole-bundle:base-server-coverage"
+    image: "k911/swoole-bundle:base-server-coverage--${BUILD_METADATA:-latest}"
     depends_on:
       - base-coverage
     build:
       context: .
       cache_from:
-        - "k911/swoole-bundle:ext-builder"
-        - "k911/swoole-bundle:ext-inotify"
-        - "k911/swoole-bundle:ext-pcntl"
-        - "k911/swoole-bundle:ext-xdebug"
-        - "k911/swoole-bundle:ext-swoole"
-        - "k911/swoole-bundle:app-installer"
-        - "k911/swoole-bundle:base"
-        - "k911/swoole-bundle:base-with-xdebug"
-        - "k911/swoole-bundle:base-cli"
-        - "k911/swoole-bundle:base-server"
-        - "k911/swoole-bundle:base-coverage"
-        - "k911/swoole-bundle:base-server-coverage"
+        - "k911/swoole-bundle:ext-builder--${CACHE_METADATA:-latest}"
+        - "k911/swoole-bundle:ext-inotify--${CACHE_METADATA:-latest}"
+        - "k911/swoole-bundle:ext-pcntl--${CACHE_METADATA:-latest}"
+        - "k911/swoole-bundle:ext-xdebug--${CACHE_METADATA:-latest}"
+        - "k911/swoole-bundle:ext-swoole--${CACHE_METADATA:-latest}"
+        - "k911/swoole-bundle:app-installer--${CACHE_METADATA:-latest}"
+        - "k911/swoole-bundle:base--${CACHE_METADATA:-latest}"
+        - "k911/swoole-bundle:base-with-xdebug--${CACHE_METADATA:-latest}"
+        - "k911/swoole-bundle:base-cli--${CACHE_METADATA:-latest}"
+        - "k911/swoole-bundle:base-server--${CACHE_METADATA:-latest}"
+        - "k911/swoole-bundle:base-coverage--${CACHE_METADATA:-latest}"
+        - "k911/swoole-bundle:base-server-coverage--${CACHE_METADATA:-latest}"
       target: base-server-coverage
+      args:
+        PHP_TAG: "${PHP_VERSION:-7.2}-cli-alpine${ALPINE_VERSION:-3.8}"
+        COMPOSER_ARGS: "${COMPOSER_ARGS:-install}"
+        SWOOLE_VERSION: "${SWOOLE_VERSION:-4.2.13}"
 
   cli:
-    image: "k911/swoole-bundle:cli"
+    image: "k911/swoole-bundle:cli--${BUILD_METADATA:-latest}"
     depends_on:
       - base-server-coverage
     build:
       context: .
-      target: Cli
       cache_from:
-        - "k911/swoole-bundle:ext-builder"
-        - "k911/swoole-bundle:ext-inotify"
-        - "k911/swoole-bundle:ext-pcntl"
-        - "k911/swoole-bundle:ext-xdebug"
-        - "k911/swoole-bundle:ext-swoole"
-        - "k911/swoole-bundle:app-installer"
-        - "k911/swoole-bundle:base"
-        - "k911/swoole-bundle:base-with-xdebug"
-        - "k911/swoole-bundle:base-cli"
-        - "k911/swoole-bundle:base-server"
-        - "k911/swoole-bundle:base-coverage"
-        - "k911/swoole-bundle:base-server-coverage"
-        - "k911/swoole-bundle:cli"
+        - "k911/swoole-bundle:ext-builder--${CACHE_METADATA:-latest}"
+        - "k911/swoole-bundle:ext-inotify--${CACHE_METADATA:-latest}"
+        - "k911/swoole-bundle:ext-pcntl--${CACHE_METADATA:-latest}"
+        - "k911/swoole-bundle:ext-xdebug--${CACHE_METADATA:-latest}"
+        - "k911/swoole-bundle:ext-swoole--${CACHE_METADATA:-latest}"
+        - "k911/swoole-bundle:app-installer--${CACHE_METADATA:-latest}"
+        - "k911/swoole-bundle:base--${CACHE_METADATA:-latest}"
+        - "k911/swoole-bundle:base-with-xdebug--${CACHE_METADATA:-latest}"
+        - "k911/swoole-bundle:base-cli--${CACHE_METADATA:-latest}"
+        - "k911/swoole-bundle:base-server--${CACHE_METADATA:-latest}"
+        - "k911/swoole-bundle:base-coverage--${CACHE_METADATA:-latest}"
+        - "k911/swoole-bundle:base-server-coverage--${CACHE_METADATA:-latest}"
+        - "k911/swoole-bundle:cli--${CACHE_METADATA:-latest}"
+      target: Cli
+      args:
+        PHP_TAG: "${PHP_VERSION:-7.2}-cli-alpine${ALPINE_VERSION:-3.8}"
+        COMPOSER_ARGS: "${COMPOSER_ARGS:-install}"
+        SWOOLE_VERSION: "${SWOOLE_VERSION:-4.2.13}"
     ports:
       - 9501:9501
 
   composer:
-    image: "k911/swoole-bundle:composer"
+    image: "k911/swoole-bundle:composer--${BUILD_METADATA:-latest}"
     depends_on:
       - cli
     build:
       context: .
       cache_from:
-        - "k911/swoole-bundle:ext-builder"
-        - "k911/swoole-bundle:ext-inotify"
-        - "k911/swoole-bundle:ext-pcntl"
-        - "k911/swoole-bundle:ext-xdebug"
-        - "k911/swoole-bundle:ext-swoole"
-        - "k911/swoole-bundle:app-installer"
-        - "k911/swoole-bundle:base"
-        - "k911/swoole-bundle:base-with-xdebug"
-        - "k911/swoole-bundle:base-cli"
-        - "k911/swoole-bundle:base-server"
-        - "k911/swoole-bundle:base-coverage"
-        - "k911/swoole-bundle:base-server-coverage"
-        - "k911/swoole-bundle:cli"
-        - "k911/swoole-bundle:composer"
+        - "k911/swoole-bundle:ext-builder--${CACHE_METADATA:-latest}"
+        - "k911/swoole-bundle:ext-inotify--${CACHE_METADATA:-latest}"
+        - "k911/swoole-bundle:ext-pcntl--${CACHE_METADATA:-latest}"
+        - "k911/swoole-bundle:ext-xdebug--${CACHE_METADATA:-latest}"
+        - "k911/swoole-bundle:ext-swoole--${CACHE_METADATA:-latest}"
+        - "k911/swoole-bundle:app-installer--${CACHE_METADATA:-latest}"
+        - "k911/swoole-bundle:base--${CACHE_METADATA:-latest}"
+        - "k911/swoole-bundle:base-with-xdebug--${CACHE_METADATA:-latest}"
+        - "k911/swoole-bundle:base-cli--${CACHE_METADATA:-latest}"
+        - "k911/swoole-bundle:base-server--${CACHE_METADATA:-latest}"
+        - "k911/swoole-bundle:base-coverage--${CACHE_METADATA:-latest}"
+        - "k911/swoole-bundle:base-server-coverage--${CACHE_METADATA:-latest}"
+        - "k911/swoole-bundle:cli--${CACHE_METADATA:-latest}"
+        - "k911/swoole-bundle:composer--${CACHE_METADATA:-latest}"
       target: Composer
+      args:
+        PHP_TAG: "${PHP_VERSION:-7.2}-cli-alpine${ALPINE_VERSION:-3.8}"
+        COMPOSER_ARGS: "${COMPOSER_ARGS:-install}"
+        SWOOLE_VERSION: "${SWOOLE_VERSION:-4.2.13}"
 
   composer-coverage:
-    image: "k911/swoole-bundle:composer-coverage"
+    image: "k911/swoole-bundle:composer-coverage--${BUILD_METADATA:-latest}"
     depends_on:
       - composer
     build:
       context: .
-      target: ComposerCoverage
       cache_from:
-        - "k911/swoole-bundle:ext-builder"
-        - "k911/swoole-bundle:ext-inotify"
-        - "k911/swoole-bundle:ext-pcntl"
-        - "k911/swoole-bundle:ext-xdebug"
-        - "k911/swoole-bundle:ext-swoole"
-        - "k911/swoole-bundle:app-installer"
-        - "k911/swoole-bundle:base"
-        - "k911/swoole-bundle:base-with-xdebug"
-        - "k911/swoole-bundle:base-cli"
-        - "k911/swoole-bundle:base-server"
-        - "k911/swoole-bundle:base-coverage"
-        - "k911/swoole-bundle:base-server-coverage"
-        - "k911/swoole-bundle:cli"
-        - "k911/swoole-bundle:composer"
-        - "k911/swoole-bundle:composer-coverage"
+        - "k911/swoole-bundle:ext-builder--${CACHE_METADATA:-latest}"
+        - "k911/swoole-bundle:ext-inotify--${CACHE_METADATA:-latest}"
+        - "k911/swoole-bundle:ext-pcntl--${CACHE_METADATA:-latest}"
+        - "k911/swoole-bundle:ext-xdebug--${CACHE_METADATA:-latest}"
+        - "k911/swoole-bundle:ext-swoole--${CACHE_METADATA:-latest}"
+        - "k911/swoole-bundle:app-installer--${CACHE_METADATA:-latest}"
+        - "k911/swoole-bundle:base--${CACHE_METADATA:-latest}"
+        - "k911/swoole-bundle:base-with-xdebug--${CACHE_METADATA:-latest}"
+        - "k911/swoole-bundle:base-cli--${CACHE_METADATA:-latest}"
+        - "k911/swoole-bundle:base-server--${CACHE_METADATA:-latest}"
+        - "k911/swoole-bundle:base-coverage--${CACHE_METADATA:-latest}"
+        - "k911/swoole-bundle:base-server-coverage--${CACHE_METADATA:-latest}"
+        - "k911/swoole-bundle:cli--${CACHE_METADATA:-latest}"
+        - "k911/swoole-bundle:composer--${CACHE_METADATA:-latest}"
+        - "k911/swoole-bundle:composer-coverage--${CACHE_METADATA:-latest}"
+      target: ComposerCoverage
+      args:
+        PHP_TAG: "${PHP_VERSION:-7.2}-cli-alpine${ALPINE_VERSION:-3.8}"
+        COMPOSER_ARGS: "${COMPOSER_ARGS:-install}"
+        SWOOLE_VERSION: "${SWOOLE_VERSION:-4.2.13}"
     volumes:
       - "./cov:/usr/src/app/cov"
 
   server:
-    image: "k911/swoole-bundle:server"
+    image: "k911/swoole-bundle:server--${BUILD_METADATA:-latest}"
     depends_on:
       - composer-coverage
     build:
       context: .
       cache_from:
-        - "k911/swoole-bundle:ext-builder"
-        - "k911/swoole-bundle:ext-inotify"
-        - "k911/swoole-bundle:ext-pcntl"
-        - "k911/swoole-bundle:ext-xdebug"
-        - "k911/swoole-bundle:ext-swoole"
-        - "k911/swoole-bundle:app-installer"
-        - "k911/swoole-bundle:base"
-        - "k911/swoole-bundle:base-with-xdebug"
-        - "k911/swoole-bundle:base-cli"
-        - "k911/swoole-bundle:base-server"
-        - "k911/swoole-bundle:base-coverage"
-        - "k911/swoole-bundle:base-server-coverage"
-        - "k911/swoole-bundle:cli"
-        - "k911/swoole-bundle:composer"
-        - "k911/swoole-bundle:composer-coverage"
-        - "k911/swoole-bundle:server"
+        - "k911/swoole-bundle:ext-builder--${CACHE_METADATA:-latest}"
+        - "k911/swoole-bundle:ext-inotify--${CACHE_METADATA:-latest}"
+        - "k911/swoole-bundle:ext-pcntl--${CACHE_METADATA:-latest}"
+        - "k911/swoole-bundle:ext-xdebug--${CACHE_METADATA:-latest}"
+        - "k911/swoole-bundle:ext-swoole--${CACHE_METADATA:-latest}"
+        - "k911/swoole-bundle:app-installer--${CACHE_METADATA:-latest}"
+        - "k911/swoole-bundle:base--${CACHE_METADATA:-latest}"
+        - "k911/swoole-bundle:base-with-xdebug--${CACHE_METADATA:-latest}"
+        - "k911/swoole-bundle:base-cli--${CACHE_METADATA:-latest}"
+        - "k911/swoole-bundle:base-server--${CACHE_METADATA:-latest}"
+        - "k911/swoole-bundle:base-coverage--${CACHE_METADATA:-latest}"
+        - "k911/swoole-bundle:base-server-coverage--${CACHE_METADATA:-latest}"
+        - "k911/swoole-bundle:cli--${CACHE_METADATA:-latest}"
+        - "k911/swoole-bundle:composer--${CACHE_METADATA:-latest}"
+        - "k911/swoole-bundle:composer-coverage--${CACHE_METADATA:-latest}"
+        - "k911/swoole-bundle:server--${CACHE_METADATA:-latest}"
       target: Server
+      args:
+        PHP_TAG: "${PHP_VERSION:-7.2}-cli-alpine${ALPINE_VERSION:-3.8}"
+        COMPOSER_ARGS: "${COMPOSER_ARGS:-install}"
+        SWOOLE_VERSION: "${SWOOLE_VERSION:-4.2.13}"
 
   server-coverage:
-    image: "k911/swoole-bundle:server-coverage"
+    image: "k911/swoole-bundle:server-coverage--${BUILD_METADATA:-latest}"
     depends_on:
       - server
     build:
       context: .
-      target: ServerCoverage
       cache_from:
-        - "k911/swoole-bundle:ext-builder"
-        - "k911/swoole-bundle:ext-inotify"
-        - "k911/swoole-bundle:ext-pcntl"
-        - "k911/swoole-bundle:ext-xdebug"
-        - "k911/swoole-bundle:ext-swoole"
-        - "k911/swoole-bundle:app-installer"
-        - "k911/swoole-bundle:base"
-        - "k911/swoole-bundle:base-with-xdebug"
-        - "k911/swoole-bundle:base-cli"
-        - "k911/swoole-bundle:base-server"
-        - "k911/swoole-bundle:base-coverage"
-        - "k911/swoole-bundle:base-server-coverage"
-        - "k911/swoole-bundle:cli"
-        - "k911/swoole-bundle:composer"
-        - "k911/swoole-bundle:composer-coverage"
-        - "k911/swoole-bundle:server"
-        - "k911/swoole-bundle:server-coverage"
+        - "k911/swoole-bundle:ext-builder--${CACHE_METADATA:-latest}"
+        - "k911/swoole-bundle:ext-inotify--${CACHE_METADATA:-latest}"
+        - "k911/swoole-bundle:ext-pcntl--${CACHE_METADATA:-latest}"
+        - "k911/swoole-bundle:ext-xdebug--${CACHE_METADATA:-latest}"
+        - "k911/swoole-bundle:ext-swoole--${CACHE_METADATA:-latest}"
+        - "k911/swoole-bundle:app-installer--${CACHE_METADATA:-latest}"
+        - "k911/swoole-bundle:base--${CACHE_METADATA:-latest}"
+        - "k911/swoole-bundle:base-with-xdebug--${CACHE_METADATA:-latest}"
+        - "k911/swoole-bundle:base-cli--${CACHE_METADATA:-latest}"
+        - "k911/swoole-bundle:base-server--${CACHE_METADATA:-latest}"
+        - "k911/swoole-bundle:base-coverage--${CACHE_METADATA:-latest}"
+        - "k911/swoole-bundle:base-server-coverage--${CACHE_METADATA:-latest}"
+        - "k911/swoole-bundle:cli--${CACHE_METADATA:-latest}"
+        - "k911/swoole-bundle:composer--${CACHE_METADATA:-latest}"
+        - "k911/swoole-bundle:composer-coverage--${CACHE_METADATA:-latest}"
+        - "k911/swoole-bundle:server--${CACHE_METADATA:-latest}"
+        - "k911/swoole-bundle:server-coverage--${CACHE_METADATA:-latest}"
+      target: ServerCoverage
+      args:
+        PHP_TAG: "${PHP_VERSION:-7.2}-cli-alpine${ALPINE_VERSION:-3.8}"
+        COMPOSER_ARGS: "${COMPOSER_ARGS:-install}"
+        SWOOLE_VERSION: "${SWOOLE_VERSION:-4.2.13}"
     volumes:
       - "./cov:/usr/src/app/cov"
 
   merge-code-coverage:
-    image: "k911/swoole-bundle:composer-coverage"
+    image: "k911/swoole-bundle:composer-coverage--${BUILD_METADATA:-latest}"
     command: "merge-code-coverage"
     depends_on:
       - composer
     build:
       context: .
-      target: ComposerCoverage
       cache_from:
-        - "k911/swoole-bundle:ext-builder"
-        - "k911/swoole-bundle:ext-inotify"
-        - "k911/swoole-bundle:ext-pcntl"
-        - "k911/swoole-bundle:ext-xdebug"
-        - "k911/swoole-bundle:ext-swoole"
-        - "k911/swoole-bundle:app-installer"
-        - "k911/swoole-bundle:base"
-        - "k911/swoole-bundle:base-with-xdebug"
-        - "k911/swoole-bundle:base-cli"
-        - "k911/swoole-bundle:base-server"
-        - "k911/swoole-bundle:base-coverage"
-        - "k911/swoole-bundle:base-server-coverage"
-        - "k911/swoole-bundle:cli"
-        - "k911/swoole-bundle:composer"
-        - "k911/swoole-bundle:composer-coverage"
+        - "k911/swoole-bundle:ext-builder--${CACHE_METADATA:-latest}"
+        - "k911/swoole-bundle:ext-inotify--${CACHE_METADATA:-latest}"
+        - "k911/swoole-bundle:ext-pcntl--${CACHE_METADATA:-latest}"
+        - "k911/swoole-bundle:ext-xdebug--${CACHE_METADATA:-latest}"
+        - "k911/swoole-bundle:ext-swoole--${CACHE_METADATA:-latest}"
+        - "k911/swoole-bundle:app-installer--${CACHE_METADATA:-latest}"
+        - "k911/swoole-bundle:base--${CACHE_METADATA:-latest}"
+        - "k911/swoole-bundle:base-with-xdebug--${CACHE_METADATA:-latest}"
+        - "k911/swoole-bundle:base-cli--${CACHE_METADATA:-latest}"
+        - "k911/swoole-bundle:base-server--${CACHE_METADATA:-latest}"
+        - "k911/swoole-bundle:base-coverage--${CACHE_METADATA:-latest}"
+        - "k911/swoole-bundle:base-server-coverage--${CACHE_METADATA:-latest}"
+        - "k911/swoole-bundle:cli--${CACHE_METADATA:-latest}"
+        - "k911/swoole-bundle:composer--${CACHE_METADATA:-latest}"
+        - "k911/swoole-bundle:composer-coverage--${CACHE_METADATA:-latest}"
+      target: ComposerCoverage
+      args:
+        PHP_TAG: "${PHP_VERSION:-7.2}-cli-alpine${ALPINE_VERSION:-3.8}"
+        COMPOSER_ARGS: "${COMPOSER_ARGS:-install}"
+        SWOOLE_VERSION: "${SWOOLE_VERSION:-4.2.13}"
     volumes:
       - "./cov:/usr/src/app/cov:ro"
       - "./clover.xml:/usr/src/app/clover.xml"
