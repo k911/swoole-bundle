@@ -53,12 +53,8 @@ final class GeneratedCollection implements IteratorAggregate
      */
     public function getIterator(): Generator
     {
-        foreach ($this->itemCollection as $handler) {
-            yield $handler;
-        }
+        yield from $this->itemCollection;
 
-        foreach ($this->items as $handler) {
-            yield $handler;
-        }
+        yield from $this->items;
     }
 }
