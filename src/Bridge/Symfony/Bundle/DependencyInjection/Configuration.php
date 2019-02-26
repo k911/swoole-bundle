@@ -10,9 +10,11 @@ use Symfony\Component\Config\Definition\ConfigurationInterface;
 
 final class Configuration implements ConfigurationInterface
 {
-    private $builder;
-
     public const DEFAULT_PUBLIC_DIR = '%kernel.project_dir%/public';
+
+    private const CONFIG_NAME = 'swoole';
+
+    private $builder;
 
     public function __construct(TreeBuilder $builder)
     {
@@ -27,7 +29,9 @@ final class Configuration implements ConfigurationInterface
      */
     public function getConfigTreeBuilder(): TreeBuilder
     {
-        $rootNode = $this->builder->root('swoole');
+        $rootNode = \method_exists($this->builder, 'getRootNode') ?
+            $this->builder->getRootNode() :
+            $this->builder->root(self::CONFIG_NAME);
 
         $rootNode
             ->children()
@@ -38,9 +42,8 @@ final class Configuration implements ConfigurationInterface
                             ->cannotBeEmpty()
                             ->defaultValue('127.0.0.1')
                         ->end()
-                        ->integerNode('port')
-                            ->min(0)
-                            ->max(65535)
+                        ->scalarNode('port')
+                            ->cannotBeEmpty()
                             ->defaultValue(9501)
                         ->end()
                         ->arrayNode('trusted_hosts')
@@ -153,6 +156,6 @@ final class Configuration implements ConfigurationInterface
 
     public static function fromTreeBuilder(): self
     {
-        return new self(new TreeBuilder());
+        return new self(new TreeBuilder(self::CONFIG_NAME));
     }
 }
