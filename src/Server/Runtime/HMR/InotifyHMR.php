@@ -7,7 +7,6 @@ namespace K911\Swoole\Server\Runtime\HMR;
 use Assert\Assertion;
 use K911\Swoole\Server\Runtime\BootableInterface;
 use Swoole\Server;
-use Symfony\Component\Console\Style\SymfonyStyle;
 
 final class InotifyHMR implements HotModuleReloaderInterface, BootableInterface
 {
@@ -25,11 +24,6 @@ final class InotifyHMR implements HotModuleReloaderInterface, BootableInterface
      * @var resource returned by \inotify_init
      */
     private $inotify;
-
-    /**
-     * @var SymfonyStyle|null
-     */
-    private $symfonyStyle;
 
     /**
      * @param array $nonReloadableFiles
@@ -92,8 +86,6 @@ final class InotifyHMR implements HotModuleReloaderInterface, BootableInterface
         if (!empty($runtimeConfiguration['nonReloadableFiles'])) {
             $this->setNonReloadableFiles($runtimeConfiguration['nonReloadableFiles']);
         }
-
-        $this->symfonyStyle = $runtimeConfiguration['symfonyStyle'] ?? null;
 
         // Files included before server start cannot be reloaded due to PHP limitations
         $this->setNonReloadableFiles(\get_included_files());
