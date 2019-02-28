@@ -156,6 +156,8 @@ final class Configuration implements ConfigurationInterface
 
     public static function fromTreeBuilder(): self
     {
-        return new self(new TreeBuilder(self::CONFIG_NAME));
+        $treeBuilderClass = TreeBuilder::class;
+
+        return new self(new $treeBuilderClass(self::CONFIG_NAME));
     }
 }
