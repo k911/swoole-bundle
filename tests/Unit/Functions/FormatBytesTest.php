@@ -54,12 +54,10 @@ class FormatBytesTest extends TestCase
         $this->assertSame($formatted, format_bytes($bytes));
     }
 
-    /**
-     * @expectedException \OutOfRangeException
-     * @expectedExceptionMessage Bytes number cannot be negative
-     */
     public function testNegativeBytes(): void
     {
+        $this->expectException(\OutOfRangeException::class);
+        $this->expectExceptionMessage('Bytes number cannot be negative');
         format_bytes(-1);
     }
 }

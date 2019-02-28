@@ -121,7 +121,7 @@ abstract class AbstractServerStartCommand extends Command
      * @throws \Exception
      * @throws \Assert\AssertionFailedException
      */
-    final protected function execute(InputInterface $input, OutputInterface $output): void
+    final protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $io = new SymfonyStyle($input, $output);
 
@@ -151,6 +151,8 @@ abstract class AbstractServerStartCommand extends Command
         $io->table(['Configuration', 'Values'], $this->prepareConfigurationRowsToPrint($this->serverConfiguration, $runtimeConfiguration));
 
         $this->startServer($this->serverConfiguration, $this->server, $io);
+
+        return 0;
     }
 
     /**
