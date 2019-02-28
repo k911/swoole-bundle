@@ -46,7 +46,7 @@ final class ServerReloadCommand extends Command
      *
      * @throws \Assert\AssertionFailedException
      */
-    protected function execute(InputInterface $input, OutputInterface $output): void
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $io = new SymfonyStyle($input, $output);
 
@@ -60,5 +60,7 @@ final class ServerReloadCommand extends Command
         }
 
         $io->success('Swoole HTTP Server\'s workers reloaded successfully');
+
+        return 0;
     }
 }
