@@ -16,20 +16,18 @@ use Swoole\Coroutine\Http\Client;
 final class HttpClient
 {
     private const SUPPORTED_HTTP_METHODS = [
-        'GET',
-        'HEAD',
-        'POST',
-        'DELETE',
-        'PATCH',
-        'TRACE',
-        'OPTIONS',
+        Http::METHOD_GET,
+        Http::METHOD_HEAD,
+        Http::METHOD_POST,
+        Http::METHOD_DELETE,
+        Http::METHOD_PATCH,
+        Http::METHOD_TRACE,
+        Http::METHOD_OPTIONS,
     ];
 
-    private const CONTENT_TYPE_APPLICATION_JSON = 'application/json';
-    private const CONTENT_TYPE_TEXT_PLAIN = 'text/plain';
     private const SUPPORTED_CONTENT_TYPES = [
-        self::CONTENT_TYPE_APPLICATION_JSON,
-        self::CONTENT_TYPE_TEXT_PLAIN,
+        Http::CONTENT_TYPE_APPLICATION_JSON,
+        Http::CONTENT_TYPE_TEXT_PLAIN,
     ];
     private const ACCEPTABLE_CONNECTING_EXIT_CODES = [
         111 => true,
@@ -57,7 +55,7 @@ final class HttpClient
 
         do {
             try {
-                $this->send('/', 'HEAD');
+                $this->send('/', Http::METHOD_HEAD);
 
                 return true;
             } catch (\RuntimeException $ex) {
@@ -72,7 +70,7 @@ final class HttpClient
         return false;
     }
 
-    public function send(string $path, string $method = 'GET', array $headers = [], $data = null, int $timeout = 3): array
+    public function send(string $path, string $method = Http::METHOD_GET, array $headers = [], $data = null, int $timeout = 3): array
     {
         Assertion::inArray($method, self::SUPPORTED_HTTP_METHODS, 'Method "%s" is not supported. Supported ones are: %s.');
 
@@ -121,7 +119,7 @@ final class HttpClient
             throw new \RuntimeException(\json_last_error_msg(), \json_last_error());
         }
 
-        $client->headers['content-type'] = 'application/json';
+        $client->headers[Http::HEADER_CONTENT_TYPE] = Http::CONTENT_TYPE_APPLICATION_JSON;
         $client->setData($json);
     }
 
@@ -136,12 +134,12 @@ final class HttpClient
             return [];
         }
 
-        Assertion::keyExists($client->headers, 'content-type', 'Server response did not contain Content-Type.');
-        $fullContentType = $client->headers['content-type'];
+        Assertion::keyExists($client->headers, Http::HEADER_CONTENT_TYPE, 'Server response did not contain Content-Type.');
+        $fullContentType = $client->headers[Http::HEADER_CONTENT_TYPE];
         $contentType = \explode(';', $fullContentType)[0];
 
         switch ($contentType) {
-            case self::CONTENT_TYPE_APPLICATION_JSON:
+            case Http::CONTENT_TYPE_APPLICATION_JSON:
                 // TODO: Drop on PHP 7.3 Migration
                 if (!\defined('JSON_THROW_ON_ERROR')) {
                     $data = \json_decode($client->body, true);
@@ -153,7 +151,7 @@ final class HttpClient
                 }
 
                 return \json_decode($client->body, true, 512, JSON_THROW_ON_ERROR);
-            case self::CONTENT_TYPE_TEXT_PLAIN:
+            case Http::CONTENT_TYPE_TEXT_PLAIN:
                 return $client->body;
             default:
                 throw new \RuntimeException(\sprintf('Content-Type "%s" is not supported. Only "%s" are supported.', $contentType, \implode(', ', self::SUPPORTED_CONTENT_TYPES)));

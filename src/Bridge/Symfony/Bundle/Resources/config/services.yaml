@@ -49,6 +49,18 @@ services:
     'K911\Swoole\Server\LifecycleHandler\ServerManagerStopHandlerInterface':
         class: K911\Swoole\Server\LifecycleHandler\NoOpServerManagerStopHandler
 
+    'K911\Swoole\Server\Api\ApiServerClient':
+
+    'K911\Swoole\Server\Api\ApiServerInterface':
+        class: K911\Swoole\Server\Api\ApiServer
+
+#  Could be helpful for projects that uses/have included proxy-manager
+#        lazy: true
+#        tags:
+#            - { name: proxy, interface: K911\Swoole\Server\Api\ApiServerInterface }
+
+    'K911\Swoole\Server\Config\Sockets':
+
     'K911\Swoole\Server\HttpServerConfiguration':
 
     'K911\Swoole\Server\Configurator\WithHttpServerConfiguration':
@@ -64,6 +76,15 @@ services:
     'K911\Swoole\Server\Configurator\WithWorkerStartHandler':
 
     'K911\Swoole\Server\Configurator\CallableChainConfiguratorFactory':
+
+    'K911\Swoole\Server\Api\WithApiServerConfiguration':
+        arguments:
+            $requestHandler: '@swoole_bundle.server.api_server.request_handler'
+
+    'K911\Swoole\Server\Api\ApiServerRequestHandler':
+
+    'swoole_bundle.server.api_server.request_handler':
+        alias: K911\Swoole\Server\Api\ApiServerRequestHandler
 
     'swoole_bundle.server.http_server.configurator_collection':
         class: K911\Swoole\Component\GeneratedCollection
