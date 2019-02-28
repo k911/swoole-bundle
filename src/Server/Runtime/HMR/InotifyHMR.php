@@ -97,4 +97,16 @@ final class InotifyHMR implements HotModuleReloaderInterface, BootableInterface
         $this->inotify = \inotify_init();
         \stream_set_blocking($this->inotify, false);
     }
+
+    public function getNonReloadableFiles(): array
+    {
+        return \array_keys($this->nonReloadableFiles);
+    }
+
+    public function __destruct()
+    {
+        if (null !== $this->inotify) {
+            \fclose($this->inotify);
+        }
+    }
 }

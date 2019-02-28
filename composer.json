@@ -74,7 +74,9 @@
         ],
         "analyse": [
             "phpstan analyze src -l 7 --ansi",
+            "",
             "phpstan analyze tests -l 4 -c phpstan.tests.neon --ansi",
+            "",
             "php-cs-fixer fix -v --dry-run --diff --stop-on-violation --ansi"
         ],
         "test": [

@@ -12,7 +12,12 @@ env:
 
 matrix:
   include:
-    - php: "7.2"
+    - php: 7.2
+    - php: 7.2
+      env:
+        - "COMPOSER_ARGS='update --prefer-lowest'"
+    - php: 7.3
+    - php: 7.3
       before_script:
         - >-
           curl -L
@@ -26,11 +31,6 @@ matrix:
       env:
         - COVERAGE=1
         - DEPLOY=1
-    - php: "7.2"
-      env:
-        - "COMPOSER_ARGS='update --prefer-lowest'"
-    - php: "7.2"
-    - php: "7.3"
     - php: "7.3"
       env:
         - SWOOLE_LATEST=1
