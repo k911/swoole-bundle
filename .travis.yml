@@ -9,6 +9,7 @@ env:
   global:
     - COMPOSER_ARGS=install
     - SWOOLE_VERSION=4.3.1
+    - CC_TEST_REPORTER_ID=77af0c58a2646fe49fb7df502c38a56560e074fbc8b3086f2d33032b44c885a8
 
 matrix:
   include:
@@ -20,9 +21,8 @@ matrix:
     - php: 7.3
       before_script:
         - >-
-          curl -L
-          https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64
-          > ./cc-test-reporter
+            curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64
+            > ./cc-test-reporter
         - chmod +x ./cc-test-reporter
         - ./cc-test-reporter before-build
       after_success:
@@ -31,7 +31,7 @@ matrix:
       env:
         - COVERAGE=1
         - DEPLOY=1
-    - php: "7.3"
+    - php: 7.3
       env:
         - SWOOLE_LATEST=1
         - COMPOSER_ARGS=update
@@ -42,11 +42,11 @@ before_install:
   - pecl update-channels
   - ci-pecl-install inotify
   - >-
-    if [[ "$SWOOLE_LATEST" = "1" ]]; then
-      ci-pecl-install swoole;
-    else
-      ci-pecl-install swoole-$SWOOLE_VERSION swoole skip-update;
-    fi
+      if [[ "$SWOOLE_LATEST" = "1" ]]; then
+        ci-pecl-install swoole;
+      else
+        ci-pecl-install swoole-$SWOOLE_VERSION swoole skip-update;
+      fi
   - php -r "echo swoole_version().PHP_EOL;"
 
 install:
@@ -56,14 +56,15 @@ install:
 
 script:
   - composer validate
-  - 'if [[ "$COVERAGE" != "1" ]]; then composer test; fi'
-  - 'if [[ "$COVERAGE" == "1" ]]; then composer analyse; fi'
-  - 'if [[ "$COVERAGE" == "1" ]]; then composer code-coverage; fi'
+  - if [[ "$COVERAGE" != "1" ]]; then composer test; fi
+  - if [[ "$COVERAGE" == "1" ]]; then composer analyse; fi
+  - if [[ "$COVERAGE" == "1" ]]; then composer code-coverage; fi
   - bash ./tests/run-server-tests.sh
 
 before_deploy:
   - >-
-    export VERSION=$(git tag -l | sort -V -r | head -1 | sed -E 's/v(.*)/\1/') && echo "VERSION=${VERSION}"
+      export VERSION=$(git tag -l | sort -V -r | head -1 | sed -E 's/v(.*)/\1/')
+      && echo "VERSION=${VERSION}"
   - yarn global add conventional-changelog-cli conventional-recommended-bump conventional-github-releaser
 
 deploy:
