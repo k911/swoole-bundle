@@ -24,6 +24,7 @@ final class HttpServerConfiguration
         'log_file' => 'log_file',
         'log_level' => 'log_level',
         'pid_file' => 'pid_file',
+        'buffer_output_size' => 'buffer_output_size',
     ];
 
     private const SWOOLE_SERVE_STATIC = [
@@ -53,6 +54,7 @@ final class HttpServerConfiguration
      *                              - worker_count (default: 2 * number of cpu cores)
      *                              - serve_static_files (default: false)
      *                              - public_dir (default: '%kernel.root_dir%/public')
+     *                              - buffer_output_size (default: '2097152' unit in byte (2MB))
      *
      * @throws \Assert\AssertionFailedException
      */
@@ -120,6 +122,11 @@ final class HttpServerConfiguration
 
         if ('log_level' === $key) {
             Assertion::inArray($value, \array_keys(self::SWOOLE_LOG_LEVELS));
+        }
+
+        if ('buffer_output_size' === $key) {
+            Assertion::integer($value, \sprintf('Setting "%s" must be an integer.', $key));
+            Assertion::greaterThan($value, 0, 'Buffer output size value cannot be negative or zero, "%s" provided.');
         }
 
         if (\in_array($key, ['reactor_count', 'worker_count'], true)) {
