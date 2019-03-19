@@ -33,9 +33,34 @@ services:
 
     'K911\Swoole\Server\HttpServer':
 
+    'K911\Swoole\Server\WorkerHandler\WorkerStartHandlerInterface':
+        class: K911\Swoole\Server\WorkerHandler\NoOpWorkerStartHandler
+
+    'K911\Swoole\Server\LifecycleHandler\ServerStartHandlerInterface':
+        class: K911\Swoole\Server\LifecycleHandler\NoOpServerStartHandler
+
+    'K911\Swoole\Server\LifecycleHandler\ServerShutdownHandlerInterface':
+        class: K911\Swoole\Server\LifecycleHandler\NoOpServerShutdownHandler
+
+    'K911\Swoole\Server\LifecycleHandler\ServerManagerStartHandlerInterface':
+        class: K911\Swoole\Server\LifecycleHandler\NoOpServerManagerStartHandler
+
+    'K911\Swoole\Server\LifecycleHandler\ServerManagerStopHandlerInterface':
+        class: K911\Swoole\Server\LifecycleHandler\NoOpServerManagerStopHandler
+
     'K911\Swoole\Server\HttpServerConfiguration':
 
     'K911\Swoole\Server\Configurator\WithHttpServerConfiguration':
+
+    'K911\Swoole\Server\Configurator\WithServerShutdownHandler':
+
+    'K911\Swoole\Server\Configurator\WithServerStartHandler':
+
+    'K911\Swoole\Server\Configurator\WithServerManagerStartHandler':
+
+    'K911\Swoole\Server\Configurator\WithServerManagerStopHandler':
+
+    'K911\Swoole\Server\Configurator\WithWorkerStartHandler':
 
     'K911\Swoole\Server\Configurator\CallableChainConfiguratorFactory':
 
@@ -61,4 +86,3 @@ services:
         autoconfigure: false
         arguments:
             $handler: '@K911\Swoole\Server\LifecycleHandler\SigIntHandler'
-
