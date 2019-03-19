@@ -16,8 +16,9 @@ services:
         class: K911\Swoole\Bridge\Symfony\HttpFoundation\ResponseProcessor
 
     'K911\Swoole\Server\RequestHandler\RequestHandlerInterface':
-        class: K911\Swoole\Bridge\Symfony\HttpKernel\HttpKernelRequestHandler
-        autoconfigure: false
+        alias: K911\Swoole\Bridge\Symfony\HttpKernel\HttpKernelRequestHandler
+
+    'K911\Swoole\Bridge\Symfony\HttpKernel\HttpKernelRequestHandler':
 
     'K911\Swoole\Server\RequestHandler\LimitedRequestHandler':
 

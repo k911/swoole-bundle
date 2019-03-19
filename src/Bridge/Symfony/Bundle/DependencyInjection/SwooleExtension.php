@@ -134,8 +134,8 @@ final class SwooleExtension extends Extension implements PrependExtensionInterfa
         }
 
         $container->autowire(HMRWorkerStartHandler::class)
-            ->setAutoconfigured(false)
             ->setPublic(false)
+            ->setAutoconfigured(true)
             ->setArgument('$decorated', new Reference(HMRWorkerStartHandler::class.'.inner'))
             ->setDecoratedService(WorkerStartHandlerInterface::class);
     }
@@ -183,7 +183,7 @@ final class SwooleExtension extends Extension implements PrependExtensionInterfa
             $container->register(EntityManagerHandler::class)
                 ->addArgument(new Reference(EntityManagerHandler::class.'.inner'))
                 ->setAutowired(true)
-                ->setAutoconfigured(false)
+                ->setAutoconfigured(true)
                 ->setPublic(false)
                 ->setDecoratedService(RequestHandlerInterface::class, null, -20);
         }
@@ -192,7 +192,7 @@ final class SwooleExtension extends Extension implements PrependExtensionInterfa
             $container->register(DebugHttpKernelRequestHandler::class)
                 ->addArgument(new Reference(DebugHttpKernelRequestHandler::class.'.inner'))
                 ->setAutowired(true)
-                ->setAutoconfigured(false)
+                ->setAutoconfigured(true)
                 ->setPublic(false)
                 ->setDecoratedService(RequestHandlerInterface::class, null, -50);
         }
