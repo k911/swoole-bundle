@@ -29,6 +29,9 @@ final class CodeCoverageManager
     private $codeCoverage;
     private $writer;
 
+    private $finished = false;
+    private $started = false;
+
     public function __construct(ParameterBagInterface $parameterBag, CodeCoverage $codeCoverage, PHP $writer)
     {
         $this->codeCoverage = $codeCoverage;
@@ -51,25 +54,31 @@ final class CodeCoverageManager
 
     public function start(?string $testName = null): void
     {
-        if (!$this->enabled) {
+        if (!$this->enabled || $this->started) {
             return;
         }
 
         $this->codeCoverage->start($testName ?? $this->testName);
+        $this->started = true;
+
+        if ($this->finished) {
+            $this->finished = false;
+        }
     }
 
     public function stop(): void
     {
-        if (!$this->enabled) {
+        if (!$this->enabled || $this->finished) {
             return;
         }
 
         $this->codeCoverage->stop();
+        $this->started = false;
     }
 
     public function finish(?string $fileName = null, ?string $path = null): void
     {
-        if (!$this->enabled) {
+        if (!$this->enabled || $this->finished) {
             return;
         }
 
@@ -78,6 +87,11 @@ final class CodeCoverageManager
 
         $this->writer->process($this->codeCoverage, \sprintf('%s/%s', $path ?? $this->coveragePath, $fileName));
         $this->codeCoverage->clear();
+        $this->finished = true;
+
+        if ($this->started) {
+            $this->started = false;
+        }
     }
 
     private function initalizeCodeCoverage(ParameterBagInterface $parameterBag, CodeCoverage $codeCoverage): void
