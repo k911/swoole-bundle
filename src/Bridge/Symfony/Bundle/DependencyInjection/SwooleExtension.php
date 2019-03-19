@@ -12,7 +12,6 @@ use K911\Swoole\Bridge\Symfony\HttpFoundation\TrustAllProxiesRequestHandler;
 use K911\Swoole\Bridge\Symfony\HttpKernel\DebugHttpKernelRequestHandler;
 use K911\Swoole\Server\Config\Socket;
 use K911\Swoole\Server\Configurator\ConfiguratorInterface;
-use K911\Swoole\Server\Configurator\WithWorkerStartHandler;
 use K911\Swoole\Server\HttpServerConfiguration;
 use K911\Swoole\Server\RequestHandler\AdvancedStaticFilesServer;
 use K911\Swoole\Server\RequestHandler\RequestHandlerInterface;
@@ -120,13 +119,6 @@ final class SwooleExtension extends Extension implements PrependExtensionInterfa
             ->addArgument($settings);
 
         $this->registerHttpServerHMR($hmr, $container);
-
-        if ($container->has(WorkerStartHandlerInterface::class)) {
-            $container->register(WithWorkerStartHandler::class)
-                ->setAutowired(true)
-                ->setAutoconfigured(true)
-                ->setPublic(false);
-        }
     }
 
     private function registerHttpServerHMR(string $hmr, ContainerBuilder $container): void
@@ -136,18 +128,16 @@ final class SwooleExtension extends Extension implements PrependExtensionInterfa
         }
 
         if ('inotify' === $hmr) {
-            $container->register(HotModuleReloaderInterface::class, InotifyHMR::class)
-                ->setAutowired(true)
+            $container->autowire(HotModuleReloaderInterface::class, InotifyHMR::class)
                 ->setAutoconfigured(true)
                 ->setPublic(false);
         }
 
-        if (!$container->has(WorkerStartHandlerInterface::class)) {
-            $container->register(WorkerStartHandlerInterface::class, HMRWorkerStartHandler::class)
-                ->setAutowired(true)
-                ->setAutoconfigured(true)
-                ->setPublic(false);
-        }
+        $container->autowire(HMRWorkerStartHandler::class)
+            ->setAutoconfigured(false)
+            ->setPublic(false)
+            ->setArgument('$decorated', new Reference(HMRWorkerStartHandler::class.'.inner'))
+            ->setDecoratedService(WorkerStartHandlerInterface::class);
     }
 
     private function resolveAutoHMR(): string

@@ -9,6 +9,13 @@ use Swoole\Server;
 
 final class SigIntHandler implements ServerStartHandlerInterface
 {
+    private $decorated;
+
+    public function __construct(?ServerStartHandlerInterface $decorated = null)
+    {
+        $this->decorated = $decorated;
+    }
+
     /**
      * {@inheritdoc}
      */
@@ -16,5 +23,9 @@ final class SigIntHandler implements ServerStartHandlerInterface
     {
         // 2 => SIGINT
         Process::signal(2, [$server, 'shutdown']);
+
+        if ($this->decorated instanceof ServerStartHandlerInterface) {
+            $this->decorated->handle($server);
+        }
     }
 }

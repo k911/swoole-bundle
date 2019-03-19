@@ -14,11 +14,11 @@ interface WorkerStartHandlerInterface
      *
      * To differentiate between server worker and task worker use snippet:
      *
-     * ```php
-     * if($server->taskworker) {
-     *   echo "Hello from task worker process";
-     * }
-     * ```
+     *      ```php
+     *      if($server->taskworker) {
+     *        echo "Hello from task worker process";
+     *      }
+     *      ```
      *
      * @param Server $worker
      * @param int    $workerId

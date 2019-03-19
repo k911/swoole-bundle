@@ -5,16 +5,16 @@ declare(strict_types=1);
 namespace K911\Swoole\Tests\Unit\Server\Configurator;
 
 use K911\Swoole\Server\Configurator\WithWorkerStartHandler;
+use K911\Swoole\Server\WorkerHandler\NoOpWorkerStartHandler;
 use K911\Swoole\Tests\Unit\Server\SwooleHttpServerMock;
-use K911\Swoole\Tests\Unit\Server\WorkerHandler\WorkerStartHandlerDummy;
 use PHPUnit\Framework\TestCase;
 
 class WithWorkerStartHandlerTest extends TestCase
 {
     /**
-     * @var WorkerStartHandlerDummy
+     * @var NoOpWorkerStartHandler
      */
-    private $workerStartHandlerDummy;
+    private $noOpWorkerStartHandler;
 
     /**
      * @var WithWorkerStartHandler
@@ -23,9 +23,9 @@ class WithWorkerStartHandlerTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->workerStartHandlerDummy = new WorkerStartHandlerDummy();
+        $this->noOpWorkerStartHandler = new NoOpWorkerStartHandler();
 
-        $this->configurator = new WithWorkerStartHandler($this->workerStartHandlerDummy);
+        $this->configurator = new WithWorkerStartHandler($this->noOpWorkerStartHandler);
     }
 
     public function testConfigure(): void
@@ -35,6 +35,6 @@ class WithWorkerStartHandlerTest extends TestCase
         $this->configurator->configure($swooleServerOnEventSpy);
 
         $this->assertTrue($swooleServerOnEventSpy->registeredEvent);
-        $this->assertSame(['WorkerStart', [$this->workerStartHandlerDummy, 'handle']], $swooleServerOnEventSpy->registeredEventPair);
+        $this->assertSame(['WorkerStart', [$this->noOpWorkerStartHandler, 'handle']], $swooleServerOnEventSpy->registeredEventPair);
     }
 }

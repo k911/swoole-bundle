@@ -11,11 +11,13 @@ final class HMRWorkerStartHandler implements WorkerStartHandlerInterface
 {
     private $hmr;
     private $interval;
+    private $decorated;
 
-    public function __construct(HotModuleReloaderInterface $hmr, int $interval = 2000)
+    public function __construct(HotModuleReloaderInterface $hmr, int $interval = 2000, ?WorkerStartHandlerInterface $decorated = null)
     {
         $this->hmr = $hmr;
         $this->interval = $interval;
+        $this->decorated = $decorated;
     }
 
     /**
@@ -23,6 +25,10 @@ final class HMRWorkerStartHandler implements WorkerStartHandlerInterface
      */
     public function handle(Server $worker, int $workerId): void
     {
+        if ($this->decorated instanceof WorkerStartHandlerInterface) {
+            $this->decorated->handle($worker, $workerId);
+        }
+
         if ($worker->taskworker) {
             return;
         }
