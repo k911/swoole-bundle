@@ -28,6 +28,7 @@ matrix:
       after_success:
         - composer merge-code-coverage
         - ./cc-test-reporter after-build -t clover --exit-code $TRAVIS_TEST_RESULT
+        - bash <(curl -s https://codecov.io/bash)
       env:
         - COVERAGE=1
         - DEPLOY=1
