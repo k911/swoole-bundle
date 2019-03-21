@@ -8,10 +8,16 @@ indent_style = space
 indent_size = 4
 trim_trailing_whitespace = true
 
+[*.json]
+indent_size = 2
+
 [composer.json]
 indent_size = 4
 
 [.travis.yml]
+indent_size = 2
+
+[.circleci/config.yml]
 indent_size = 2
 
 [*.md]

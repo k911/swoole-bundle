@@ -1,0 +1,30 @@
+version: 2.1
+
+jobs:
+  check-composer-config:
+    docker:
+      - image: composer:1
+    steps:
+      - checkout
+      - run:
+          name: Validate composer configuration
+          command: composer validate
+
+  validate-commit-message:
+    docker:
+      - image: node:lts-alpine
+    steps:
+      - checkout
+      - run:
+          name: Install commitlint
+          command: yarn global add @commitlint/cli @commitlint/config-conventional
+      - run:
+          name: Validate commit message format
+          command: commitlint --from=HEAD~1
+
+workflows:
+  version: 2.1
+  pr-checks:
+    jobs:
+      - check-composer-config
+      - validate-commit-message
