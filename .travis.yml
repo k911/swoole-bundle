@@ -37,6 +37,9 @@ matrix:
         - SWOOLE_LATEST=1
         - COMPOSER_ARGS=update
 
+before_script:
+  - phpenv config-rm xdebug.ini
+
 before_install:
   - export PATH="$PATH:$HOME/.composer/vendor/bin"
   - composer global require phwoolcon/ci-pecl-cacher
@@ -56,10 +59,11 @@ install:
   - composer $COMPOSER_ARGS
 
 script:
-  - if [[ "$COVERAGE" != "1" ]]; then composer test; fi
-  - if [[ "$COVERAGE" == "1" ]]; then composer analyse; fi
-  - if [[ "$COVERAGE" == "1" ]]; then composer code-coverage; fi
-  - bash ./tests/run-server-tests.sh
+  - composer analyse
+  - if [[ "$COVERAGE" != "1" ]]; then composer unit-tests; fi
+  - if [[ "$COVERAGE" != "1" ]]; then composer feature-tests; fi
+  - if [[ "$COVERAGE" == "1" ]]; then composer unit-code-coverage; fi
+  - if [[ "$COVERAGE" == "1" ]]; then travis_retry bash ./tests/run-feature-tests-code-coverage.sh; fi
 
 before_deploy:
   - >-

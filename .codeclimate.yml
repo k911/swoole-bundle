@@ -31,3 +31,5 @@ plugins:
 exclude_patterns:
 - tests
 - src/Bridge/Symfony/Bundle/DependencyInjection
+# TODO: Remove when part of package (not internal)
+- src/Client/HttpClient.php

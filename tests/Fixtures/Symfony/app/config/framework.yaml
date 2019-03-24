@@ -3,3 +3,4 @@ framework:
     default_locale: en
     php_errors:
         log: true
+    test: ~
