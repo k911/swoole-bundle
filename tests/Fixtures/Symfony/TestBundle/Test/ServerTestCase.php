@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace K911\Swoole\Tests\Fixtures\Symfony\TestBundle\Test;
 
 use K911\Swoole\Tests\Fixtures\Symfony\TestAppKernel;
-use Swoole\Coroutine;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\Process\Exception\ProcessFailedException;
 use Symfony\Component\Process\Process;
@@ -20,18 +19,20 @@ class ServerTestCase extends KernelTestCase
     {
         $command = \array_merge([self::COMMAND], $args);
 
-        if ($this->coverageEnabled()) {
-            $envs['COVERAGE'] = '1';
+        if (!\array_key_exists('SWOOLE_TEST_XDEBUG_RESTART', $envs)) {
+            if ($this->coverageEnabled()) {
+                $envs['COVERAGE'] = '1';
 
-            if (!\array_key_exists('APP_ENV', $envs)) {
-                $envs['APP_ENV'] = 'cov';
-            } elseif ('_cov' !== \mb_substr($envs['APP_ENV'], -4, 4)) {
-                $envs['APP_ENV'] .= '_cov';
+                if (!\array_key_exists('APP_ENV', $envs)) {
+                    $envs['APP_ENV'] = 'cov';
+                } elseif ('_cov' !== \mb_substr($envs['APP_ENV'], -4, 4)) {
+                    $envs['APP_ENV'] .= '_cov';
+                }
             }
-        }
 
-        if (!\array_key_exists('SWOOLE_ALLOW_XDEBUG', $envs)) {
-            $envs['SWOOLE_ALLOW_XDEBUG'] = '1';
+            if (!\array_key_exists('SWOOLE_ALLOW_XDEBUG', $envs)) {
+                $envs['SWOOLE_ALLOW_XDEBUG'] = '1';
+            }
         }
 
         return new Process($command, \realpath(self::WORKING_DIRECTORY), $envs, $input, $timeout);
@@ -72,9 +73,6 @@ class ServerTestCase extends KernelTestCase
             if (!$process->isSuccessful()) {
                 throw new ProcessFailedException($process);
             }
-
-            // Make sure everything is properly closed
-            Coroutine::sleep($this->coverageEnabled() ? 2 : 1);
         });
     }
 
@@ -88,9 +86,13 @@ class ServerTestCase extends KernelTestCase
             $serverStop->run();
 
             $this->assertTrue($serverStop->isSuccessful());
-
-            Coroutine::sleep($this->coverageEnabled() ? 2 : 1);
         });
+    }
+
+    protected function tearDown(): void
+    {
+        // Make sure everything is stopped
+        \sleep($this->coverageEnabled() ? 3 : 1);
     }
 
     public function coverageEnabled(): bool

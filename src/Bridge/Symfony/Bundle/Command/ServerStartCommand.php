@@ -56,10 +56,12 @@ final class ServerStartCommand extends AbstractServerStartCommand
 
     private function closeSymfonyStyle(SymfonyStyle $io): void
     {
-        /** @var ConsoleOutput $consoleOutput */
-        $consoleOutput = get_object_property($io, 'output', OutputStyle::class);
-
-        $this->closeConsoleOutput($consoleOutput);
+        $output = get_object_property($io, 'output', OutputStyle::class);
+        if ($output instanceof ConsoleOutput) {
+            $this->closeConsoleOutput($output);
+        } elseif ($output instanceof StreamOutput) {
+            $this->closeStreamOutput($output);
+        }
     }
 
     /**
@@ -74,7 +76,12 @@ final class ServerStartCommand extends AbstractServerStartCommand
         /** @var StreamOutput $streamOutput */
         $streamOutput = $output->getErrorOutput();
 
-        $streamOutput->setVerbosity(PHP_INT_MIN);
-        \fclose($streamOutput->getStream());
+        $this->closeStreamOutput($streamOutput);
+    }
+
+    private function closeStreamOutput(StreamOutput $output): void
+    {
+        $output->setVerbosity(PHP_INT_MIN);
+        \fclose($output->getStream());
     }
 }

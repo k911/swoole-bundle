@@ -29,6 +29,7 @@ abstract class AbstractServerStartCommand extends Command
     private $bootManager;
     private $serverConfiguration;
     private $serverConfigurator;
+    private $testing = false;
 
     /**
      * @param HttpServer              $server
@@ -98,6 +99,10 @@ abstract class AbstractServerStartCommand extends Command
                 \sprintf('Set environment variable "%s=1" to use it anyway.', $xdebugHandler->allowXdebugEnvName())
             ));
 
+            if ($this->testing) {
+                return;
+            }
+
             $restartedProcess->start();
 
             foreach ($restartedProcess as $processOutput) {
@@ -126,7 +131,6 @@ abstract class AbstractServerStartCommand extends Command
         $io = new SymfonyStyle($input, $output);
 
         $this->ensureXdebugDisabled($io);
-
         $this->prepareServerConfiguration($this->serverConfiguration, $input);
 
         if ($this->server->isRunning()) {
@@ -149,6 +153,10 @@ abstract class AbstractServerStartCommand extends Command
 
         $io->success(\sprintf('Swoole HTTP Server started on http://%s', $this->serverConfiguration->getDefaultSocket()->addressPort()));
         $io->table(['Configuration', 'Values'], $this->prepareConfigurationRowsToPrint($this->serverConfiguration, $runtimeConfiguration));
+
+        if ($this->testing) {
+            return 0;
+        }
 
         $this->startServer($this->serverConfiguration, $this->server, $io);
 
@@ -280,5 +288,10 @@ abstract class AbstractServerStartCommand extends Command
         } else {
             $io->error('Failure during starting Swoole HTTP Server.');
         }
+    }
+
+    public function enableTestMode(): void
+    {
+        $this->testing = true;
     }
 }
