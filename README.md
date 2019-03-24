@@ -63,14 +63,14 @@ Symfony integration with [Swoole](https://www.swoole.co.uk/) to speed up your ap
 
 ## Requirements
 
-- Swoole PHP Extension `^4.0.0`
-- Symfony `^4.1`
+- Swoole PHP Extension `^4.3.0`
+- Symfony `^4.2`
 
 Additional requirements to enable specific features:
 - [Inotify PHP Extension](https://pecl.php.net/package/inotify) `^2.0.0` to use Hot Module Reload (HMR)
 
 ### Swoole
-Bundle requires [Swoole PHP Extension](https://github.com/swoole/swoole-src) version 4.0.0 or higher. Active bugfixes are provided only for latest version.
+Bundle requires [Swoole PHP Extension](https://github.com/swoole/swoole-src) version 4.3.0 or higher. Active bug fixes are provided only for latest version.
 
 
 #### Version check

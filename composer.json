@@ -23,12 +23,12 @@
         "php": "^7.2",
         "ext-swoole": "^4",
         "beberlei/assert": "^3.0",
-        "symfony/config": "^4.1",
-        "symfony/console": "^4.1",
-        "symfony/process": "^4.1",
-        "symfony/dependency-injection": "^4.1",
-        "symfony/http-foundation": "^4.1",
-        "symfony/http-kernel": "^4.1"
+        "symfony/config": "^4.2",
+        "symfony/console": "^4.2",
+        "symfony/process": "^4.2",
+        "symfony/dependency-injection": "^4.2",
+        "symfony/http-foundation": "^4.2",
+        "symfony/http-kernel": "^4.2"
     },
     "require-dev": {
         "doctrine/annotations": "^1.6",
@@ -43,13 +43,13 @@
         "phpunit/php-code-coverage": "^7.0",
         "phpunit/phpcov": "^6.0",
         "phpunit/phpunit": "^8.0.4",
-        "symfony/debug": "^4.1",
-        "symfony/framework-bundle": "^4.1",
-        "symfony/monolog-bridge": "^4.1",
+        "symfony/debug": "^4.2",
+        "symfony/framework-bundle": "^4.2.4",
+        "symfony/monolog-bridge": "^4.2",
         "symfony/monolog-bundle": "^3.3",
-        "symfony/twig-bundle": "^4.1",
-        "symfony/var-dumper": "^4.1",
-        "symfony/yaml": "^4.1"
+        "symfony/twig-bundle": "^4.2",
+        "symfony/var-dumper": "^4.2",
+        "symfony/yaml": "^4.2"
     },
     "suggest": {
         "ext-inotify": "To enable HMR.",
@@ -81,17 +81,23 @@
         ],
         "test": [
             "@analyse",
-            "@phpunit"
+            "@unit-tests"
         ],
-        "code-coverage": [
-            "phpunit --coverage-php cov/unit-test.cov --colors=always"
+        "feature-tests": [
+            "phpunit tests/Feature --process-isolation --colors=always"
+        ],
+        "unit-code-coverage": [
+            "phpunit tests/Unit --coverage-php cov/unit-tests.cov --colors=always"
+        ],
+        "feature-code-coverage": [
+            "COVERAGE=1 phpunit tests/Feature --coverage-php cov/feature-tests.cov --colors=always --process-isolation"
         ],
         "merge-code-coverage": [
             "phpcov merge cov --clover clover.xml"
         ],
         "fix": "php-cs-fixer fix -v --ansi",
-        "phpunit": [
-            "phpunit --colors=always"
+        "unit-tests": [
+            "phpunit tests/Unit --colors=always"
         ]
     },
     "extra": {
