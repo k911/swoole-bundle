@@ -15,14 +15,14 @@ use Symfony\Component\Process\Process;
  */
 final class XdebugHandler
 {
-    private $allowXdebugEnvName;
-
     private const SIGNALS_MAP = [
         2 => 'SIGINT',
         15 => 'SIGTERM',
         10 => 'SIGUSR1',
         12 => 'SIGUSR2',
     ];
+
+    private $allowXdebugEnvName;
 
     public function __construct(string $allowXdebugEnvName = 'SWOOLE_ALLOW_XDEBUG')
     {
