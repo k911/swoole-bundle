@@ -1,4 +1,4 @@
-ARG PHP_TAG="7.2-cli-alpine3.8"
+ARG PHP_TAG="7.3-cli-alpine3.9"
 
 FROM php:$PHP_TAG as ext-builder
 RUN docker-php-source extract && \
@@ -16,7 +16,7 @@ RUN pecl install xdebug && \
     docker-php-ext-enable xdebug
 
 FROM ext-builder as ext-swoole
-ARG SWOOLE_VERSION=4.2.13
+ARG SWOOLE_VERSION="4.3.1"
 RUN pecl install swoole-$SWOOLE_VERSION && \
     docker-php-ext-enable swoole
 
@@ -25,40 +25,37 @@ WORKDIR /usr/src/app
 RUN composer global require "hirak/prestissimo:^0.3" --prefer-dist --no-progress --no-suggest --classmap-authoritative --ansi
 COPY composer.json composer.lock ./
 RUN composer validate
-ARG COMPOSER_ARGS=install
-RUN composer "$COMPOSER_ARGS" --prefer-dist --ignore-platform-reqs --no-progress --no-suggest --no-scripts --no-autoloader --ansi
+ARG COMPOSER_ARGS="install"
+RUN composer ${COMPOSER_ARGS} --prefer-dist --ignore-platform-reqs --no-progress --no-suggest --no-scripts --no-autoloader --ansi
 COPY . ./
 RUN composer dump-autoload --classmap-authoritative --ansi
 
 FROM php:$PHP_TAG as base
 RUN apk add --no-cache libstdc++
 WORKDIR /usr/src/app
-COPY --from=ext-swoole /usr/local/lib/php/extensions/no-debug-non-zts-20170718/swoole.so /usr/local/lib/php/extensions/no-debug-non-zts-20170718/swoole.so
+# php -i | grep 'PHP API' | sed -e 's/PHP API => //'
+ARG PHP_API_VERSION="20180731"
+COPY --from=ext-swoole /usr/local/lib/php/extensions/no-debug-non-zts-${PHP_API_VERSION}/swoole.so /usr/local/lib/php/extensions/no-debug-non-zts-${PHP_API_VERSION}/swoole.so
 COPY --from=ext-swoole /usr/local/etc/php/conf.d/docker-php-ext-swoole.ini /usr/local/etc/php/conf.d/docker-php-ext-swoole.ini
-COPY --from=ext-inotify /usr/local/lib/php/extensions/no-debug-non-zts-20170718/inotify.so /usr/local/lib/php/extensions/no-debug-non-zts-20170718/inotify.so
+COPY --from=ext-inotify /usr/local/lib/php/extensions/no-debug-non-zts-${PHP_API_VERSION}/inotify.so /usr/local/lib/php/extensions/no-debug-non-zts-${PHP_API_VERSION}/inotify.so
 COPY --from=ext-inotify /usr/local/etc/php/conf.d/docker-php-ext-inotify.ini /usr/local/etc/php/conf.d/docker-php-ext-inotify.ini
-COPY --from=ext-pcntl /usr/local/lib/php/extensions/no-debug-non-zts-20170718/pcntl.so /usr/local/lib/php/extensions/no-debug-non-zts-20170718/pcntl.so
+COPY --from=ext-pcntl /usr/local/lib/php/extensions/no-debug-non-zts-${PHP_API_VERSION}/pcntl.so /usr/local/lib/php/extensions/no-debug-non-zts-${PHP_API_VERSION}/pcntl.so
 COPY --from=ext-pcntl /usr/local/etc/php/conf.d/docker-php-ext-pcntl.ini /usr/local/etc/php/conf.d/docker-php-ext-pcntl.ini
 
 FROM base as base-with-xdebug
-COPY --from=ext-xdebug /usr/local/lib/php/extensions/no-debug-non-zts-20170718/xdebug.so /usr/local/lib/php/extensions/no-debug-non-zts-20170718/xdebug.so
+ARG PHP_API_VERSION="20180731"
+COPY --from=ext-xdebug /usr/local/lib/php/extensions/no-debug-non-zts-${PHP_API_VERSION}/xdebug.so /usr/local/lib/php/extensions/no-debug-non-zts-${PHP_API_VERSION}/xdebug.so
 COPY --from=ext-xdebug /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini
 
 FROM base as base-cli
 COPY --from=app-installer /usr/src/app ./
 
-FROM base as base-server
-RUN apk add --no-cache bash
-COPY --from=app-installer /usr/src/app ./
-
 FROM base-with-xdebug as base-coverage
-ENV COVERAGE=1
+ENV COVERAGE="1"
 COPY --from=app-installer /usr/src/app ./
 
-FROM base-with-xdebug as base-server-coverage
+FROM base-coverage as base-server-coverage
 RUN apk add --no-cache bash
-ENV COVERAGE=1
-COPY --from=app-installer /usr/src/app ./
 
 FROM base-cli as Cli
 ENTRYPOINT ["./tests/Fixtures/Symfony/app/console"]
@@ -74,16 +71,8 @@ FROM base-coverage as ComposerCoverage
 ENV COMPOSER_ALLOW_SUPERUSER=1
 COPY --from=app-installer /usr/bin/composer /usr/local/bin/composer
 ENTRYPOINT ["composer"]
-CMD ["code-coverage"]
-
-FROM base-server as Server
-WORKDIR /usr/src/app/tests/Server
-ENTRYPOINT ["/bin/bash"]
-CMD ["../run-server-tests.sh"]
+CMD ["unit-code-coverage"]
 
 FROM base-server-coverage as ServerCoverage
-WORKDIR /usr/src/app/tests/Server
-ENV APP_ENV=cov \
-    SWOOLE_ALLOW_XDEBUG=1
 ENTRYPOINT ["/bin/bash"]
-CMD ["../run-server-tests.sh"]
+CMD ["tests/run-feature-tests-code-coverage.sh"]

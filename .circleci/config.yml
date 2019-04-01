@@ -1,6 +1,134 @@
 version: 2.1
 
+aliases:
+  # Steps
+  - &dump-env-vars
+    run:
+      name: Dump env for hash
+      command: |-
+        echo "PHP_VERSION=$PHP_VERSION" >> dumped.env;
+        echo "ALPINE_VERSION=$ALPINE_VERSION" >> dumped.env;
+        echo "PHP_API_VERSION=$PHP_API_VERSION" >> dumped.env;
+        echo "COMPOSER_ARGS=$COMPOSER_ARGS" >> dumped.env;
+        echo "SWOOLE_VERSION=$SWOOLE_VERSION" >> dumped.env;
+        cat dumped.env;
+
+  - &restore-docker-cache
+    restore_cache:
+      keys:
+        - docker-{{ checksum "Dockerfile" }}-{{ checksum "docker-compose.yml" }}-{{ checksum "dumped.env" }}-{{ checksum "composer.lock" }}
+        - docker-{{ checksum "Dockerfile" }}-{{ checksum "docker-compose.yml" }}-{{ checksum "dumped.env" }}
+        - docker-{{ checksum "Dockerfile" }}-{{ checksum "docker-compose.yml" }}
+        - docker-{{ checksum "Dockerfile" }}
+        - docker
+
+  - &load-docker-cache
+    run:
+      name: Load Docker layer cache
+      command: |-
+        # credits to: https://blog.jondh.me.uk/2018/04/strategies-for-docker-layer-caching-in-circleci/
+        set +o pipefail
+        if [ -f /home/circleci/caches/${CIRCLE_PROJECT_REPONAME}.tar.gz ]; then
+          gunzip -c /home/circleci/caches/${CIRCLE_PROJECT_REPONAME}.tar.gz | docker load;
+          docker images;
+        fi
+
+  - &docker-compose-build
+    run:
+      name: Docker-Compose Build
+      command: docker-compose build composer
+
+  - &code-style-analysis
+    run:
+      name: Code style analysis
+      command: docker-compose run composer cs-analyse
+
+  - &static-src-analysis
+    run:
+      name: Sources static analysis
+      command: docker-compose run composer static-analyse-src
+
+  - &static-tests-analysis
+    run:
+      name: Test sources static analysis
+      command: docker-compose run composer static-analyse-tests
+
+  - &run-unit-tests
+    run:
+      name: Run unit tests
+      command: docker-compose run composer unit-tests
+
+  - &run-feature-tests
+    run:
+      name: Run feature tests
+      command: docker-compose run composer feature-tests
+
+  - &export-docker-cache
+    run:
+      name: Export Docker image layer cache
+      command: |
+        mkdir -p /home/circleci/caches
+        docker-compose build composer | grep '\-\-\->' | grep -v 'Using cache' | sed -e 's/[ >-]//g' > /tmp/layers.txt
+        docker save $(cat /tmp/layers.txt) | gzip > /home/circleci/caches/${CIRCLE_PROJECT_REPONAME}.tar.gz
+
+  - &save-docker-cache
+    save_cache:
+      key: docker-{{ checksum "Dockerfile" }}-{{ checksum "docker-compose.yml" }}-{{ checksum "dumped.env" }}-{{ checksum "composer.lock" }}
+      paths:
+        - /home/circleci/caches
+
+  # Build environments
+  - &docker-env
+    working_directory: ~/workdir
+    machine:
+      enabled: true
+      # Ubuntu 16.04, docker 18.09.3, docker-compose 1.23.1
+      image: ubuntu-1604:201903-01
+
+  # Steps
+  - &docker-default
+    steps:
+      - checkout
+      - *dump-env-vars
+      - *restore-docker-cache
+      - *load-docker-cache
+      - *docker-compose-build
+      - *code-style-analysis
+      - *static-src-analysis
+      - *static-tests-analysis
+      - *run-unit-tests
+      - *run-feature-tests
+      - *export-docker-cache
+      - *save-docker-cache
+
 jobs:
+  php-73:
+    <<: *docker-env
+    <<: *docker-default
+
+  php-73-latest:
+    <<: *docker-env
+    <<: *docker-default
+    environment:
+      COMPOSER_ARGS: update
+
+  php-72:
+    <<: *docker-env
+    <<: *docker-default
+    environment:
+      PHP_VERSION: 7.2
+      ALPINE_VERSION: 3.8
+      PHP_API_VERSION: "20170718"
+
+  php-72-lowest:
+    <<: *docker-env
+    <<: *docker-default
+    environment:
+      PHP_VERSION: 7.2
+      ALPINE_VERSION: 3.8
+      PHP_API_VERSION: "20170718"
+      COMPOSER_ARGS: update --prefer-lowest
+
   check-composer-config:
     docker:
       - image: composer:1
@@ -28,3 +156,7 @@ workflows:
     jobs:
       - check-composer-config
       - validate-commit-message
+      - php-73
+      - php-73-latest
+      - php-72
+      - php-72-lowest
