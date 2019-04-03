@@ -64,7 +64,7 @@ script:
   - if [[ "$COVERAGE" != "1" ]]; then composer unit-tests; fi
   - if [[ "$COVERAGE" != "1" ]]; then composer feature-tests; fi
   - if [[ "$COVERAGE" == "1" ]]; then composer unit-code-coverage; fi
-  - if [[ "$COVERAGE" == "1" ]]; then travis_retry bash ./tests/run-feature-tests-code-coverage.sh; fi
+  - if [[ "$COVERAGE" == "1" ]]; then bash ./tests/run-feature-tests-code-coverage.sh; fi
 
 before_deploy:
   - >-
