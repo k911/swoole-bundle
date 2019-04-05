@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 EXIT_CODE=0
-MAX_TRIES=3
+MAX_TRIES=5
 
 TEST_NO=0
 for f in ./tests/Feature/*.php; do
