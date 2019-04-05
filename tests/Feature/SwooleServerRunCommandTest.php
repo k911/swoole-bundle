@@ -11,18 +11,20 @@ final class SwooleServerRunCommandTest extends ServerTestCase
 {
     public function testRunAndCall(): void
     {
-        $server = $this->createConsoleProcess([
+        $serverRun = $this->createConsoleProcess([
             'swoole:server:run',
             '--host=localhost',
             '--port=9999',
         ]);
 
-        $server->disableOutput();
-        $server->setTimeout(10);
-        $server->start();
+        if ($this->coverageEnabled()) {
+            $serverRun->disableOutput();
+        }
+        $serverRun->setTimeout(10);
+        $serverRun->start();
 
-        $this->goAndWait(function () use ($server): void {
-            $this->deferProcessStop($server);
+        $this->goAndWait(function () use ($serverRun): void {
+            $this->deferProcessStop($serverRun);
 
             $client = HttpClient::fromDomain('localhost', 9999, false);
             $this->assertTrue($client->connect());

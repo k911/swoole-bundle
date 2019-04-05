@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace K911\Swoole\Client;
 
 use Assert\Assertion;
+use Swoole\Coroutine;
 use Swoole\Coroutine\Http\Client;
 
 /**
@@ -30,6 +31,11 @@ final class HttpClient
         self::CONTENT_TYPE_APPLICATION_JSON,
         self::CONTENT_TYPE_TEXT_PLAIN,
     ];
+    private const ACCEPTABLE_CONNECTING_EXIT_CODES = [
+        111 => true,
+        61 => true,
+        60 => true,
+    ];
 
     private $client;
 
@@ -39,14 +45,15 @@ final class HttpClient
     }
 
     /**
-     * @param int $timeout seconds
-     * @param int $step    microseconds
+     * @param int   $timeout seconds
+     * @param float $step    microseconds
      *
      * @return bool Success
      */
-    public function connect(int $timeout = 3, int $step = 500): bool
+    public function connect(int $timeout = 3, float $step = 0.1): bool
     {
-        $timeoutMicro = \microtime(true) + $timeout;
+        $start = \microtime(true);
+        $max = $start + $timeout;
 
         do {
             try {
@@ -54,12 +61,13 @@ final class HttpClient
 
                 return true;
             } catch (\RuntimeException $ex) {
-                if (111 !== $ex->getCode()) {
+                if (!isset(self::ACCEPTABLE_CONNECTING_EXIT_CODES[$ex->getCode()])) {
                     throw $ex;
                 }
             }
-            \usleep($step);
-        } while (\microtime(true) < $timeoutMicro);
+            Coroutine::sleep($step);
+            $now = \microtime(true);
+        } while ($now < $max);
 
         return false;
     }

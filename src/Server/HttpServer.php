@@ -19,9 +19,14 @@ final class HttpServer
 
     private $running;
     private $configuration;
+    private $signalTerminate;
+    private $signalReload;
 
     public function __construct(HttpServerConfiguration $configuration, bool $running = false)
     {
+        $this->signalTerminate = \defined('SIGTERM') ? (int) \constant('SIGTERM') : 15;
+        $this->signalReload = \defined('SIGUSR1') ? (int) \constant('SIGUSR1') : 10;
+
         $this->running = $running;
         $this->configuration = $configuration;
     }
@@ -60,7 +65,7 @@ final class HttpServer
         if ($this->server instanceof Server) {
             $this->server->shutdown();
         } elseif ($this->isRunningInBackground()) {
-            Process::kill($this->configuration->getPid(), 15); // SIGTERM
+            Process::kill($this->configuration->getPid(), $this->signalTerminate);
         } else {
             throw new RuntimeException('Swoole HTTP Server has not been running.');
         }
@@ -74,7 +79,7 @@ final class HttpServer
         if ($this->server instanceof Server) {
             $this->server->reload();
         } elseif ($this->isRunningInBackground()) {
-            Process::kill($this->configuration->getPid(), 10); // SIGUSR1
+            Process::kill($this->configuration->getPid(), $this->signalReload);
         } else {
             throw new RuntimeException('Swoole HTTP Server has not been running.');
         }

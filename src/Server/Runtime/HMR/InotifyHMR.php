@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace K911\Swoole\Server\Runtime\HMR;
 
 use Assert\Assertion;
+use Assert\AssertionFailedException;
 use K911\Swoole\Server\Runtime\BootableInterface;
 use Swoole\Server;
 
@@ -26,19 +27,27 @@ final class InotifyHMR implements HotModuleReloaderInterface, BootableInterface
     private $inotify;
 
     /**
+     * @var int \IN_ATRIB
+     */
+    private $watchMask;
+
+    /**
      * @param array $nonReloadableFiles
      *
-     * @throws \Assert\AssertionFailedException
+     * @throws AssertionFailedException
      */
     public function __construct(array $nonReloadableFiles = [])
     {
+        Assertion::extensionLoaded('inotify', 'Swoole HMR requires "inotify" PHP Extension present and loaded in the system.');
+        $this->watchMask = \defined('IN_ATTRIB') ? (int) \constant('IN_ATTRIB') : 4;
+
         $this->setNonReloadableFiles($nonReloadableFiles);
     }
 
     /**
      * @param string[] $nonReloadableFiles files
      *
-     * @throws \Assert\AssertionFailedException
+     * @throws AssertionFailedException
      */
     private function setNonReloadableFiles(array $nonReloadableFiles): void
     {
@@ -55,7 +64,7 @@ final class InotifyHMR implements HotModuleReloaderInterface, BootableInterface
     {
         foreach ($files as $file) {
             if (!isset($this->nonReloadableFiles[$file]) && !isset($this->watchedFiles[$file])) {
-                $this->watchedFiles[$file] = \inotify_add_watch($this->inotify, $file, IN_ATTRIB);
+                $this->watchedFiles[$file] = \inotify_add_watch($this->inotify, $file, $this->watchMask);
             }
         }
     }
@@ -79,7 +88,7 @@ final class InotifyHMR implements HotModuleReloaderInterface, BootableInterface
     /**
      * {@inheritdoc}
      *
-     * @throws \Assert\AssertionFailedException
+     * @throws AssertionFailedException
      */
     public function boot(array $runtimeConfiguration = []): void
     {
