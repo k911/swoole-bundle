@@ -129,15 +129,6 @@ jobs:
       PHP_API_VERSION: "20170718"
       COMPOSER_ARGS: update --prefer-lowest
 
-  validate-bash-scripts:
-    docker:
-      - image: koalaman/shellcheck:stable
-    steps:
-      - checkout
-      - run:
-          name: Validate bash scripts
-          command: "{tests,deploy}/**/*.sh"
-
   check-composer-config:
     docker:
       - image: composer:1
@@ -165,7 +156,6 @@ workflows:
     jobs:
       - check-composer-config
       - validate-commit-message
-      - validate-bash-scripts
       - php-73:
           requires:
             - check-composer-config
