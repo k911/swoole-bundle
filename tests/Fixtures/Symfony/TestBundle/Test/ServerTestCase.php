@@ -51,11 +51,8 @@ class ServerTestCase extends KernelTestCase
                 $callable();
             } catch (Exception $failedException) {
                 throw $failedException;
-            } catch (\RuntimeException $runtimeException) {
-                if (self::SWOOLE_XDEBUG_CORO_WARNING_MESSAGE !== $runtimeException->getMessage()) {
-                    throw $runtimeException;
-                }
             } catch (\Throwable $exception) {
+                dump($exception);
                 throw $exception;
             }
         };
@@ -63,7 +60,13 @@ class ServerTestCase extends KernelTestCase
 
     public function goAndWait(callable $callable): void
     {
-        \go($this->wrapAndTrap($callable));
+        try {
+            \go($this->wrapAndTrap($callable));
+        } catch (\RuntimeException $runtimeException) {
+            if (self::SWOOLE_XDEBUG_CORO_WARNING_MESSAGE !== $runtimeException->getMessage()) {
+                throw $runtimeException;
+            }
+        }
         \swoole_event_wait();
     }
 
