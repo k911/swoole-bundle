@@ -7,6 +7,7 @@ namespace K911\Swoole\Tests\Feature;
 use K911\Swoole\Client\HttpClient;
 use K911\Swoole\Tests\Fixtures\Symfony\TestBundle\Test\ServerTestCase;
 use Swoole\Coroutine;
+use Symfony\Component\Process\Exception\ProcessFailedException;
 
 final class SwooleServerReloadCommandTest extends ServerTestCase
 {
@@ -23,7 +24,9 @@ final class SwooleServerReloadCommandTest extends ServerTestCase
             '--port=9999',
         ]);
 
-        $serverStart->disableOutput();
+        if ($this->coverageEnabled()) {
+            $serverStart->disableOutput();
+        }
         $serverStart->setTimeout(3);
         $serverStart->run();
 
@@ -62,13 +65,21 @@ final class SwooleServerReloadCommandTest extends ServerTestCase
 
     private function runSwooleServerReload(): void
     {
-        $serverStart = $this->createConsoleProcess(['swoole:server:reload']);
+        $serverReload = $this->createConsoleProcess(['swoole:server:reload']);
 
-        $serverStart->disableOutput();
-        $serverStart->setTimeout(3);
-        $serverStart->run();
+        if ($this->coverageEnabled()) {
+            $serverReload->disableOutput();
+        }
+        $serverReload->setTimeout(3);
+        $serverReload->run();
 
-        $this->assertTrue($serverStart->isSuccessful());
+        if (!$serverReload->isSuccessful()) {
+            throw new ProcessFailedException($serverReload);
+        }
+
+        if (!$this->coverageEnabled()) {
+            $this->assertStringContainsString('Swoole HTTP Server\'s workers reloaded successfully', $serverReload->getOutput());
+        }
     }
 
     private function replaceContentInTestController(string $text): void

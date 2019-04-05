@@ -17,6 +17,10 @@ final class SwooleServerHMRTest extends ServerTestCase
 
     public function testStartCallHMRCallStop(): void
     {
+        if (!\extension_loaded('inotify')) {
+            $this->markTestSkipped('Swoole Bundle HMR requires "inotify" PHP extension present and installed on the system.');
+        }
+
         $serverStart = $this->createConsoleProcess([
             'swoole:server:start',
             '--host=localhost',

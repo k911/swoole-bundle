@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace K911\Swoole\Tests\Fixtures\Symfony\TestBundle\Test;
 
 use K911\Swoole\Tests\Fixtures\Symfony\TestAppKernel;
+use PHPUnit\Framework\Exception;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\Process\Exception\ProcessFailedException;
 use Symfony\Component\Process\Process;
@@ -43,20 +44,26 @@ class ServerTestCase extends KernelTestCase
         return TestAppKernel::class;
     }
 
-    public function go(callable $callable): void
+    private function wrapAndTrap(callable $callable): callable
     {
-        try {
-            \go($callable);
-        } catch (\RuntimeException $runtimeException) {
-            if (self::SWOOLE_XDEBUG_CORO_WARNING_MESSAGE !== $runtimeException->getMessage()) {
-                throw $runtimeException;
+        return function () use ($callable): void {
+            try {
+                $callable();
+            } catch (Exception $failedException) {
+                throw $failedException;
+            } catch (\RuntimeException $runtimeException) {
+                if (self::SWOOLE_XDEBUG_CORO_WARNING_MESSAGE !== $runtimeException->getMessage()) {
+                    throw $runtimeException;
+                }
+            } catch (\Throwable $exception) {
+                throw $exception;
             }
-        }
+        };
     }
 
     public function goAndWait(callable $callable): void
     {
-        $this->go($callable);
+        \go($this->wrapAndTrap($callable));
         \swoole_event_wait();
     }
 
@@ -81,11 +88,19 @@ class ServerTestCase extends KernelTestCase
         \defer(function (): void {
             $serverStop = $this->createConsoleProcess(['swoole:server:stop']);
 
-            $serverStop->disableOutput();
+            if ($this->coverageEnabled()) {
+                $serverStop->disableOutput();
+            }
             $serverStop->setTimeout(3);
             $serverStop->run();
 
-            $this->assertTrue($serverStop->isSuccessful());
+            if (!$serverStop->isSuccessful()) {
+                throw new ProcessFailedException($serverStop);
+            }
+
+            if (!$this->coverageEnabled()) {
+                $this->assertStringContainsString('Swoole server shutdown successfully', $serverStop->getOutput());
+            }
         });
     }
 

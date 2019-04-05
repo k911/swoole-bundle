@@ -17,7 +17,9 @@ final class SwooleServerStartStopCommandTest extends ServerTestCase
             '--port=9999',
         ]);
 
-        $serverStart->disableOutput();
+        if ($this->coverageEnabled()) {
+            $serverStart->disableOutput();
+        }
         $serverStart->setTimeout(3);
         $serverStart->run();
 
