@@ -8,17 +8,22 @@ use Assert\Assertion;
 use RuntimeException;
 use Swoole\Http\Server;
 use Swoole\Process;
+use Swoole\Server\Port as Listener;
 use Throwable;
 
 final class HttpServer
 {
+    private $running;
+    private $configuration;
     /**
      * @var Server|null
      */
     private $server;
 
-    private $running;
-    private $configuration;
+    /**
+     * @var Listener[]
+     */
+    private $listeners = [];
     private $signalTerminate;
     private $signalReload;
 
@@ -32,17 +37,27 @@ final class HttpServer
     }
 
     /**
-     * Attach already configured Swoole HTTP server instance.
+     * Attach already configured Swoole HTTP Server instance.
      *
      * @param Server $server
-     *
-     * @throws \Assert\AssertionFailedException
      */
     public function attach(Server $server): void
     {
-        Assertion::null($this->server, 'Cannot attach Swoole HTTP server multiple times.');
+        Assertion::null($this->server, 'Swoole HTTP Server has been already attached. Cannot attach server or listeners multiple times.');
+
+        $defaultSocket = $this->configuration->getServerSocket();
+        Assertion::eq($server->port, $defaultSocket->port(), 'Attached Swoole HTTP Server has different port (%s), than expected (%s).');
 
         $this->server = $server;
+
+        foreach ($server->ports as $listener) {
+            if ($listener->port === $defaultSocket->port()) {
+                continue;
+            }
+
+            Assertion::keyNotExists($this->listeners, $listener->port, 'Cannot attach listener on port (%s). It is already registered.');
+            $this->listeners[$listener->port] = $listener;
+        }
     }
 
     /**
@@ -52,9 +67,7 @@ final class HttpServer
      */
     public function start(): bool
     {
-        Assertion::isInstanceOf($this->server, Server::class, 'Swoole HTTP Server has not been setup yet. Please use attach method.');
-
-        return $this->running = $this->server->start();
+        return $this->running = $this->getServer()->start();
     }
 
     /**
@@ -85,6 +98,11 @@ final class HttpServer
         }
     }
 
+    public function metrics(): array
+    {
+        return $this->getServer()->stats();
+    }
+
     /**
      * @return bool
      */
@@ -103,5 +121,20 @@ final class HttpServer
         } catch (Throwable $ex) {
             return false;
         }
+    }
+
+    public function getServer(): Server
+    {
+        Assertion::isInstanceOf($this->server, Server::class, 'Swoole HTTP Server has not been setup yet. Please use attach method.');
+
+        return $this->server;
+    }
+
+    /**
+     * @return Listener[]
+     */
+    public function getListeners(): array
+    {
+        return $this->listeners;
     }
 }

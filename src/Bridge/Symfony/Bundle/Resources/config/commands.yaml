@@ -4,6 +4,11 @@ services:
         autoconfigure: true
         public: false
 
+    'K911\Swoole\Bridge\Symfony\Bundle\Command\ServerStatusCommand':
+        tags: [ { name: console.command, command: 'swoole:server:status' } ]
+        arguments:
+            $apiServer: '@K911\Swoole\Server\Api\ApiServerClient'
+
     'K911\Swoole\Bridge\Symfony\Bundle\Command\ServerStopCommand':
         tags: [ { name: console.command, command: 'swoole:server:stop' } ]
 

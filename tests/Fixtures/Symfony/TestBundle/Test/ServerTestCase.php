@@ -7,28 +7,24 @@ namespace K911\Swoole\Tests\Fixtures\Symfony\TestBundle\Test;
 use K911\Swoole\Tests\Fixtures\Symfony\TestAppKernel;
 use PHPUnit\Framework\Exception;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
+use Symfony\Component\HttpKernel\KernelInterface;
 use Symfony\Component\Process\Exception\ProcessFailedException;
 use Symfony\Component\Process\Process;
 
 class ServerTestCase extends KernelTestCase
 {
+    public const SWOOLE_XDEBUG_CORO_WARNING_MESSAGE = 'go(): Using Xdebug in coroutines is extremely dangerous, please notice that it may lead to coredump!';
     private const COMMAND = './console';
     private const WORKING_DIRECTORY = __DIR__.'/../../app';
-    private const SWOOLE_XDEBUG_CORO_WARNING_MESSAGE = 'go(): Using Xdebug in coroutines is extremely dangerous, please notice that it may lead to coredump!';
 
     public function createConsoleProcess(array $args, array $envs = [], $input = null, ?float $timeout = 60.0): Process
     {
         $command = \array_merge([self::COMMAND], $args);
 
         if (!\array_key_exists('SWOOLE_TEST_XDEBUG_RESTART', $envs)) {
-            if ($this->coverageEnabled()) {
+            if (self::coverageEnabled()) {
                 $envs['COVERAGE'] = '1';
-
-                if (!\array_key_exists('APP_ENV', $envs)) {
-                    $envs['APP_ENV'] = 'cov';
-                } elseif ('_cov' !== \mb_substr($envs['APP_ENV'], -4, 4)) {
-                    $envs['APP_ENV'] .= '_cov';
-                }
+                $envs['APP_ENV'] = self::resolveEnvironment($envs['APP_ENV'] ?? null);
             }
 
             if (!\array_key_exists('SWOOLE_ALLOW_XDEBUG', $envs)) {
@@ -37,6 +33,26 @@ class ServerTestCase extends KernelTestCase
         }
 
         return new Process($command, \realpath(self::WORKING_DIRECTORY), $envs, $input, $timeout);
+    }
+
+    protected static function createKernel(array $options = []): KernelInterface
+    {
+        $options['environment'] = self::resolveEnvironment($options['environment'] ?? null);
+
+        return parent::createKernel($options);
+    }
+
+    public static function resolveEnvironment(?string $env = null): string
+    {
+        if (self::coverageEnabled()) {
+            if ('test' === $env || null === $env) {
+                $env = 'cov';
+            } elseif ('_cov' !== \mb_substr($env, -4, 4)) {
+                $env .= '_cov';
+            }
+        }
+
+        return $env ?? 'test';
     }
 
     protected static function getKernelClass(): string
@@ -88,32 +104,35 @@ class ServerTestCase extends KernelTestCase
 
     public function deferServerStop(): void
     {
-        \defer(function (): void {
-            $serverStop = $this->createConsoleProcess(['swoole:server:stop']);
+        \defer([$this, 'serverStop']);
+    }
 
-            if ($this->coverageEnabled()) {
-                $serverStop->disableOutput();
-            }
-            $serverStop->setTimeout(3);
-            $serverStop->run();
+    public function serverStop(): void
+    {
+        $serverStop = $this->createConsoleProcess(['swoole:server:stop']);
 
-            if (!$serverStop->isSuccessful()) {
-                throw new ProcessFailedException($serverStop);
-            }
+        if (self::coverageEnabled()) {
+            $serverStop->disableOutput();
+        }
+        $serverStop->setTimeout(3);
+        $serverStop->run();
 
-            if (!$this->coverageEnabled()) {
-                $this->assertStringContainsString('Swoole server shutdown successfully', $serverStop->getOutput());
-            }
-        });
+        if (!$serverStop->isSuccessful()) {
+            throw new ProcessFailedException($serverStop);
+        }
+
+        if (!self::coverageEnabled()) {
+            $this->assertStringContainsString('Swoole server shutdown successfully', $serverStop->getOutput());
+        }
     }
 
     protected function tearDown(): void
     {
         // Make sure everything is stopped
-        \sleep($this->coverageEnabled() ? 3 : 1);
+        \sleep(self::coverageEnabled() ? 3 : 1);
     }
 
-    public function coverageEnabled(): bool
+    public static function coverageEnabled(): bool
     {
         return false !== \getenv('COVERAGE');
     }

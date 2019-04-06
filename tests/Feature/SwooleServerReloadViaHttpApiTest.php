@@ -4,30 +4,31 @@ declare(strict_types=1);
 
 namespace K911\Swoole\Tests\Feature;
 
+use K911\Swoole\Client\Http;
 use K911\Swoole\Client\HttpClient;
 use K911\Swoole\Tests\Fixtures\Symfony\TestBundle\Test\ServerTestCase;
 use Swoole\Coroutine;
 
-final class SwooleServerHMRTest extends ServerTestCase
+final class SwooleServerReloadViaHttpApiTest extends ServerTestCase
 {
     private const CONTROLLER_TEMPLATE_ORIGINAL_TEXT = 'Wrong response!';
     private const CONTROLLER_TEMPLATE_REPLACE_TEXT = '%REPLACE%';
     private const CONTROLLER_TEMPLATE_SRC = __DIR__.'/../Fixtures/Symfony/TestBundle/Controller/ReplacedContentTestController.php.tmpl';
     private const CONTROLLER_TEMPLATE_DEST = __DIR__.'/../Fixtures/Symfony/TestBundle/Controller/ReplacedContentTestController.php';
 
-    public function testStartCallHMRCallStop(): void
+    public function testStartRequestApiToReloadCallStop(): void
     {
-        if (!\extension_loaded('inotify')) {
-            $this->markTestSkipped('Swoole Bundle HMR requires "inotify" PHP extension present and installed on the system.');
-        }
-
         $serverStart = $this->createConsoleProcess([
             'swoole:server:start',
             '--host=localhost',
             '--port=9999',
-        ], ['APP_ENV' => 'hmr']);
+            '--api',
+            '--api-port=9998',
+        ]);
 
-        $serverStart->disableOutput();
+        if (self::coverageEnabled()) {
+            $serverStart->disableOutput();
+        }
         $serverStart->setTimeout(3);
         $serverStart->run();
 
@@ -37,36 +38,43 @@ final class SwooleServerHMRTest extends ServerTestCase
             $this->deferServerStop();
             $this->deferRestoreOriginalTemplateControllerResponse();
 
-            $client = HttpClient::fromDomain('localhost', 9999, false);
-            $this->assertTrue($client->connect());
+            $serverClient = HttpClient::fromDomain('localhost', 9999, false);
+            $this->assertTrue($serverClient->connect());
 
-            $response1 = $client->send('/test/replaced/content')['response'];
+            $response1 = $serverClient->send('/test/replaced/content')['response'];
 
             $this->assertSame(200, $response1['statusCode']);
             $this->assertSame('Wrong response!', $response1['body']);
 
-            Coroutine::sleep(self::coverageEnabled() ? 5 : 3);
-
-            $expectedResponse = 'Hello world from swoole reloaded worker by HMR!';
-            $this->replaceResponseInTestController($expectedResponse);
+            $expectedResponse = 'Hello world from reloaded server worker via HTTP API!';
+            $this->replaceContentInTestController($expectedResponse);
             $this->assertTestControllerResponseEquals($expectedResponse);
 
-            Coroutine::sleep(self::coverageEnabled() ? 5 : 3);
+            $response2 = $serverClient->send('/test/replaced/content')['response'];
 
-            $response3 = $client->send('/test/replaced/content')['response'];
+            $this->assertSame(200, $response2['statusCode']);
+            $this->assertNotSame($expectedResponse, $response2['body']);
+
+            $apiClient = HttpClient::fromDomain('localhost', 9998, false);
+            $this->assertTrue($apiClient->connect());
+
+            $apiClientResponse = $apiClient->send('/api/server', Http::METHOD_PATCH)['response'];
+            $this->assertSame(204, $apiClientResponse['statusCode']);
+            Coroutine::sleep(self::coverageEnabled() ? 3 : 1);
+
+            $response3 = $serverClient->send('/test/replaced/content')['response'];
 
             $this->assertSame(200, $response3['statusCode']);
             $this->assertSame($expectedResponse, $response3['body']);
         });
     }
 
-    private function replaceResponseInTestController(string $text): void
+    private function replaceContentInTestController(string $text): void
     {
         \file_put_contents(
             self::CONTROLLER_TEMPLATE_DEST,
             \str_replace(self::CONTROLLER_TEMPLATE_REPLACE_TEXT, $text, \file_get_contents(self::CONTROLLER_TEMPLATE_SRC))
         );
-        \touch(self::CONTROLLER_TEMPLATE_DEST);
     }
 
     private function assertTestControllerResponseEquals(string $expected): void
@@ -80,7 +88,7 @@ final class SwooleServerHMRTest extends ServerTestCase
     private function deferRestoreOriginalTemplateControllerResponse(): void
     {
         \defer(function (): void {
-            $this->replaceResponseInTestController(self::CONTROLLER_TEMPLATE_ORIGINAL_TEXT);
+            $this->replaceContentInTestController(self::CONTROLLER_TEMPLATE_ORIGINAL_TEXT);
         });
     }
 }

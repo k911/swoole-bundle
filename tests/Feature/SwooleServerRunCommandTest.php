@@ -17,7 +17,7 @@ final class SwooleServerRunCommandTest extends ServerTestCase
             '--port=9999',
         ]);
 
-        if ($this->coverageEnabled()) {
+        if (self::coverageEnabled()) {
             $serverRun->disableOutput();
         }
         $serverRun->setTimeout(10);

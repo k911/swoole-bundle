@@ -6,6 +6,7 @@ namespace K911\Swoole\Server;
 
 use Assert\Assertion;
 use K911\Swoole\Server\Config\Socket;
+use K911\Swoole\Server\Config\Sockets;
 
 final class HttpServerConfiguration
 {
@@ -42,26 +43,27 @@ final class HttpServerConfiguration
         'error' => SWOOLE_LOG_ERROR,
     ];
 
-    private $defaultSocket;
+    private $sockets;
     private $runningMode;
     private $settings;
 
     /**
-     * @param Socket $defaultSocket
-     * @param string $runningMode
-     * @param array  $settings      settings available:
-     *                              - reactor_count (default: number of cpu cores)
-     *                              - worker_count (default: 2 * number of cpu cores)
-     *                              - serve_static_files (default: false)
-     *                              - public_dir (default: '%kernel.root_dir%/public')
-     *                              - buffer_output_size (default: '2097152' unit in byte (2MB))
+     * @param Sockets $sockets
+     * @param string  $runningMode
+     * @param array   $settings    settings available:
+     *                             - reactor_count (default: number of cpu cores)
+     *                             - worker_count (default: 2 * number of cpu cores)
+     *                             - serve_static_files (default: false)
+     *                             - public_dir (default: '%kernel.root_dir%/public')
+     *                             - buffer_output_size (default: '2097152' unit in byte (2MB))
      *
      * @throws \Assert\AssertionFailedException
      */
-    public function __construct(Socket $defaultSocket, string $runningMode = 'process', array $settings = [])
+    public function __construct(Sockets $sockets, string $runningMode = 'process', array $settings = [])
     {
+        $this->sockets = $sockets;
+
         $this->changeRunningMode($runningMode);
-        $this->changeDefaultSocket($defaultSocket);
         $this->initializeSettings($settings);
     }
 
@@ -75,9 +77,14 @@ final class HttpServerConfiguration
     /**
      * @param Socket $socket
      */
-    public function changeDefaultSocket(Socket $socket): void
+    public function changeServerSocket(Socket $socket): void
     {
-        $this->defaultSocket = $socket;
+        $this->sockets->changeServerSocket($socket);
+    }
+
+    public function getSockets(): Sockets
+    {
+        return $this->sockets;
     }
 
     /**
@@ -237,9 +244,9 @@ final class HttpServerConfiguration
         return $this->settings['worker_count'];
     }
 
-    public function getDefaultSocket(): Socket
+    public function getServerSocket(): Socket
     {
-        return $this->defaultSocket;
+        return $this->sockets->getServerSocket();
     }
 
     /**

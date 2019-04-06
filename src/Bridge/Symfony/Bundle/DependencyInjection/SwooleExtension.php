@@ -11,6 +11,7 @@ use K911\Swoole\Bridge\Symfony\HttpFoundation\RequestFactoryInterface;
 use K911\Swoole\Bridge\Symfony\HttpFoundation\TrustAllProxiesRequestHandler;
 use K911\Swoole\Bridge\Symfony\HttpKernel\DebugHttpKernelRequestHandler;
 use K911\Swoole\Server\Config\Socket;
+use K911\Swoole\Server\Config\Sockets;
 use K911\Swoole\Server\Configurator\ConfiguratorInterface;
 use K911\Swoole\Server\HttpServerConfiguration;
 use K911\Swoole\Server\RequestHandler\AdvancedStaticFilesServer;
@@ -71,6 +72,8 @@ final class SwooleExtension extends Extension implements PrependExtensionInterfa
 
         $container->setParameter('swoole.http_server.trusted_proxies', $config['trusted_proxies']);
         $container->setParameter('swoole.http_server.trusted_hosts', $config['trusted_hosts']);
+        $container->setParameter('swoole.http_server.api.host', $config['api']['host']);
+        $container->setParameter('swoole.http_server.api.port', $config['api']['port']);
 
         $this->registerHttpServerConfiguration($config, $container);
     }
@@ -79,6 +82,7 @@ final class SwooleExtension extends Extension implements PrependExtensionInterfa
     {
         [
             'static' => $static,
+            'api' => $api,
             'hmr' => $hmr,
             'host' => $host,
             'port' => $port,
@@ -112,9 +116,15 @@ final class SwooleExtension extends Extension implements PrependExtensionInterfa
             $hmr = $this->resolveAutoHMR();
         }
 
-        $defaultSocket = new Definition(Socket::class, [$host, $port, $socketType, $sslEnabled]);
+        $sockets = $container->getDefinition(Sockets::class)
+            ->addArgument(new Definition(Socket::class, [$host, $port, $socketType, $sslEnabled]));
+
+        if ($api['enabled']) {
+            $sockets->addArgument(new Definition(Socket::class, [$api['host'], $api['port']]));
+        }
+
         $container->getDefinition(HttpServerConfiguration::class)
-            ->addArgument($defaultSocket)
+            ->addArgument(new Reference(Sockets::class))
             ->addArgument($runningMode)
             ->addArgument($settings);
 
