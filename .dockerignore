@@ -1,6 +1,9 @@
 *
 !/src
 !/tests
+tests/Fixtures/resources
+tests/Fixtures/Symfony/app/var
+!tests/Fixtures/resources/.gitignore
 !composer.json
 !composer.lock
 !phpstan.neon.dist

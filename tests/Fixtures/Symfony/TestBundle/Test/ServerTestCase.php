@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace K911\Swoole\Tests\Fixtures\Symfony\TestBundle\Test;
 
+use K911\Swoole\Client\HttpClient;
 use K911\Swoole\Tests\Fixtures\Symfony\TestAppKernel;
 use PHPUnit\Framework\Exception;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
@@ -13,6 +14,7 @@ use Symfony\Component\Process\Process;
 
 class ServerTestCase extends KernelTestCase
 {
+    public const FIXTURE_RESOURCES_DIR = __DIR__.'/../../../resources';
     public const SWOOLE_XDEBUG_CORO_WARNING_MESSAGE = 'go(): Using Xdebug in coroutines is extremely dangerous, please notice that it may lead to coredump!';
     private const COMMAND = './console';
     private const WORKING_DIRECTORY = __DIR__.'/../../app';
@@ -102,14 +104,17 @@ class ServerTestCase extends KernelTestCase
         });
     }
 
-    public function deferServerStop(): void
+    public function deferServerStop(string ...$args): void
     {
-        \defer([$this, 'serverStop']);
+        \defer(function () use ($args): void {
+            $this->serverStop(...$args);
+        });
     }
 
-    public function serverStop(): void
+    public function serverStop(string ...$args): void
     {
-        $serverStop = $this->createConsoleProcess(['swoole:server:stop']);
+        $processArgs = \array_merge(['swoole:server:stop'], $args);
+        $serverStop = $this->createConsoleProcess($processArgs);
 
         if (self::coverageEnabled()) {
             $serverStop->disableOutput();
@@ -124,6 +129,16 @@ class ServerTestCase extends KernelTestCase
         if (!self::coverageEnabled()) {
             $this->assertStringContainsString('Swoole server shutdown successfully', $serverStop->getOutput());
         }
+    }
+
+    public function assertHelloWorldRequestSucceeded(HttpClient $client): void
+    {
+        $response = $client->send('/')['response'];
+
+        $this->assertSame(200, $response['statusCode']);
+        $this->assertSame([
+            'hello' => 'world!',
+        ], $response['body']);
     }
 
     protected function tearDown(): void

@@ -8,6 +8,9 @@ indent_style = space
 indent_size = 4
 trim_trailing_whitespace = true
 
+[*.pid]
+insert_final_newline = false
+
 [*.{yml,yaml,json}]
 indent_size = 2
 

@@ -23,7 +23,7 @@ final class ServerStartCommand extends AbstractServerStartCommand
     protected function configure(): void
     {
         $this->setDescription('Run Swoole HTTP server in the background.')
-            ->addOption('pid_file', null, InputOption::VALUE_REQUIRED, 'Pid file', $this->parameterBag->get('kernel.project_dir').'/var/swoole.pid');
+            ->addOption('pid-file', null, InputOption::VALUE_REQUIRED, 'Pid file', $this->parameterBag->get('kernel.project_dir').'/var/swoole.pid');
 
         parent::configure();
     }
@@ -34,7 +34,7 @@ final class ServerStartCommand extends AbstractServerStartCommand
     protected function prepareServerConfiguration(HttpServerConfiguration $serverConfiguration, InputInterface $input): void
     {
         /** @var string|null $pidFile */
-        $pidFile = $input->getOption('pid_file');
+        $pidFile = $input->getOption('pid-file');
         $serverConfiguration->daemonize($pidFile);
 
         parent::prepareServerConfiguration($serverConfiguration, $input);
@@ -45,8 +45,9 @@ final class ServerStartCommand extends AbstractServerStartCommand
      */
     protected function startServer(HttpServerConfiguration $serverConfiguration, HttpServer $server, SymfonyStyle $io): void
     {
-        if (!$serverConfiguration->existsPidFile() && !\touch($serverConfiguration->getPidFile())) {
-            throw new RuntimeException(\sprintf('Could not create pid file "%s".', $serverConfiguration->getPid()));
+        $pidFile = $serverConfiguration->getPidFile();
+        if (!\touch($pidFile) || !\is_writable($pidFile)) {
+            throw new RuntimeException(\sprintf('Could not access or create pid file "%s".', $serverConfiguration->getPidFile()));
         }
 
         $this->closeSymfonyStyle($io);
