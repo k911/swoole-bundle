@@ -30,13 +30,7 @@ final class SwooleServerStartStopCommandTest extends ServerTestCase
 
             $client = HttpClient::fromDomain('localhost', 9999, false);
             $this->assertTrue($client->connect());
-
-            $response = $client->send('/')['response'];
-
-            $this->assertSame(200, $response['statusCode']);
-            $this->assertSame([
-                'hello' => 'world!',
-            ], $response['body']);
+            $this->assertHelloWorldRequestSucceeded($client);
         });
     }
 }

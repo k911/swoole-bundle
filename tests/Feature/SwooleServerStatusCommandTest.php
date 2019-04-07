@@ -53,6 +53,8 @@ final class SwooleServerStatusCommandTest extends ServerTestCase
             $this->assertStringContainsString('Fetched status and metrics', $commandTester->getDisplay());
             $this->assertStringContainsString('Listener[0] Host', $commandTester->getDisplay());
             $this->assertStringContainsString('Requests', $commandTester->getDisplay());
+
+            $this->assertHelloWorldRequestSucceeded($client);
         });
     }
 }

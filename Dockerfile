@@ -31,8 +31,11 @@ COPY . ./
 RUN composer dump-autoload --classmap-authoritative --ansi
 
 FROM php:$PHP_TAG as base
-RUN apk add --no-cache libstdc++
 WORKDIR /usr/src/app
+RUN addgroup -g 1000 -S runner && \
+    adduser -u 1000 -S app -G runner && \
+    chown app:runner /usr/src/app
+RUN apk add --no-cache libstdc++
 # php -i | grep 'PHP API' | sed -e 's/PHP API => //'
 ARG PHP_API_VERSION="20180731"
 COPY --from=ext-swoole /usr/local/lib/php/extensions/no-debug-non-zts-${PHP_API_VERSION}/swoole.so /usr/local/lib/php/extensions/no-debug-non-zts-${PHP_API_VERSION}/swoole.so
@@ -48,14 +51,14 @@ COPY --from=ext-xdebug /usr/local/lib/php/extensions/no-debug-non-zts-${PHP_API_
 COPY --from=ext-xdebug /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini
 
 FROM base as base-cli
-COPY --from=app-installer /usr/src/app ./
+USER app:runner
+COPY --chown=app:runner --from=app-installer /usr/src/app ./
 
 FROM base-with-xdebug as base-coverage
+RUN apk add --no-cache bash && chown app:runner /bin/bash
+USER app:runner
 ENV COVERAGE="1"
-COPY --from=app-installer /usr/src/app ./
-
-FROM base-coverage as base-server-coverage
-RUN apk add --no-cache bash
+COPY --chown=app:runner --from=app-installer /usr/src/app ./
 
 FROM base-cli as Cli
 ENTRYPOINT ["./tests/Fixtures/Symfony/app/console"]
@@ -63,16 +66,16 @@ CMD ["swoole:server:run"]
 
 FROM base-cli as Composer
 ENV COMPOSER_ALLOW_SUPERUSER=1
-COPY --from=app-installer /usr/bin/composer /usr/local/bin/composer
+COPY --chown=app:runner --from=app-installer /usr/bin/composer /usr/local/bin/composer
 ENTRYPOINT ["composer"]
 CMD ["test"]
 
 FROM base-coverage as ComposerCoverage
 ENV COMPOSER_ALLOW_SUPERUSER=1
-COPY --from=app-installer /usr/bin/composer /usr/local/bin/composer
+COPY --chown=app:runner --from=app-installer /usr/bin/composer /usr/local/bin/composer
 ENTRYPOINT ["composer"]
 CMD ["unit-code-coverage"]
 
-FROM base-server-coverage as ServerCoverage
+FROM base-coverage as ServerCoverage
 ENTRYPOINT ["/bin/bash"]
 CMD ["tests/run-feature-tests-code-coverage.sh"]
