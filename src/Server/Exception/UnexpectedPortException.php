@@ -7,7 +7,7 @@ namespace K911\Swoole\Server\Exception;
 /**
  * @internal
  */
-final class InvalidServerPortException extends \InvalidArgumentException
+final class UnexpectedPortException extends \InvalidArgumentException
 {
     public static function with(int $port, int $expectedPort): self
     {

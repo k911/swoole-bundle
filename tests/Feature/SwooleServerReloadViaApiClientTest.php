@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace K911\Swoole\Tests\Feature;
 
 use K911\Swoole\Client\HttpClient;
-use K911\Swoole\Server\Api\ApiServerClient;
+use K911\Swoole\Server\Api\ApiServerClientFactory;
 use K911\Swoole\Server\Config\Socket;
 use K911\Swoole\Server\Config\Sockets;
 use K911\Swoole\Tests\Fixtures\Symfony\TestBundle\Test\ServerTestCase;
@@ -23,7 +23,8 @@ final class SwooleServerReloadViaApiClientTest extends ServerTestCase
         static::bootKernel();
         $sockets = static::$container->get(Sockets::class);
         $sockets->changeApiSocket(new Socket('0.0.0.0', 9998));
-        $apiClient = static::$container->get(ApiServerClient::class);
+        $apiClient = static::$container->get(ApiServerClientFactory::class)
+            ->newClient();
 
         $serverStart = $this->createConsoleProcess([
             'swoole:server:start',
@@ -75,7 +76,8 @@ final class SwooleServerReloadViaApiClientTest extends ServerTestCase
     public function testStartRequestApiToReloadCallStopUsingApiEnv(): void
     {
         static::bootKernel(['environment' => 'api']);
-        $apiClient = static::$container->get(ApiServerClient::class);
+        $apiClient = static::$container->get(ApiServerClientFactory::class)
+            ->newClient();
 
         $serverStart = $this->createConsoleProcess([
             'swoole:server:start',

@@ -5,7 +5,9 @@ declare(strict_types=1);
 namespace K911\Swoole\Bridge\Symfony\Bundle\Command;
 
 use Assert\Assertion;
-use K911\Swoole\Server\Api\ApiServerInterface;
+use K911\Swoole\Client\Exception\ClientConnectionErrorException;
+use K911\Swoole\Coroutine\CoroutinePool;
+use K911\Swoole\Server\Api\ApiServerClientFactory;
 use K911\Swoole\Server\Config\Socket;
 use K911\Swoole\Server\Config\Sockets;
 use Symfony\Component\Console\Command\Command;
@@ -17,18 +19,17 @@ use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 
 final class ServerStatusCommand extends Command
 {
-    private $apiServer;
+    private $apiServerClientFactory;
     private $sockets;
     private $parameterBag;
-    private $testing = false;
 
     public function __construct(
         Sockets $sockets,
-        ApiServerInterface $apiServer,
+        ApiServerClientFactory $apiServerClientFactory,
         ParameterBagInterface $parameterBag
     ) {
-        $this->apiServer = $apiServer;
         $this->sockets = $sockets;
+        $this->apiServerClientFactory = $apiServerClientFactory;
         $this->parameterBag = $parameterBag;
 
         parent::__construct();
@@ -48,40 +49,35 @@ final class ServerStatusCommand extends Command
      * {@inheritdoc}
      *
      * @throws \Assert\AssertionFailedException
+     * @throws \Throwable
      */
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
+        $exitCode = 0;
         $io = new SymfonyStyle($input, $output);
 
         $this->prepareClientConfiguration($input);
 
-        $this->goAndWait(function () use ($io): void {
-            try {
-                $status = $this->apiServer->status();
-                $metrics = $this->apiServer->metrics();
-            } catch (\RuntimeException $runtimeException) {
-                $io->error('Could not connect to Swoole API Server');
-
-                return;
-            }
-            $io->success('Fetched status and metrics');
+        $coroutinePool = CoroutinePool::fromCoroutines(function () use ($io): void {
+            $status = $this->apiServerClientFactory->newClient()
+                ->status();
+            $io->success('Fetched status');
             $this->showStatus($io, $status);
+        }, function () use ($io): void {
+            $metrics = $this->apiServerClientFactory->newClient()
+                ->metrics();
+            $io->success('Fetched metrics');
             $this->showMetrics($io, $metrics);
         });
 
-        return 0;
-    }
-
-    public function goAndWait(callable $callback): void
-    {
-        if ($this->testing) {
-            $callback();
-
-            return;
+        try {
+            $coroutinePool->run();
+        } catch (ClientConnectionErrorException $errorException) {
+            $io->error('An error occurred while connecting to the API Server. Please verify configuration.');
+            $exitCode = 1;
         }
 
-        \go($callback);
-        \swoole_event_wait();
+        return $exitCode;
     }
 
     private function showStatus(SymfonyStyle $io, array $status): void
@@ -146,10 +142,5 @@ final class ServerStatusCommand extends Command
         Assertion::string($host, 'Host must be a string.');
 
         $this->sockets->changeApiSocket(new Socket($host, (int) $port));
-    }
-
-    public function enableTestMode(): void
-    {
-        $this->testing = true;
     }
 }
