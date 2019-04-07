@@ -9,7 +9,7 @@ namespace K911\Swoole\Server\Exception;
  */
 final class NotRunningException extends \RuntimeException
 {
-    public static function create(): self
+    public static function make(): self
     {
         return new self('Swoole HTTP Server has not been running.');
     }

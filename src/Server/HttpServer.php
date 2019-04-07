@@ -4,12 +4,11 @@ declare(strict_types=1);
 
 namespace K911\Swoole\Server;
 
-use K911\Swoole\Server\Config\Socket;
-use K911\Swoole\Server\Exception\AlreadyAttachedException;
-use K911\Swoole\Server\Exception\InvalidServerPortException;
-use K911\Swoole\Server\Exception\NoServerAttachedException;
+use K911\Swoole\Server\Exception\IllegalInitializationException;
 use K911\Swoole\Server\Exception\NotRunningException;
 use K911\Swoole\Server\Exception\PortUnavailableException;
+use K911\Swoole\Server\Exception\UnexpectedPortException;
+use K911\Swoole\Server\Exception\UninitializedException;
 use Swoole\Http\Server;
 use Swoole\Process;
 use Swoole\Server\Port as Listener;
@@ -47,19 +46,19 @@ final class HttpServer
      */
     public function attach(Server $server): void
     {
-        $this->alreadyAttached($this->server);
-
-        $defaultSocket = $this->configuration->getServerSocket();
-        $this->expectedServerPort($server, $defaultSocket);
+        $this->assertNotInitialized();
+        $this->assertInstanceConfiguredProperly($server);
 
         $this->server = $server;
+        $defaultSocketPort = $this->configuration->getServerSocket()
+            ->port();
 
         foreach ($server->ports as $listener) {
-            if ($listener->port === $defaultSocket->port()) {
+            if ($listener->port === $defaultSocketPort) {
                 continue;
             }
 
-            $this->availablePort($this->listeners, $listener->port);
+            $this->assertPortAvailable($this->listeners, $listener->port);
             $this->listeners[$listener->port] = $listener;
         }
     }
@@ -83,7 +82,7 @@ final class HttpServer
         } elseif ($this->isRunningInBackground()) {
             Process::kill($this->configuration->getPid(), $this->signalTerminate);
         } else {
-            throw NotRunningException::create();
+            throw NotRunningException::make();
         }
     }
 
@@ -98,7 +97,7 @@ final class HttpServer
         } elseif ($this->isRunningInBackground()) {
             Process::kill($this->configuration->getPid(), $this->signalReload);
         } else {
-            throw NotRunningException::create();
+            throw NotRunningException::make();
         }
     }
 
@@ -130,7 +129,7 @@ final class HttpServer
     public function getServer(): Server
     {
         if (null === $this->server) {
-            throw NoServerAttachedException::create();
+            throw UninitializedException::make();
         }
 
         return $this->server;
@@ -144,25 +143,25 @@ final class HttpServer
         return $this->listeners;
     }
 
-    private function alreadyAttached(Server $server = null): void
+    private function assertNotInitialized(): void
     {
-        if (null === $server) {
+        if (null === $this->server) {
             return;
         }
 
-        throw AlreadyAttachedException::create();
+        throw IllegalInitializationException::make();
     }
 
-    private function expectedServerPort(Server $server, Socket $socket): void
+    private function assertInstanceConfiguredProperly(Server $server): void
     {
-        if ($socket->port() === $server->port) {
-            return;
-        }
+        $defaultSocket = $this->configuration->getServerSocket();
 
-        throw InvalidServerPortException::with($server->port, $socket->port());
+        if ($defaultSocket->port() !== $server->port) {
+            throw UnexpectedPortException::with($server->port, $defaultSocket->port());
+        }
     }
 
-    private function availablePort(array $listeners, int $port): void
+    private function assertPortAvailable(array $listeners, int $port): void
     {
         if (false === \array_key_exists($port, $listeners)) {
             return;

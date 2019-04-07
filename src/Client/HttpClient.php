@@ -5,9 +5,10 @@ declare(strict_types=1);
 namespace K911\Swoole\Client;
 
 use K911\Swoole\Client\Exception\ClientConnectionErrorException;
-use K911\Swoole\Client\Exception\InvalidContentTypeException;
-use K911\Swoole\Client\Exception\InvalidHttpMethodException;
 use K911\Swoole\Client\Exception\MissingContentTypeException;
+use K911\Swoole\Client\Exception\UnsupportedContentTypeException;
+use K911\Swoole\Client\Exception\UnsupportedHttpMethodException;
+use K911\Swoole\Server\Config\Socket;
 use Swoole\Coroutine;
 use Swoole\Coroutine\Http\Client;
 
@@ -28,6 +29,11 @@ final class HttpClient
         Http::METHOD_OPTIONS,
     ];
 
+    private const SUPPORTED_CONTENT_TYPES = [
+        Http::CONTENT_TYPE_APPLICATION_JSON,
+        Http::CONTENT_TYPE_TEXT_PLAIN,
+    ];
+
     private const ACCEPTABLE_CONNECTING_EXIT_CODES = [
         111 => true,
         61 => true,
@@ -39,6 +45,29 @@ final class HttpClient
     public function __construct(Client $client)
     {
         $this->client = $client;
+    }
+
+    public static function fromSocket(Socket $socket, array $options = []): self
+    {
+        return self::fromDomain(
+            $socket->host(),
+            $socket->port(),
+            $socket->ssl(),
+            $options
+        );
+    }
+
+    public static function fromDomain(string $host, int $port = 443, bool $ssl = true, array $options = []): self
+    {
+        $client = new Client(
+            $host, $port, $ssl
+        );
+
+        if (!empty($options)) {
+            $client->set($options);
+        }
+
+        return new self($client);
     }
 
     /**
@@ -71,7 +100,7 @@ final class HttpClient
 
     public function send(string $path, string $method = Http::METHOD_GET, array $headers = [], $data = null, int $timeout = 3): array
     {
-        $this->validHttpMethod($method);
+        $this->assertHttpMethodSupported($method);
 
         $this->client->setMethod($method);
         $this->client->setHeaders($headers);
@@ -88,24 +117,13 @@ final class HttpClient
         return $this->resolveResponse($this->client, $timeout);
     }
 
-    public static function fromDomain(string $host, int $port = 443, bool $ssl = true, array $options = []): self
+    private function assertHttpMethodSupported(string $method): void
     {
-        $client = new Client(
-            $host, $port, $ssl
-        );
-
-        if (!empty($options)) {
-            $client->set($options);
+        if (true === \in_array($method, self::SUPPORTED_HTTP_METHODS, true)) {
+            return;
         }
 
-        return new self($client);
-    }
-
-    public function __destruct()
-    {
-        if ($this->client->connected) {
-            $this->client->close();
-        }
+        throw UnsupportedHttpMethodException::forMethod($method, self::SUPPORTED_HTTP_METHODS);
     }
 
     private function serializeRequestData(Client $client, $data): void
@@ -122,46 +140,10 @@ final class HttpClient
         $client->setData($json);
     }
 
-    /**
-     * @param Client $client
-     *
-     * @return string|array
-     */
-    private function resolveResponseBody(Client $client)
-    {
-        if (204 === $client->statusCode || '' === $client->body) {
-            return [];
-        }
-
-        $this->hasContentType($client);
-        $fullContentType = $client->headers[Http::HEADER_CONTENT_TYPE];
-        $contentType = \explode(';', $fullContentType)[0];
-
-        switch ($contentType) {
-            case Http::CONTENT_TYPE_APPLICATION_JSON:
-                // TODO: Drop on PHP 7.3 Migration
-                if (!\defined('JSON_THROW_ON_ERROR')) {
-                    $data = \json_decode($client->body, true);
-                    if (null === $data) {
-                        throw new \RuntimeException(\json_last_error_msg(), \json_last_error());
-                    }
-
-                    return $data;
-                }
-
-                return \json_decode($client->body, true, 512, JSON_THROW_ON_ERROR);
-            case Http::CONTENT_TYPE_TEXT_PLAIN:
-                return $client->body;
-            default:
-                throw InvalidContentTypeException::forContentType($contentType);
-        }
-    }
-
     private function resolveResponse(Client $client, int $timeout): array
     {
         $client->recv($timeout);
-
-        $this->validStatusCode($client);
+        $this->assertConnectionSuccessful($client);
 
         return [
             'request' => [
@@ -182,7 +164,7 @@ final class HttpClient
         ];
     }
 
-    private function validStatusCode(Client $client): void
+    private function assertConnectionSuccessful(Client $client): void
     {
         if ($client->statusCode >= 0) {
             return;
@@ -200,21 +182,47 @@ final class HttpClient
         }
     }
 
-    private function validHttpMethod(string $method): void
+    /**
+     * @param Client $client
+     *
+     * @return string|array
+     */
+    private function resolveResponseBody(Client $client)
     {
-        if (true === \in_array($method, self::SUPPORTED_HTTP_METHODS)) {
-            return;
+        if (204 === $client->statusCode || '' === $client->body) {
+            return [];
         }
 
-        throw InvalidHttpMethodException::forMethod($method, self::SUPPORTED_HTTP_METHODS);
+        $this->assertHasContentType($client);
+        $fullContentType = $client->headers[Http::HEADER_CONTENT_TYPE];
+        $contentType = \explode(';', $fullContentType)[0];
+
+        switch ($contentType) {
+            case Http::CONTENT_TYPE_APPLICATION_JSON:
+                // TODO: Drop on PHP 7.3 Migration
+                if (!\defined('JSON_THROW_ON_ERROR')) {
+                    $data = \json_decode($client->body, true);
+                    if (null === $data) {
+                        throw new \RuntimeException(\json_last_error_msg(), \json_last_error());
+                    }
+
+                    return $data;
+                }
+
+                return \json_decode($client->body, true, 512, JSON_THROW_ON_ERROR);
+            case Http::CONTENT_TYPE_TEXT_PLAIN:
+                return $client->body;
+            default:
+                throw UnsupportedContentTypeException::forContentType($contentType, self::SUPPORTED_CONTENT_TYPES);
+        }
     }
 
-    private function hasContentType(Client $client): void
+    private function assertHasContentType(Client $client): void
     {
         if (true === \array_key_exists(Http::HEADER_CONTENT_TYPE, $client->headers)) {
             return;
         }
 
-        throw MissingContentTypeException::create();
+        throw MissingContentTypeException::make();
     }
 }

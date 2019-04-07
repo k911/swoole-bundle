@@ -49,7 +49,10 @@ services:
     'K911\Swoole\Server\LifecycleHandler\ServerManagerStopHandlerInterface':
         class: K911\Swoole\Server\LifecycleHandler\NoOpServerManagerStopHandler
 
+    'K911\Swoole\Server\Api\ApiServerClientFactory':
+
     'K911\Swoole\Server\Api\ApiServerClient':
+        factory: 'K911\Swoole\Server\Api\ApiServerClientFactory:newClient'
 
     'K911\Swoole\Server\Api\ApiServerInterface':
         class: K911\Swoole\Server\Api\ApiServer
