@@ -8,6 +8,10 @@ indent_style = space
 indent_size = 4
 trim_trailing_whitespace = true
 
+[Makefile]
+indent_size = 4
+indent_style = tab
+
 [*.pid]
 insert_final_newline = false
 

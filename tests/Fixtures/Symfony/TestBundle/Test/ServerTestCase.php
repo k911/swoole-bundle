@@ -93,14 +93,12 @@ class ServerTestCase extends KernelTestCase
      * @param int     $timeout seconds
      * @param int     $signal  [default=SIGKILL]
      */
-    public function deferProcessStop(Process $process, int $timeout = 3, int $signal = 9): void
+    public function deferProcessStop(Process $process, int $timeout = 3, ?int $signal = null): void
     {
         \defer(function () use ($process, $timeout, $signal): void {
             $process->stop($timeout, $signal);
 
-            if (!$process->isSuccessful()) {
-                throw new ProcessFailedException($process);
-            }
+            $this->assertProcessSucceeded($process);
         });
     }
 
@@ -122,9 +120,7 @@ class ServerTestCase extends KernelTestCase
         $serverStop->setTimeout(3);
         $serverStop->run();
 
-        if (!$serverStop->isSuccessful()) {
-            throw new ProcessFailedException($serverStop);
-        }
+        $this->assertProcessSucceeded($serverStop);
 
         if (!self::coverageEnabled()) {
             $this->assertStringContainsString('Swoole server shutdown successfully', $serverStop->getOutput());
@@ -144,11 +140,26 @@ class ServerTestCase extends KernelTestCase
     protected function tearDown(): void
     {
         // Make sure everything is stopped
-        \sleep(self::coverageEnabled() ? 3 : 1);
+        \sleep(1);
     }
 
     public static function coverageEnabled(): bool
     {
         return false !== \getenv('COVERAGE');
+    }
+
+    public function assertProcessSucceeded(Process $process): void
+    {
+        $status = $process->isSuccessful();
+        if (!$status) {
+            throw new ProcessFailedException($process);
+        }
+
+        $this->assertTrue($status);
+    }
+
+    public function assertProcessFailed(Process $process): void
+    {
+        $this->assertFalse($process->isSuccessful());
     }
 }

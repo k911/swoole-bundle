@@ -32,7 +32,7 @@ final class SwooleServerReloadViaHttpApiTest extends ServerTestCase
         $serverStart->setTimeout(3);
         $serverStart->run();
 
-        $this->assertTrue($serverStart->isSuccessful());
+        $this->assertProcessSucceeded($serverStart);
 
         $this->goAndWait(function (): void {
             $this->deferServerStop();

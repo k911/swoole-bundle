@@ -45,19 +45,19 @@ COPY --from=ext-inotify /usr/local/etc/php/conf.d/docker-php-ext-inotify.ini /us
 COPY --from=ext-pcntl /usr/local/lib/php/extensions/no-debug-non-zts-${PHP_API_VERSION}/pcntl.so /usr/local/lib/php/extensions/no-debug-non-zts-${PHP_API_VERSION}/pcntl.so
 COPY --from=ext-pcntl /usr/local/etc/php/conf.d/docker-php-ext-pcntl.ini /usr/local/etc/php/conf.d/docker-php-ext-pcntl.ini
 
-FROM base as base-with-xdebug
-ARG PHP_API_VERSION="20180731"
-COPY --from=ext-xdebug /usr/local/lib/php/extensions/no-debug-non-zts-${PHP_API_VERSION}/xdebug.so /usr/local/lib/php/extensions/no-debug-non-zts-${PHP_API_VERSION}/xdebug.so
-COPY --from=ext-xdebug /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini
-
 FROM base as base-cli
 USER app:runner
 COPY --chown=app:runner --from=app-installer /usr/src/app ./
 
-FROM base-with-xdebug as base-coverage
-RUN apk add --no-cache bash && chown app:runner /bin/bash
+FROM base as base-coverage
+RUN apk add --no-cache bash lsof
+ARG PHP_API_VERSION="20180731"
+COPY --from=ext-xdebug /usr/local/lib/php/extensions/no-debug-non-zts-${PHP_API_VERSION}/xdebug.so /usr/local/lib/php/extensions/no-debug-non-zts-${PHP_API_VERSION}/xdebug.so
+COPY --from=ext-xdebug /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini
 USER app:runner
-ENV COVERAGE="1"
+ENV COVERAGE="1" \
+    COMPOSER_ALLOW_SUPERUSER="1"
+COPY --chown=app:runner --from=app-installer /usr/bin/composer /usr/local/bin/composer
 COPY --chown=app:runner --from=app-installer /usr/src/app ./
 
 FROM base-cli as Cli
@@ -71,11 +71,9 @@ ENTRYPOINT ["composer"]
 CMD ["test"]
 
 FROM base-coverage as ComposerCoverage
-ENV COMPOSER_ALLOW_SUPERUSER=1
-COPY --chown=app:runner --from=app-installer /usr/bin/composer /usr/local/bin/composer
 ENTRYPOINT ["composer"]
 CMD ["unit-code-coverage"]
 
-FROM base-coverage as ServerCoverage
+FROM base-coverage as FeatureCoverage
 ENTRYPOINT ["/bin/bash"]
 CMD ["tests/run-feature-tests-code-coverage.sh"]

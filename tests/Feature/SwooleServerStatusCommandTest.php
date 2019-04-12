@@ -28,7 +28,7 @@ final class SwooleServerStatusCommandTest extends ServerTestCase
         $serverStart->setTimeout(3);
         $serverStart->run();
 
-        $this->assertTrue($serverStart->isSuccessful());
+        $this->assertProcessSucceeded($serverStart);
 
         $kernel = static::createKernel();
         $application = new Application($kernel);

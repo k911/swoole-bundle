@@ -37,11 +37,11 @@ services:
     volumes:
       - "./cov:/usr/src/app/cov"
 
-  server-coverage:
-    image: "${REGISTRY:-docker.io}/${NAMESPACE:-k911}/${IMAGE:-swoole-bundle-server-coverage}:${TAG:-latest}"
+  feature-coverage:
+    image: "${REGISTRY:-docker.io}/${NAMESPACE:-k911}/${IMAGE:-swoole-bundle-feature-coverage}:${TAG:-latest}"
     build:
       context: .
-      target: ServerCoverage
+      target: FeatureCoverage
       args:
         PHP_TAG: "${PHP_VERSION:-7.3}-cli-alpine${ALPINE_VERSION:-3.9}"
         PHP_API_VERSION: "${PHP_API_VERSION:-20180731}"

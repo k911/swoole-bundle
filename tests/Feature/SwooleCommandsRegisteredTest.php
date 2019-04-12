@@ -12,13 +12,13 @@ final class SwooleCommandsRegisteredTest extends ServerTestCase
 {
     public function testSwooleCommandsRegisteredCallViaProcess(): void
     {
-        $process = $this->createConsoleProcess(['list', 'swoole']);
+        $listCommands = $this->createConsoleProcess(['list', 'swoole']);
 
-        $process->setTimeout(3);
-        $process->run();
+        $listCommands->setTimeout(self::coverageEnabled() ? 10 : 3);
+        $listCommands->run();
 
-        $this->assertTrue($process->isSuccessful());
-        $this->assertSwooleCommandsRegistered($process->getOutput());
+        $this->assertProcessSucceeded($listCommands);
+        $this->assertSwooleCommandsRegistered($listCommands->getOutput());
     }
 
     public function testSwooleCommandsRegisteredWithCacheClear(): void
@@ -46,5 +46,6 @@ final class SwooleCommandsRegisteredTest extends ServerTestCase
         $this->assertStringContainsString('swoole:server:run', $output);
         $this->assertStringContainsString('swoole:server:start', $output);
         $this->assertStringContainsString('swoole:server:stop', $output);
+        $this->assertStringContainsString('swoole:server:status', $output);
     }
 }

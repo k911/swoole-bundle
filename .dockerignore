@@ -3,6 +3,7 @@
 !/tests
 tests/Fixtures/resources
 tests/Fixtures/Symfony/app/var
+tests/**/.phpunit.result.cache
 !tests/Fixtures/resources/.gitignore
 !composer.json
 !composer.lock
