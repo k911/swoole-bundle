@@ -104,7 +104,7 @@ aliases:
   - &upload-codeclimate-report
     run:
       name: Send Code Coverage report to CodeClimate
-      command: ./cc-test-reporter after-build -t clover --exit-code 0
+      command: ./cc-test-reporter after-build -t clover --exit-code 0 --prefix /usr/src/app
         
   - &upload-codecov-report
     codecov/upload:

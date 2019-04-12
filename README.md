@@ -1,4 +1,6 @@
-![travis](https://api.travis-ci.org/k911/swoole-bundle.svg?branch=develop)
+[![CircleCI](https://circleci.com/gh/k911/swoole-bundle.svg?style=svg)](https://circleci.com/gh/k911/swoole-bundle)
+[![travis](https://api.travis-ci.org/k911/swoole-bundle.svg?branch=develop)](https://travis-ci.org/k911/swoole-bundle)
+[![codecov](https://codecov.io/gh/k911/swoole-bundle/branch/develop/graph/badge.svg)](https://codecov.io/gh/k911/swoole-bundle)
 [![Maintainability](https://api.codeclimate.com/v1/badges/1d73a214622bba769171/maintainability)](https://codeclimate.com/github/k911/swoole-bundle/maintainability)
 [![Test Coverage](https://api.codeclimate.com/v1/badges/1d73a214622bba769171/test_coverage)](https://codeclimate.com/github/k911/swoole-bundle/test_coverage)
 [![Open Source Love](https://badges.frapsoft.com/os/v1/open-source.svg?v=103)](https://github.com/ellerbrock/open-source-badges/)
