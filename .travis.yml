@@ -19,17 +19,17 @@ matrix:
       env:
         - "COMPOSER_ARGS='update --prefer-lowest'"
     - php: 7.3
-    - php: 7.3
-      before_script:
-        - >-
-            curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64
-            > ./cc-test-reporter
-        - chmod +x ./cc-test-reporter
-        - ./cc-test-reporter before-build
-      after_success:
-        - composer merge-code-coverage
-        - ./cc-test-reporter after-build -t clover --exit-code $TRAVIS_TEST_RESULT
-        - bash <(curl -s https://codecov.io/bash)
+#    - php: 7.3
+#      before_script:
+#        - >-
+#            curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64
+#            > ./cc-test-reporter
+#        - chmod +x ./cc-test-reporter
+#        - ./cc-test-reporter before-build
+#      after_success:
+#        - composer merge-code-coverage
+#        - ./cc-test-reporter after-build -t clover --exit-code $TRAVIS_TEST_RESULT
+#        - bash <(curl -s https://codecov.io/bash)
       env:
         - COVERAGE=1
         - DEPLOY=1
@@ -63,8 +63,8 @@ script:
   - composer analyse
   - if [[ "$COVERAGE" != "1" ]]; then composer unit-tests; fi
   - if [[ "$COVERAGE" != "1" ]]; then composer feature-tests; fi
-  - if [[ "$COVERAGE" == "1" ]]; then composer unit-code-coverage; fi
-  - if [[ "$COVERAGE" == "1" ]]; then bash ./tests/run-feature-tests-code-coverage.sh; fi
+#  - if [[ "$COVERAGE" == "1" ]]; then composer unit-code-coverage; fi
+#  - if [[ "$COVERAGE" == "1" ]]; then bash ./tests/run-feature-tests-code-coverage.sh; fi
 
 before_deploy:
   - >-

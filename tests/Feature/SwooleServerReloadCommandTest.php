@@ -7,7 +7,6 @@ namespace K911\Swoole\Tests\Feature;
 use K911\Swoole\Client\HttpClient;
 use K911\Swoole\Tests\Fixtures\Symfony\TestBundle\Test\ServerTestCase;
 use Swoole\Coroutine;
-use Symfony\Component\Process\Exception\ProcessFailedException;
 
 final class SwooleServerReloadCommandTest extends ServerTestCase
 {
@@ -30,7 +29,7 @@ final class SwooleServerReloadCommandTest extends ServerTestCase
         $serverStart->setTimeout(3);
         $serverStart->run();
 
-        $this->assertTrue($serverStart->isSuccessful());
+        $this->assertProcessSucceeded($serverStart);
 
         $this->goAndWait(function (): void {
             $this->deferServerStop();
@@ -73,9 +72,7 @@ final class SwooleServerReloadCommandTest extends ServerTestCase
         $serverReload->setTimeout(3);
         $serverReload->run();
 
-        if (!$serverReload->isSuccessful()) {
-            throw new ProcessFailedException($serverReload);
-        }
+        $this->assertProcessSucceeded($serverReload);
 
         if (!self::coverageEnabled()) {
             $this->assertStringContainsString('Swoole HTTP Server\'s workers reloaded successfully', $serverReload->getOutput());

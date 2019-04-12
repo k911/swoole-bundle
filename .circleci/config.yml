@@ -1,7 +1,14 @@
 version: 2.1
-
+orbs:
+  codecov: codecov/codecov@1.0.4
 aliases:
   # Steps
+  - &dump-coverage-env
+    run:
+      name: Dump env for hash
+      command: |-
+        echo "COVERAGE=1" >> dumped.env;
+
   - &dump-env-vars
     run:
       name: Dump env for hash
@@ -33,10 +40,15 @@ aliases:
           docker images;
         fi
 
-  - &docker-compose-build
+  - &docker-compose-build-basic
     run:
       name: Docker-Compose Build
       command: docker-compose build composer
+
+  - &docker-compose-build-all
+    run:
+      name: Docker-Compose Build
+      command: docker-compose build
 
   - &code-style-analysis
     run:
@@ -53,15 +65,55 @@ aliases:
       name: Test sources static analysis
       command: docker-compose run composer static-analyse-tests
 
+  - &prepare-cov-permissions
+    run:
+      name: Prepare files and dirs permissions for code coverage containers
+      command: |-
+        mkdir -p cov;
+        touch clover.xml;
+        sudo chown 1000:1000 cov clover.xml;
+
   - &run-unit-tests
     run:
       name: Run unit tests
       command: docker-compose run composer unit-tests
 
+  - &run-unit-tests-with-coverage
+    run:
+      name: Run unit tests with coverage
+      command: docker-compose run composer-coverage
+
   - &run-feature-tests
     run:
       name: Run feature tests
       command: docker-compose run composer feature-tests
+
+  - &run-feature-tests-with-coverage
+    run:
+      name: Run feature tests with coverage
+      command: docker-compose run feature-coverage
+
+  - &prepare-codeclimate-reporter
+    run:
+      name: Prepare CodeClimate Code Coverage reporter
+      command: |-
+        curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter;
+        chmod +x ./cc-test-reporter;
+        ./cc-test-reporter before-build;
+
+  - &upload-codeclimate-report
+    run:
+      name: Send Code Coverage report to CodeClimate
+      command: ./cc-test-reporter after-build -t clover --exit-code 0
+        
+  - &upload-codecov-report
+    codecov/upload:
+      file: clover.xml
+
+  - &merge-code-coverage
+    run:
+      name: Merge code coverage files generated across test suites
+      command: docker-compose run merge-code-coverage
 
   - &export-docker-cache
     run:
@@ -92,7 +144,7 @@ aliases:
       - *dump-env-vars
       - *restore-docker-cache
       - *load-docker-cache
-      - *docker-compose-build
+      - *docker-compose-build-basic
       - *code-style-analysis
       - *static-src-analysis
       - *static-tests-analysis
@@ -101,7 +153,32 @@ aliases:
       - *export-docker-cache
       - *save-docker-cache
 
+  - &docker-coverage
+    steps:
+      - checkout
+      - *dump-coverage-env
+      - *dump-env-vars
+      - *restore-docker-cache
+      - *load-docker-cache
+      - *prepare-codeclimate-reporter
+      - *prepare-cov-permissions
+      - *docker-compose-build-all
+      - *code-style-analysis
+      - *static-src-analysis
+      - *static-tests-analysis
+      - *run-unit-tests-with-coverage
+      - *run-feature-tests-with-coverage
+      - *merge-code-coverage
+      - *upload-codecov-report
+      - *upload-codeclimate-report
+      - *export-docker-cache
+      - *save-docker-cache
+
 jobs:
+  php-73-cc:
+    <<: *docker-env
+    <<: *docker-coverage
+
   php-73:
     <<: *docker-env
     <<: *docker-default
@@ -157,6 +234,9 @@ workflows:
       - check-composer-config
       - validate-commit-message
       - php-73:
+          requires:
+            - check-composer-config
+      - php-73-cc:
           requires:
             - check-composer-config
       - php-73-latest:

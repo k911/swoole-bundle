@@ -6,7 +6,6 @@ namespace K911\Swoole\Tests\Feature;
 
 use K911\Swoole\Client\HttpClient;
 use K911\Swoole\Tests\Fixtures\Symfony\TestBundle\Test\ServerTestCase;
-use Symfony\Component\Process\Exception\ProcessFailedException;
 
 final class SwooleCustomPidFileTest extends ServerTestCase
 {
@@ -26,9 +25,7 @@ final class SwooleCustomPidFileTest extends ServerTestCase
         $serverStart->setTimeout(3);
         $serverStart->run();
 
-        if (!$serverStart->isSuccessful()) {
-            throw new ProcessFailedException($serverStart);
-        }
+        $this->assertProcessSucceeded($serverStart);
 
         $this->goAndWait(function () use ($pidFile): void {
             $this->deferServerStop(\sprintf('--pid-file=%s', $pidFile));
@@ -60,7 +57,7 @@ final class SwooleCustomPidFileTest extends ServerTestCase
         $serverStart->setTimeout(3);
         $serverStart->run();
 
-        $this->assertNotTrue($serverStart->isSuccessful());
+        $this->assertProcessFailed($serverStart);
         $this->assertStringContainsString('Could not access or create pid file', $serverStart->getErrorOutput());
     }
 
