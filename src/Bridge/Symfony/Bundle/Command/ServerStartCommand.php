@@ -4,10 +4,11 @@ declare(strict_types=1);
 
 namespace K911\Swoole\Bridge\Symfony\Bundle\Command;
 
+use K911\Swoole\Bridge\Symfony\Bundle\Exception\CouldNotCreatePidFileException;
+use K911\Swoole\Bridge\Symfony\Bundle\Exception\PidFileNotAccessibleException;
 use function K911\Swoole\get_object_property;
 use K911\Swoole\Server\HttpServer;
 use K911\Swoole\Server\HttpServerConfiguration;
-use RuntimeException;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\ConsoleOutput;
@@ -46,8 +47,13 @@ final class ServerStartCommand extends AbstractServerStartCommand
     protected function startServer(HttpServerConfiguration $serverConfiguration, HttpServer $server, SymfonyStyle $io): void
     {
         $pidFile = $serverConfiguration->getPidFile();
-        if (!\touch($pidFile) || !\is_writable($pidFile)) {
-            throw new RuntimeException(\sprintf('Could not access or create pid file "%s".', $serverConfiguration->getPidFile()));
+
+        if (!\touch($pidFile)) {
+            throw PidFileNotAccessibleException::forFile($pidFile);
+        }
+
+        if (!\is_writable($pidFile)) {
+            throw CouldNotCreatePidFileException::forPath($pidFile);
         }
 
         $this->closeSymfonyStyle($io);

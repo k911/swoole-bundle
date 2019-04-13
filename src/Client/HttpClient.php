@@ -4,7 +4,10 @@ declare(strict_types=1);
 
 namespace K911\Swoole\Client;
 
-use Assert\Assertion;
+use K911\Swoole\Client\Exception\ClientConnectionErrorException;
+use K911\Swoole\Client\Exception\InvalidContentTypeException;
+use K911\Swoole\Client\Exception\InvalidHttpMethodException;
+use K911\Swoole\Client\Exception\MissingContentTypeException;
 use Swoole\Coroutine;
 use Swoole\Coroutine\Http\Client;
 
@@ -25,10 +28,6 @@ final class HttpClient
         Http::METHOD_OPTIONS,
     ];
 
-    private const SUPPORTED_CONTENT_TYPES = [
-        Http::CONTENT_TYPE_APPLICATION_JSON,
-        Http::CONTENT_TYPE_TEXT_PLAIN,
-    ];
     private const ACCEPTABLE_CONNECTING_EXIT_CODES = [
         111 => true,
         61 => true,
@@ -72,7 +71,7 @@ final class HttpClient
 
     public function send(string $path, string $method = Http::METHOD_GET, array $headers = [], $data = null, int $timeout = 3): array
     {
-        Assertion::inArray($method, self::SUPPORTED_HTTP_METHODS, 'Method "%s" is not supported. Supported ones are: %s.');
+        $this->validHttpMethod($method);
 
         $this->client->setMethod($method);
         $this->client->setHeaders($headers);
@@ -134,7 +133,7 @@ final class HttpClient
             return [];
         }
 
-        Assertion::keyExists($client->headers, Http::HEADER_CONTENT_TYPE, 'Server response did not contain Content-Type.');
+        $this->hasContentType($client);
         $fullContentType = $client->headers[Http::HEADER_CONTENT_TYPE];
         $contentType = \explode(';', $fullContentType)[0];
 
@@ -154,7 +153,7 @@ final class HttpClient
             case Http::CONTENT_TYPE_TEXT_PLAIN:
                 return $client->body;
             default:
-                throw new \RuntimeException(\sprintf('Content-Type "%s" is not supported. Only "%s" are supported.', $contentType, \implode(', ', self::SUPPORTED_CONTENT_TYPES)));
+                throw InvalidContentTypeException::forContentType($contentType);
         }
     }
 
@@ -162,24 +161,7 @@ final class HttpClient
     {
         $client->recv($timeout);
 
-        if ($client->statusCode < 0) {
-            switch ($client->statusCode) {
-                case -1:
-                    $error = 'Connection Failed';
-                    break;
-                case -2:
-                    $error = 'Request Timeout';
-                    break;
-                case -3:
-                    $error = 'Server Reset';
-                    break;
-                default:
-                    $error = 'Unknown';
-                    break;
-            }
-
-            throw new \RuntimeException($error, $client->errCode);
-        }
+        $this->validStatusCode($client);
 
         return [
             'request' => [
@@ -198,5 +180,41 @@ final class HttpClient
                 'downloadOffset' => $client->downloadOffset,
             ],
         ];
+    }
+
+    private function validStatusCode(Client $client): void
+    {
+        if ($client->statusCode >= 0) {
+            return;
+        }
+
+        switch ($client->statusCode) {
+            case -1:
+                throw ClientConnectionErrorException::failed($client->errCode);
+            case -2:
+                throw ClientConnectionErrorException::requestTimeout($client->errCode);
+            case -3:
+                throw ClientConnectionErrorException::serverReset($client->errCode);
+            default:
+                throw ClientConnectionErrorException::unknown($client->errCode);
+        }
+    }
+
+    private function validHttpMethod(string $method): void
+    {
+        if (true === \in_array($method, self::SUPPORTED_HTTP_METHODS)) {
+            return;
+        }
+
+        throw InvalidHttpMethodException::forMethod($method, self::SUPPORTED_HTTP_METHODS);
+    }
+
+    private function hasContentType(Client $client): void
+    {
+        if (true === \array_key_exists(Http::HEADER_CONTENT_TYPE, $client->headers)) {
+            return;
+        }
+
+        throw MissingContentTypeException::create();
     }
 }
