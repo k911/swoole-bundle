@@ -58,7 +58,7 @@ final class SwooleCustomPidFileTest extends ServerTestCase
         $serverStart->run();
 
         $this->assertProcessFailed($serverStart);
-        $this->assertStringContainsString('Could not access or create pid file', $serverStart->getErrorOutput());
+        $this->assertStringContainsString('Could not create pid file', $serverStart->getErrorOutput());
     }
 
     private function generateNotExistingCustomPidFile(): string
