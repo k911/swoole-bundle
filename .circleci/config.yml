@@ -23,10 +23,10 @@ aliases:
   - &restore-docker-cache
     restore_cache:
       keys:
-        - docker-{{ checksum "Dockerfile" }}-{{ checksum "docker-compose.yml" }}-{{ checksum "dumped.env" }}-{{ checksum "composer.lock" }}
-        - docker-{{ checksum "Dockerfile" }}-{{ checksum "docker-compose.yml" }}-{{ checksum "dumped.env" }}
-        - docker-{{ checksum "Dockerfile" }}-{{ checksum "docker-compose.yml" }}
-        - docker-{{ checksum "Dockerfile" }}
+        - docker-{{ checksum "dumped.env" }}-{{ checksum "Dockerfile" }}-{{ checksum "docker-compose.yml" }}-{{ checksum "composer.lock" }}
+        - docker-{{ checksum "dumped.env" }}-{{ checksum "Dockerfile" }}-{{ checksum "docker-compose.yml" }}
+        - docker-{{ checksum "dumped.env" }}-{{ checksum "Dockerfile" }}
+        - docker-{{ checksum "dumped.env" }}
         - docker
 
   - &load-docker-cache
@@ -105,7 +105,7 @@ aliases:
     run:
       name: Send Code Coverage report to CodeClimate
       command: ./cc-test-reporter after-build -t clover --exit-code 0 --prefix /usr/src/app
-        
+
   - &upload-codecov-report
     codecov/upload:
       file: clover.xml
