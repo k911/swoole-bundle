@@ -5,7 +5,7 @@ aliases:
   # Steps
   - &dump-coverage-env
     run:
-      name: Dump env for hash
+      name: Dump coverage env for hash
       command: |-
         echo "COVERAGE=1" >> dumped.env;
 
@@ -125,7 +125,7 @@ aliases:
 
   - &save-docker-cache
     save_cache:
-      key: docker-{{ checksum "Dockerfile" }}-{{ checksum "docker-compose.yml" }}-{{ checksum "dumped.env" }}-{{ checksum "composer.lock" }}
+      key: docker-{{ checksum "dumped.env" }}-{{ checksum "Dockerfile" }}-{{ checksum "docker-compose.yml" }}-{{ checksum "composer.lock" }}
       paths:
         - /home/circleci/caches
 
