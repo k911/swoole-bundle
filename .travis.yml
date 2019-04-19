@@ -24,6 +24,12 @@ matrix:
       env:
         - SWOOLE_LATEST=1
         - COMPOSER_ARGS=update
+    - php: "7.3"
+      env:
+        - SWOOLE_LATEST=1
+    - php: "7.3"
+      env:
+        - COMPOSER_ARGS=update
 
 before_script:
   - phpenv config-rm xdebug.ini
