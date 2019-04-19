@@ -17,7 +17,11 @@ RUN pecl install xdebug && \
 
 FROM ext-builder as ext-swoole
 ARG SWOOLE_VERSION="4.3.1"
-RUN pecl install swoole-$SWOOLE_VERSION && \
+ENV SWOOLE_VERSION="${SWOOLE_VERSION}"
+RUN if [ "$SWOOLE_VERSION" = "latest" ]; \
+    then pecl install swoole; \
+    else pecl install swoole-$SWOOLE_VERSION; \
+    fi && \
     docker-php-ext-enable swoole
 
 FROM composer:latest as app-installer
