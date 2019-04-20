@@ -9,6 +9,9 @@ use K911\Swoole\Tests\Unit\Server\RequestHandler\RequestHandlerDummy;
 use K911\Swoole\Tests\Unit\Server\SwooleHttpServerMock;
 use PHPUnit\Framework\TestCase;
 
+/**
+ * @runTestsInSeparateProcesses
+ */
 class WithRequestHandlerTest extends TestCase
 {
     /**
@@ -30,7 +33,7 @@ class WithRequestHandlerTest extends TestCase
 
     public function testConfigure(): void
     {
-        $serverMock = new SwooleHttpServerMock();
+        $serverMock = SwooleHttpServerMock::make();
 
         $this->configurator->configure($serverMock);
 
