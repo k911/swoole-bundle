@@ -9,6 +9,9 @@ use K911\Swoole\Server\LifecycleHandler\NoOpServerManagerStartHandler;
 use K911\Swoole\Tests\Unit\Server\SwooleHttpServerMock;
 use PHPUnit\Framework\TestCase;
 
+/**
+ * @runTestsInSeparateProcesses
+ */
 class WithServerManagerStartHandlerTest extends TestCase
 {
     /**
@@ -30,7 +33,7 @@ class WithServerManagerStartHandlerTest extends TestCase
 
     public function testConfigure(): void
     {
-        $swooleServerOnEventSpy = new SwooleHttpServerMock();
+        $swooleServerOnEventSpy = SwooleHttpServerMock::make();
 
         $this->configurator->configure($swooleServerOnEventSpy);
 
