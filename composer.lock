@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "21234a034ab62eb8f38851eb25ceafc5",
+    "content-hash": "67b825101c34e36a69ca50025c09ba1e",
     "packages": [
         {
             "name": "beberlei/assert",
@@ -1885,46 +1885,6 @@
                 "reflection"
             ],
             "time": "2018-06-14T14:45:07+00:00"
-        },
-        {
-            "name": "eaglewu/swoole-ide-helper",
-            "version": "dev-master",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/wudi/swoole-ide-helper.git",
-                "reference": "d03e7e2d8ffd12e054555cae6dda8b2b3683d934"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/wudi/swoole-ide-helper/zipball/d03e7e2d8ffd12e054555cae6dda8b2b3683d934",
-                "reference": "d03e7e2d8ffd12e054555cae6dda8b2b3683d934",
-                "shasum": ""
-            },
-            "type": "library",
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "eagle",
-                    "email": "eaglewudi@gmail.com",
-                    "role": "lead"
-                }
-            ],
-            "description": "Swoole IDE Helper, to improve auto-completion",
-            "keywords": [
-                "autocomplete",
-                "codeintel",
-                "helper",
-                "ide",
-                "netbeans",
-                "phpdoc",
-                "phpstorm",
-                "sublime",
-                "swoole"
-            ],
-            "time": "2019-04-02T09:53:11+00:00"
         },
         {
             "name": "friendsofphp/php-cs-fixer",
@@ -4639,6 +4599,43 @@
             "time": "2016-10-03T07:35:21+00:00"
         },
         {
+            "name": "swoole/ide-helper",
+            "version": "4.3.3",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/swoole/ide-helper.git",
+                "reference": "094ae00e07213b40c86f173eb24c6f652dd941d8"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/swoole/ide-helper/zipball/094ae00e07213b40c86f173eb24c6f652dd941d8",
+                "reference": "094ae00e07213b40c86f173eb24c6f652dd941d8",
+                "shasum": ""
+            },
+            "require-dev": {
+                "squizlabs/php_codesniffer": "~3.4.0",
+                "zendframework/zend-code": "~3.3.0"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Swoole\\IDEHelper\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "Apache-2.0"
+            ],
+            "authors": [
+                {
+                    "name": "Team Swoole",
+                    "email": "team@swoole.com"
+                }
+            ],
+            "description": "IDE help files for Swoole.",
+            "time": "2019-04-20T03:21:42+00:00"
+        },
+        {
             "name": "symfony/cache",
             "version": "v4.2.7",
             "source": {
@@ -5872,9 +5869,7 @@
     ],
     "aliases": [],
     "minimum-stability": "stable",
-    "stability-flags": {
-        "eaglewu/swoole-ide-helper": 20
-    },
+    "stability-flags": [],
     "prefer-stable": false,
     "prefer-lowest": false,
     "platform": {
