@@ -4,11 +4,14 @@ declare(strict_types=1);
 
 namespace K911\Swoole\Server;
 
+use function array_key_exists;
+use Assert\AssertionFailedException;
+use function constant;
+use function defined;
 use K911\Swoole\Server\Exception\IllegalInitializationException;
 use K911\Swoole\Server\Exception\NotRunningException;
 use K911\Swoole\Server\Exception\PortUnavailableException;
 use K911\Swoole\Server\Exception\UnexpectedPortException;
-use K911\Swoole\Server\Exception\UninitializedException;
 use Swoole\Http\Server;
 use Swoole\Process;
 use Swoole\Server\Port as Listener;
@@ -32,8 +35,8 @@ final class HttpServer
 
     public function __construct(HttpServerConfiguration $configuration, bool $running = false)
     {
-        $this->signalTerminate = \defined('SIGTERM') ? (int) \constant('SIGTERM') : 15;
-        $this->signalReload = \defined('SIGUSR1') ? (int) \constant('SIGUSR1') : 10;
+        $this->signalTerminate = defined('SIGTERM') ? (int) constant('SIGTERM') : 15;
+        $this->signalReload = defined('SIGUSR1') ? (int) constant('SIGUSR1') : 10;
 
         $this->running = $running;
         $this->configuration = $configuration;
@@ -72,7 +75,7 @@ final class HttpServer
     }
 
     /**
-     * @throws \Assert\AssertionFailedException
+     * @throws AssertionFailedException
      * @throws NotRunningException
      */
     public function shutdown(): void
@@ -87,7 +90,7 @@ final class HttpServer
     }
 
     /**
-     * @throws \Assert\AssertionFailedException
+     * @throws AssertionFailedException
      * @throws NotRunningException
      */
     public function reload(): void
@@ -163,7 +166,7 @@ final class HttpServer
 
     private function assertPortAvailable(array $listeners, int $port): void
     {
-        if (false === \array_key_exists($port, $listeners)) {
+        if (false === array_key_exists($port, $listeners)) {
             return;
         }
 

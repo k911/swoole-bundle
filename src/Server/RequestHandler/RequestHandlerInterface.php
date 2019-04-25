@@ -12,8 +12,8 @@ interface RequestHandlerInterface
     /**
      * Handles swoole request and modifies swoole response accordingly.
      *
-     * @param \Swoole\Http\Request  $request
-     * @param \Swoole\Http\Response $response
+     * @param Request  $request
+     * @param Response $response
      */
     public function handle(Request $request, Response $response): void;
 }

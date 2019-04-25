@@ -105,11 +105,11 @@ final class SwooleExtension extends Extension implements PrependExtensionInterfa
 
         if ('advanced' === $static['strategy']) {
             $container->register(AdvancedStaticFilesServer::class)
-                ->addArgument(new Reference(AdvancedStaticFilesServer::class.'.inner'))
-                ->setAutowired(true)
-                ->setAutoconfigured(true)
+                ->setArgument('$decorated', new Reference(AdvancedStaticFilesServer::class.'.inner'))
+                ->setArgument('$configuration', new Reference(HttpServerConfiguration::class))
                 ->setPublic(false)
-                ->setDecoratedService(RequestHandlerInterface::class, null, -60);
+                ->setDecoratedService(RequestHandlerInterface::class, null, -60)
+                ->addTag('swoole_bundle.bootable_service');
         }
 
         $settings['serve_static'] = $static['strategy'];
@@ -145,14 +145,18 @@ final class SwooleExtension extends Extension implements PrependExtensionInterfa
         }
 
         if ('inotify' === $hmr) {
-            $container->autowire(HotModuleReloaderInterface::class, InotifyHMR::class)
-                ->setAutoconfigured(true)
+            $container->register(InotifyHMR::class)
+                ->setPublic(false)
+                ->addTag('swoole_bundle.bootable_service');
+
+            $container->register(HotModuleReloaderInterface::class, InotifyHMR::class)
                 ->setPublic(false);
         }
 
-        $container->autowire(HMRWorkerStartHandler::class)
+        $container->register(HMRWorkerStartHandler::class)
             ->setPublic(false)
-            ->setAutoconfigured(true)
+            ->setArgument('$hmr', new Reference(InotifyHMR::class))
+            ->setArgument('$interval', 2000)
             ->setArgument('$decorated', new Reference(HMRWorkerStartHandler::class.'.inner'))
             ->setDecoratedService(WorkerStartHandlerInterface::class);
     }
@@ -179,8 +183,6 @@ final class SwooleExtension extends Extension implements PrependExtensionInterfa
         if ($config['cloudfront_proto_header_handler']) {
             $container->register(CloudFrontRequestFactory::class)
                 ->addArgument(new Reference(CloudFrontRequestFactory::class.'.inner'))
-                ->setAutowired(true)
-                ->setAutoconfigured(true)
                 ->setPublic(false)
                 ->setDecoratedService(RequestFactoryInterface::class, null, -10);
         }
@@ -190,26 +192,24 @@ final class SwooleExtension extends Extension implements PrependExtensionInterfa
         if ($config['trust_all_proxies_handler']) {
             $container->register(TrustAllProxiesRequestHandler::class)
                 ->addArgument(new Reference(TrustAllProxiesRequestHandler::class.'.inner'))
-                ->setAutowired(true)
-                ->setAutoconfigured(true)
                 ->setPublic(false)
-                ->setDecoratedService(RequestHandlerInterface::class, null, -10);
+                ->setDecoratedService(RequestHandlerInterface::class, null, -10)
+                ->addTag('swoole_bundle.bootable_service');
         }
 
         if ($config['entity_manager_handler'] || (null === $config['entity_manager_handler'] && interface_exists(EntityManagerInterface::class) && $this->isBundleLoaded($container, 'doctrine'))) {
             $container->register(EntityManagerHandler::class)
-                ->addArgument(new Reference(EntityManagerHandler::class.'.inner'))
-                ->setAutowired(true)
-                ->setAutoconfigured(true)
+                ->setArgument('$decorated', new Reference(EntityManagerHandler::class.'.inner'))
+                ->setArgument('$entityManager', new Reference(EntityManagerInterface::class))
                 ->setPublic(false)
                 ->setDecoratedService(RequestHandlerInterface::class, null, -20);
         }
 
         if ($config['debug_handler'] || (null === $config['debug_handler'] && $this->isDebug($container))) {
             $container->register(DebugHttpKernelRequestHandler::class)
-                ->addArgument(new Reference(DebugHttpKernelRequestHandler::class.'.inner'))
-                ->setAutowired(true)
-                ->setAutoconfigured(true)
+                ->setArgument('$decorated', new Reference(DebugHttpKernelRequestHandler::class.'.inner'))
+                ->setArgument('$kernel', new Reference('kernel'))
+                ->setArgument('$container', new Reference('service_container'))
                 ->setPublic(false)
                 ->setDecoratedService(RequestHandlerInterface::class, null, -50);
         }
