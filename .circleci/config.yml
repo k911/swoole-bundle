@@ -3,6 +3,17 @@ orbs:
   codecov: codecov/codecov@1.0.4
 aliases:
   # Steps
+  - &prepare-swoole-version-env
+    run:
+      name: Export latest swoole version env if SWOOLE_VERSION=latest
+      command: |-
+        if [ "latest" = "$SWOOLE_VERSION" ]; then
+          LATEST_SWOOLE_VERSION="$(curl http://pecl.php.net/get/swoole/stable -s -I | grep Content-Disposition | sed 's/Content-Disposition: attachment;filename=swoole-\(.*\)\.tgz/\1/')"
+          LATEST_SWOOLE_VERSION="${LATEST_SWOOLE_VERSION//[$'\t\r\n ']}"
+          echo "LATEST_SWOOLE_VERSION=$LATEST_SWOOLE_VERSION"
+          echo "export SWOOLE_VERSION='$LATEST_SWOOLE_VERSION'" >> $BASH_ENV
+        fi;
+
   - &dump-coverage-env
     run:
       name: Dump coverage env for hash
@@ -141,6 +152,7 @@ aliases:
   - &docker-default
     steps:
       - checkout
+      - *prepare-swoole-version-env
       - *dump-env-vars
       - *restore-docker-cache
       - *load-docker-cache
@@ -156,6 +168,7 @@ aliases:
   - &docker-coverage
     steps:
       - checkout
+      - *prepare-swoole-version-env
       - *dump-coverage-env
       - *dump-env-vars
       - *restore-docker-cache
