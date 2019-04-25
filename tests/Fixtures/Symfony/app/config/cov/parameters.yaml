@@ -1,5 +1,5 @@
 parameters:
-    env(COVERAGE): false
-    coverage.enabled: '%env(bool:COVERAGE)%'
-    coverage.dir: '%bundle.root_dir%/src'
-    coverage.path: '%bundle.root_dir%/cov'
+  env(COVERAGE): false
+  coverage.enabled: '%env(bool:COVERAGE)%'
+  coverage.dir: '%bundle.root_dir%/src'
+  coverage.path: '%bundle.root_dir%/cov'

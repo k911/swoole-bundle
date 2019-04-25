@@ -4,6 +4,13 @@ FROM php:$PHP_TAG as ext-builder
 RUN docker-php-source extract && \
     apk add --no-cache --virtual .phpize-deps $PHPIZE_DEPS
 
+FROM ext-builder as ext-pdo_mysql
+RUN docker-php-ext-install pdo_mysql
+
+FROM ext-builder as ext-apcu
+RUN pecl install apcu-5.1.12 && \
+    docker-php-ext-enable apcu
+
 FROM ext-builder as ext-inotify
 RUN pecl install inotify && \
     docker-php-ext-enable inotify
@@ -16,8 +23,8 @@ RUN pecl install xdebug && \
     docker-php-ext-enable xdebug
 
 FROM ext-builder as ext-swoole
-ARG SWOOLE_VERSION="4.3.1"
-RUN pecl install swoole-${SWOOLE_VERSION} && \
+ARG SWOOLE_VERSION="4.3.3"
+RUN pecl install swoole-$SWOOLE_VERSION && \
     docker-php-ext-enable swoole
 
 FROM ext-builder as ext-pcov
@@ -50,6 +57,11 @@ COPY --from=ext-inotify /usr/local/lib/php/extensions/no-debug-non-zts-${PHP_API
 COPY --from=ext-inotify /usr/local/etc/php/conf.d/docker-php-ext-inotify.ini /usr/local/etc/php/conf.d/docker-php-ext-inotify.ini
 COPY --from=ext-pcntl /usr/local/lib/php/extensions/no-debug-non-zts-${PHP_API_VERSION}/pcntl.so /usr/local/lib/php/extensions/no-debug-non-zts-${PHP_API_VERSION}/pcntl.so
 COPY --from=ext-pcntl /usr/local/etc/php/conf.d/docker-php-ext-pcntl.ini /usr/local/etc/php/conf.d/docker-php-ext-pcntl.ini
+COPY --from=ext-pdo_mysql /usr/local/lib/php/extensions/no-debug-non-zts-${PHP_API_VERSION}/pdo_mysql.so /usr/local/lib/php/extensions/no-debug-non-zts-${PHP_API_VERSION}/pdo_mysql.so
+COPY --from=ext-pdo_mysql /usr/local/etc/php/conf.d/docker-php-ext-pdo_mysql.ini /usr/local/etc/php/conf.d/docker-php-ext-pdo_mysql.ini
+COPY --from=ext-apcu /usr/local/lib/php/extensions/no-debug-non-zts-${PHP_API_VERSION}/apcu.so /usr/local/lib/php/extensions/no-debug-non-zts-${PHP_API_VERSION}/apcu.so
+COPY --from=ext-apcu /usr/local/etc/php/conf.d/docker-php-ext-apcu.ini /usr/local/etc/php/conf.d/docker-php-ext-apcu.ini
+
 
 FROM base as base-coverage-xdebug
 RUN apk add --no-cache bash lsof

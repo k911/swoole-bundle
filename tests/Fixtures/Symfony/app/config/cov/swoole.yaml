@@ -1,5 +1,5 @@
 swoole:
-    http_server:
-        settings:
-            worker_count: 1
-            reactor_count: 1
+  http_server:
+    settings:
+      worker_count: 1
+      reactor_count: 1

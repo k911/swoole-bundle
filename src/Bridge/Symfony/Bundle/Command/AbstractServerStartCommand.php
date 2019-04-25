@@ -4,7 +4,16 @@ declare(strict_types=1);
 
 namespace K911\Swoole\Bridge\Symfony\Bundle\Command;
 
+use function array_filter;
 use Assert\Assertion;
+use Assert\AssertionFailedException;
+use function count;
+use Exception;
+use function filter_var;
+use function implode;
+use function in_array;
+use InvalidArgumentException;
+use function is_string;
 use K911\Swoole\Common\XdebugHandler\XdebugHandler;
 use function K911\Swoole\decode_string_as_set;
 use function K911\Swoole\format_bytes;
@@ -15,13 +24,16 @@ use K911\Swoole\Server\HttpServer;
 use K911\Swoole\Server\HttpServerConfiguration;
 use K911\Swoole\Server\HttpServerFactory;
 use K911\Swoole\Server\Runtime\BootableInterface;
+use function sprintf;
 use Swoole\Http\Server;
+use Swoole\Runtime;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
+use function var_export;
 
 abstract class AbstractServerStartCommand extends Command
 {
@@ -57,7 +69,7 @@ abstract class AbstractServerStartCommand extends Command
     }
 
     /**
-     * @throws \Assert\AssertionFailedException
+     * @throws AssertionFailedException
      *
      * @return string
      */
@@ -70,7 +82,7 @@ abstract class AbstractServerStartCommand extends Command
      * {@inheritdoc}
      *
      * @throws \Symfony\Component\Console\Exception\InvalidArgumentException
-     * @throws \Assert\AssertionFailedException
+     * @throws AssertionFailedException
      */
     protected function configure(): void
     {
@@ -98,10 +110,10 @@ abstract class AbstractServerStartCommand extends Command
             $xdebugHandler->forwardSignals($restartedProcess);
 
             $io->note('Restarting command without Xdebug..');
-            $io->comment(\sprintf(
+            $io->comment(sprintf(
                 "%s\n%s",
                 'Swoole is incompatible with Xdebug. Check https://github.com/swoole/swoole-src/issues/1681 for more information.',
-                \sprintf('Set environment variable "%s=1" to use it anyway.', $xdebugHandler->allowXdebugEnvName())
+                sprintf('Set environment variable "%s=1" to use it anyway.', $xdebugHandler->allowXdebugEnvName())
             ));
 
             if ($this->testing) {
@@ -117,7 +129,7 @@ abstract class AbstractServerStartCommand extends Command
             exit($restartedProcess->getExitCode());
         }
 
-        $io->warning(\sprintf(
+        $io->warning(sprintf(
             "Xdebug is enabled! Command could not be restarted automatically due to lack of \"pcntl\" extension.\nPlease either disable Xdebug or set environment variable \"%s=1\" to disable this message.",
             $xdebugHandler->allowXdebugEnvName()
         ));
@@ -127,9 +139,9 @@ abstract class AbstractServerStartCommand extends Command
      * {@inheritdoc}
      *
      * @throws \Symfony\Component\Console\Exception\InvalidArgumentException
-     * @throws \InvalidArgumentException
-     * @throws \Exception
-     * @throws \Assert\AssertionFailedException
+     * @throws InvalidArgumentException
+     * @throws Exception
+     * @throws AssertionFailedException
      */
     final protected function execute(InputInterface $input, OutputInterface $output): int
     {
@@ -155,9 +167,9 @@ abstract class AbstractServerStartCommand extends Command
 
         $sockets = $this->serverConfiguration->getSockets();
         $serverSocket = $sockets->getServerSocket();
-        $io->success(\sprintf('Swoole HTTP Server started on http://%s', $serverSocket->addressPort()));
+        $io->success(sprintf('Swoole HTTP Server started on http://%s', $serverSocket->addressPort()));
         if ($sockets->hasApiSocket()) {
-            $io->success(\sprintf('API Server started on http://%s', $sockets->getApiSocket()->addressPort()));
+            $io->success(sprintf('API Server started on http://%s', $sockets->getApiSocket()->addressPort()));
         }
         $io->table(['Configuration', 'Values'], $this->prepareConfigurationRowsToPrint($this->serverConfiguration, $runtimeConfiguration));
 
@@ -186,7 +198,7 @@ abstract class AbstractServerStartCommand extends Command
      * @param HttpServerConfiguration $serverConfiguration
      * @param InputInterface          $input
      *
-     * @throws \Assert\AssertionFailedException
+     * @throws AssertionFailedException
      */
     protected function prepareServerConfiguration(HttpServerConfiguration $serverConfiguration, InputInterface $input): void
     {
@@ -211,7 +223,7 @@ abstract class AbstractServerStartCommand extends Command
             $sockets->changeApiSocket(new Socket('0.0.0.0', (int) $apiPort));
         }
 
-        if (\filter_var($input->getOption('serve-static'), FILTER_VALIDATE_BOOLEAN)) {
+        if (filter_var($input->getOption('serve-static'), FILTER_VALIDATE_BOOLEAN)) {
             $publicDir = $input->getOption('public-dir');
             Assertion::string($publicDir, 'Public dir must be a valid path');
             $serverConfiguration->enableServingStaticFiles($publicDir);
@@ -222,7 +234,7 @@ abstract class AbstractServerStartCommand extends Command
      * @param HttpServerConfiguration $serverConfiguration
      * @param InputInterface          $input
      *
-     * @throws \Assert\AssertionFailedException
+     * @throws AssertionFailedException
      *
      * @return array
      */
@@ -234,9 +246,9 @@ abstract class AbstractServerStartCommand extends Command
         $runtimeConfiguration['trustedProxies'] = $this->decodeSet($trustedProxies);
 
         Assertion::isArray($runtimeConfiguration['trustedProxies']);
-        if (\in_array('*', $runtimeConfiguration['trustedProxies'], true)) {
+        if (in_array('*', $runtimeConfiguration['trustedProxies'], true)) {
             $runtimeConfiguration['trustAllProxies'] = true;
-            $runtimeConfiguration['trustedProxies'] = \array_filter($runtimeConfiguration['trustedProxies'], function (string $trustedProxy): bool {
+            $runtimeConfiguration['trustedProxies'] = array_filter($runtimeConfiguration['trustedProxies'], function (string $trustedProxy): bool {
                 return '*' !== $trustedProxy;
             });
         }
@@ -247,19 +259,19 @@ abstract class AbstractServerStartCommand extends Command
     /**
      * @param mixed $set
      *
-     * @throws \Assert\AssertionFailedException
+     * @throws AssertionFailedException
      *
      * @return array
      */
     private function decodeSet($set): array
     {
-        if (\is_string($set)) {
+        if (is_string($set)) {
             return decode_string_as_set($set);
         }
 
         Assertion::isArray($set);
 
-        if (1 === \count($set)) {
+        if (1 === count($set)) {
             return decode_string_as_set($set[0]);
         }
 
@@ -273,7 +285,7 @@ abstract class AbstractServerStartCommand extends Command
      * @param HttpServerConfiguration $serverConfiguration
      * @param array                   $runtimeConfiguration
      *
-     * @throws \Assert\AssertionFailedException
+     * @throws AssertionFailedException
      *
      * @return array
      */
@@ -281,16 +293,16 @@ abstract class AbstractServerStartCommand extends Command
     {
         $rows = [
             ['env', $this->parameterBag->get('kernel.environment')],
-            ['debug', \var_export($this->parameterBag->get('kernel.debug'), true)],
+            ['debug', var_export($this->parameterBag->get('kernel.debug'), true)],
             ['worker_count', $serverConfiguration->getWorkerCount()],
             ['memory_limit', format_bytes(get_max_memory())],
-            ['trusted_hosts', \implode(', ', $runtimeConfiguration['trustedHosts'])],
+            ['trusted_hosts', implode(', ', $runtimeConfiguration['trustedHosts'])],
         ];
 
         if (isset($runtimeConfiguration['trustAllProxies'])) {
             $rows[] = ['trusted_proxies', '*'];
         } else {
-            $rows[] = ['trusted_proxies', \implode(', ', $runtimeConfiguration['trustedProxies'])];
+            $rows[] = ['trusted_proxies', implode(', ', $runtimeConfiguration['trustedProxies'])];
         }
 
         if ($this->serverConfiguration->hasPublicDir()) {
@@ -305,7 +317,7 @@ abstract class AbstractServerStartCommand extends Command
      * @param HttpServer              $server
      * @param SymfonyStyle            $io
      *
-     * @throws \Assert\AssertionFailedException
+     * @throws AssertionFailedException
      */
     protected function startServer(HttpServerConfiguration $serverConfiguration, HttpServer $server, SymfonyStyle $io): void
     {

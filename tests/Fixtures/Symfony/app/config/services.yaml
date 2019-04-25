@@ -1,0 +1,24 @@
+services:
+  # default configuration for services in *this* file
+  _defaults:
+    autowire: true      # Automatically injects dependencies in your services.
+    autoconfigure: true # Automatically registers your services as commands, event subscribers, etc.
+
+  # makes classes in src/ available to be used as services
+  # this creates a service per class whose id is the fully-qualified class name
+  K911\Swoole\Tests\Fixtures\Symfony\TestBundle\:
+    resource: '../../TestBundle/*'
+    exclude: '../../TestBundle/{DependencyInjection,Entity,Migrations,Tests,Kernel.php}'
+
+  # controllers are imported separately to make sure services can be injected
+  # as action arguments even if you don't extend any base controller class
+  K911\Swoole\Tests\Fixtures\Symfony\TestBundle\Controller\:
+    resource: '../../TestBundle/Controller'
+    tags: ['controller.service_arguments']
+
+  # add more service definitions when explicit configuration is needed
+  # please note that last definitions always *replace* previous ones
+
+  Ramsey\Uuid\UuidFactoryInterface: '@Ramsey\Uuid\UuidFactory'
+
+  Ramsey\Uuid\UuidFactory:

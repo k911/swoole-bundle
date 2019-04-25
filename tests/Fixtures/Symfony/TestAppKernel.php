@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace K911\Swoole\Tests\Fixtures\Symfony;
 
+use Doctrine\Bundle\DoctrineBundle\DoctrineBundle;
+use Doctrine\Bundle\MigrationsBundle\DoctrineMigrationsBundle;
 use Exception;
 use Generator;
 use K911\Swoole\Bridge\Symfony\Bundle\SwooleBundle;
@@ -64,6 +66,8 @@ class TestAppKernel extends Kernel
         yield new FrameworkBundle();
         yield new TwigBundle();
         yield new MonologBundle();
+        yield new DoctrineBundle();
+        yield new DoctrineMigrationsBundle();
         yield new SwooleBundle();
         yield new TestBundle();
 
@@ -104,7 +108,7 @@ class TestAppKernel extends Kernel
 
     private function getVarDir(): string
     {
-        return $this->getProjectDir().'/var';
+        return $this->getProjectDir().'/var/'.$this->environment;
     }
 
     /**

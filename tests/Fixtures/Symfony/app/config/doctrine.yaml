@@ -1,0 +1,29 @@
+parameters:
+  # Adds a fallback DATABASE_URL if the env var is not set.
+  # This allows you to run cache:warmup even if your
+  # environment variables are not available yet.
+  # You should not need to change this value.
+  env(DATABASE_URL): ''
+
+doctrine:
+  dbal:
+    # configure these for your database server
+    driver: 'pdo_mysql'
+    server_version: '10.3.0-MariaDB-10.3.0+maria~jessie'
+    charset: utf8mb4
+    default_table_options:
+      charset: utf8mb4
+      collate: utf8mb4_unicode_ci
+
+    url: 'mysql://swoole:Password1@swoole-mariadb-dev/swoole'
+  orm:
+    auto_generate_proxy_classes: true
+    naming_strategy: doctrine.orm.naming_strategy.underscore
+    auto_mapping: true
+    mappings:
+      App:
+        is_bundle: false
+        type: annotation
+        dir: '%kernel.project_dir%/../TestBundle/Entity'
+        prefix: 'K911\Swoole\Tests\Fixtures\Symfony\TestBundle\Entity'
+        alias: App

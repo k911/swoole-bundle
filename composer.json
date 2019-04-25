@@ -18,7 +18,7 @@
         "homepage": "https://github.com/k911"
     }],
     "require": {
-        "php": "^7.2",
+        "php": "^7.2 <7.4",
         "ext-swoole": "^4",
         "beberlei/assert": "^3.0",
         "symfony/config": "^4.2",
@@ -30,7 +30,9 @@
     },
     "require-dev": {
         "doctrine/annotations": "^1.6",
-        "doctrine/orm": "^2.6.3",
+        "doctrine/doctrine-bundle": "^1.10",
+        "doctrine/doctrine-migrations-bundle": "^2.0",
+        "doctrine/orm": "^2.6.3"
         "friendsofphp/php-cs-fixer": "^2.14",
         "jangregor/phpstan-prophecy": "^0.3.0",
         "phpstan/phpstan": "^0.11.4",
@@ -40,6 +42,7 @@
         "phpunit/php-code-coverage": "^7.0",
         "phpunit/phpcov": "^6.0",
         "phpunit/phpunit": "^8.0.4",
+        "ramsey/uuid": "^3.8",
         "swoole/ide-helper": "^4.3",
         "symfony/debug": "^4.2",
         "symfony/framework-bundle": "^4.2.4",

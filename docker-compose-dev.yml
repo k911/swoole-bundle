@@ -1,0 +1,78 @@
+version: "3.6"
+
+volumes:
+  mariadb_data_volume: {}
+
+services:
+  cli-dev:
+    image: "${REGISTRY:-docker.io}/${NAMESPACE:-k911}/${IMAGE:-swoole-bundle-cli}:${TAG:-latest}"
+    build:
+      context: .
+      target: Cli
+      args:
+        PHP_TAG: "${PHP_VERSION:-7.3}-cli-alpine${ALPINE_VERSION:-3.9}"
+        PHP_API_VERSION: "${PHP_API_VERSION:-20180731}"
+        COMPOSER_ARGS: "${COMPOSER_ARGS:-install}"
+        SWOOLE_VERSION: "${SWOOLE_VERSION:-4.3.1}"
+    ports:
+      - 9501:9501
+      - 9601:9601
+    volumes:
+      - ".:/usr/src/app:delegated"
+    environment:
+      - SYMFONY_ENV=dev
+      - APP_ENV=dev
+      - PORT=9501
+    links:
+      - swoole-mariadb-dev
+    command: ["swoole:server:run", "--api", "--api-port=9601"]
+
+  # prod environment, debug false - for performance testing
+  cli-non-debug-dev:
+    image: "${REGISTRY:-docker.io}/${NAMESPACE:-k911}/${IMAGE:-swoole-bundle-cli}:${TAG:-latest}"
+    build:
+      context: .
+      target: Cli
+      args:
+        PHP_TAG: "${PHP_VERSION:-7.3}-cli-alpine${ALPINE_VERSION:-3.9}"
+        PHP_API_VERSION: "${PHP_API_VERSION:-20180731}"
+        COMPOSER_ARGS: "${COMPOSER_ARGS:-install}"
+        SWOOLE_VERSION: "${SWOOLE_VERSION:-4.3.1}"
+    ports:
+      - 9502:9502
+      - 9602:9602
+    volumes:
+      - ".:/usr/src/app:delegated"
+    environment:
+      - SYMFONY_ENV=prod
+      - APP_ENV=prod
+      - APP_DEBUG=
+      - PORT=9502
+    links:
+      - swoole-mariadb-dev
+    command: ["swoole:server:run", "--api", "--api-port=9602"]
+
+  # nginx - for performance testing comparison
+  app-nginx:
+    container_name: app-nginx
+    image: nginx:latest
+    links:
+      - cli-non-debug-dev
+    ports:
+      - 9503:80
+    volumes:
+      - ./docker/nginx/nginx.conf:/etc/nginx/nginx.conf
+
+  # DB
+  swoole-mariadb-dev:
+    container_name: swoole-mariadb-dev
+    image: mariadb:10.3.0
+    environment:
+      MYSQL_ROOT_PASSWORD: Start@123
+      MYSQL_USER: swoole
+      MYSQL_PASSWORD: Password1
+      MYSQL_DATABASE: swoole
+    ports:
+      - 8802:3306
+    volumes:
+      - mariadb_data_volume:/var/lib/mysql

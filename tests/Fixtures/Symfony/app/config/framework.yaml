@@ -1,6 +1,6 @@
 framework:
-    secret: ThisIsVeryNotSecret!
-    default_locale: en
-    php_errors:
-        log: true
-    test: ~
+  secret: ThisIsVeryNotSecret!
+  default_locale: en
+  php_errors:
+    log: true
+  test: ~

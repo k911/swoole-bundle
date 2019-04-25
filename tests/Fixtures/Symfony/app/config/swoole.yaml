@@ -1,13 +1,13 @@
 parameters:
-    env(PORT): 9501
-    env(HOST): localhost
-    env(TRUSTED_HOSTS): localhost,127.0.0.1
-    env(TRUSTED_PROXIES): '*,196.168.0.0/16'
+  env(PORT): 9501
+  env(HOST): localhost
+  env(TRUSTED_HOSTS): localhost,127.0.0.1,cli-non-debug-dev
+  env(TRUSTED_PROXIES): '*,196.168.0.0/16'
 
 swoole:
-    http_server:
-        port: '%env(int:PORT)%'
-        host: '%env(HOST)%'
-        static: 'auto'
-        trusted_hosts: '%env(TRUSTED_HOSTS)%'
-        trusted_proxies: '%env(TRUSTED_PROXIES)%'
+  http_server:
+    port: '%env(int:PORT)%'
+    host: '%env(HOST)%'
+    static: 'auto'
+    trusted_hosts: '%env(TRUSTED_HOSTS)%'
+    trusted_proxies: '%env(TRUSTED_PROXIES)%'
