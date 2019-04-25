@@ -6,7 +6,7 @@ namespace K911\Swoole\Bridge\Symfony\Bundle\DependencyInjection;
 
 use Doctrine\ORM\EntityManagerInterface;
 use Exception;
-use K911\Swoole\Bridge\Doctrine\ORM\EntityManagerHandler;
+use K911\Swoole\Bridge\Doctrine\ORM\EntityManagersHandler;
 use K911\Swoole\Bridge\Symfony\HttpFoundation\CloudFrontRequestFactory;
 use K911\Swoole\Bridge\Symfony\HttpFoundation\RequestFactoryInterface;
 use K911\Swoole\Bridge\Symfony\HttpFoundation\TrustAllProxiesRequestHandler;
@@ -195,14 +195,6 @@ final class SwooleExtension extends Extension
                 ->addTag('swoole_bundle.bootable_service');
         }
 
-        if ($config['entity_manager_handler'] || (null === $config['entity_manager_handler'] && interface_exists(EntityManagerInterface::class) && $this->isBundleLoaded($container, 'doctrine'))) {
-            $container->register(EntityManagerHandler::class)
-                ->setArgument('$decorated', new Reference(EntityManagerHandler::class.'.inner'))
-                ->setArgument('$entityManager', new Reference(EntityManagerInterface::class))
-                ->setPublic(false)
-                ->setDecoratedService(RequestHandlerInterface::class, null, -20);
-        }
-
         if ($config['debug_handler'] || (null === $config['debug_handler'] && $this->isDebug($container))) {
             $container->register(DebugHttpKernelRequestHandler::class)
                 ->setArgument('$decorated', new Reference(DebugHttpKernelRequestHandler::class.'.inner'))
@@ -210,6 +202,15 @@ final class SwooleExtension extends Extension
                 ->setArgument('$container', new Reference('service_container'))
                 ->setPublic(false)
                 ->setDecoratedService(RequestHandlerInterface::class, null, -50);
+        }
+
+        // InitializerInterface && TerminatorInterface
+        if (interface_exists(EntityManagerInterface::class) && $this->isBundleLoaded($container, 'doctrine')) {
+            $container->register(EntityManagersHandler::class)
+                ->setArgument('$doctrineRegistry', new Reference('doctrine'))
+                ->setPublic(false)
+                ->addTag('swoole_bundle.app_initializer')
+                ->addTag('swoole_bundle.app_terminator');
         }
     }
 

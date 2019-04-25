@@ -90,6 +90,11 @@ COPY --chown=app:runner --from=app-installer /usr/src/app ./
 ENTRYPOINT ["./tests/Fixtures/Symfony/app/console"]
 CMD ["swoole:server:run"]
 
+FROM base as CliDev
+WORKDIR /usr/src/app/tests/Fixtures/Symfony/app
+ENTRYPOINT ["./console"]
+CMD ["swoole:server:run"]
+
 FROM Cli as Composer
 ENV COMPOSER_ALLOW_SUPERUSER="1"
 COPY --chown=app:runner --from=app-installer /usr/bin/composer /usr/local/bin/composer

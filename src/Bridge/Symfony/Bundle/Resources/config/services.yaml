@@ -163,3 +163,13 @@ services:
     class: K911\Swoole\Server\Configurator\WithServerStartHandler
     arguments:
       $handler: '@K911\Swoole\Server\LifecycleHandler\SigIntHandler'
+
+  K911\Swoole\Bridge\Symfony\RequestCycle\Initializers:
+    arguments: [!tagged 'swoole_bundle.app_initializer']
+    tags:
+      - {name: kernel.event_listener, event: kernel.request, method: initialize, priority: 1000000}
+
+  K911\Swoole\Bridge\Symfony\RequestCycle\Terminators:
+    arguments: [!tagged 'swoole_bundle.app_terminator']
+    tags:
+      - {name: kernel.event_listener, event: kernel.terminate, method: terminate, priority: -1000000}

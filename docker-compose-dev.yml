@@ -8,7 +8,7 @@ services:
     image: "${REGISTRY:-docker.io}/${NAMESPACE:-k911}/${IMAGE:-swoole-bundle-cli}:${TAG:-latest}"
     build:
       context: .
-      target: Cli
+      target: CliDev
       args:
         PHP_TAG: "${PHP_VERSION:-7.3}-cli-alpine${ALPINE_VERSION:-3.9}"
         PHP_API_VERSION: "${PHP_API_VERSION:-20180731}"
@@ -32,7 +32,7 @@ services:
     image: "${REGISTRY:-docker.io}/${NAMESPACE:-k911}/${IMAGE:-swoole-bundle-cli}:${TAG:-latest}"
     build:
       context: .
-      target: Cli
+      target: CliDev
       args:
         PHP_TAG: "${PHP_VERSION:-7.3}-cli-alpine${ALPINE_VERSION:-3.9}"
         PHP_API_VERSION: "${PHP_API_VERSION:-20180731}"
