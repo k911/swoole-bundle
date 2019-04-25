@@ -91,18 +91,23 @@ aliases:
 
   - &run-unit-tests-with-coverage
     run:
-      name: Run unit tests with coverage
-      command: docker-compose run composer-coverage
+      name: Run unit tests with coverage (pcov)
+      command: docker-compose run coverage-pcov
 
   - &run-feature-tests
     run:
       name: Run feature tests
       command: docker-compose run composer feature-tests
 
-  - &run-feature-tests-with-coverage
+  - &run-feature-tests-with-coverage-xdebug
     run:
-      name: Run feature tests with coverage
-      command: docker-compose run feature-coverage
+      name: Run feature tests with coverage (xdebug) and retry
+      command: docker-compose run coverage-xdebug-feature-with-retry
+
+  - &run-feature-tests-with-coverage-pcov
+    run:
+      name: Run feature tests with coverage (pcov)
+      command: docker-compose run coverage-pcov feature-code-coverage
 
   - &prepare-codeclimate-reporter
     run:
@@ -129,7 +134,7 @@ aliases:
   - &export-docker-cache
     run:
       name: Export Docker image layer cache
-      command: |
+      command: |-
         mkdir -p /home/circleci/caches
         docker-compose build composer | grep '\-\-\->' | grep -v 'Using cache' | sed -e 's/[ >-]//g' > /tmp/layers.txt
         docker save $(cat /tmp/layers.txt) | gzip > /home/circleci/caches/${CIRCLE_PROJECT_REPONAME}.tar.gz
@@ -180,7 +185,8 @@ aliases:
       - *static-src-analysis
       - *static-tests-analysis
       - *run-unit-tests-with-coverage
-      - *run-feature-tests-with-coverage
+      - *run-feature-tests-with-coverage-pcov
+      - *run-feature-tests-with-coverage-xdebug
       - *merge-code-coverage
       - *upload-codecov-report
       - *upload-codeclimate-report
