@@ -67,9 +67,12 @@ services:
     factory: K911\Swoole\Server\Runtime\CallableBootManagerFactory:make
     arguments: [!tagged 'swoole_bundle.bootable_service']
 
+  K911\Swoole\Server\Api\ApiServerClientFactory:
+    arguments:
+      $sockets: '@K911\Swoole\Server\Config\Sockets'
+
   K911\Swoole\Server\Api\ApiServerClient:
     factory: K911\Swoole\Server\Api\ApiServerClientFactory:newClient
-    arguments: ['@K911\Swoole\Server\Config\Sockets']
 
   K911\Swoole\Server\Api\ApiServerInterface: '@K911\Swoole\Server\Api\ApiServer'
 
