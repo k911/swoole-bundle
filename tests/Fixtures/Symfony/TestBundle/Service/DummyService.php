@@ -7,6 +7,7 @@ declare(strict_types=1);
 
 namespace K911\Swoole\Tests\Fixtures\Symfony\TestBundle\Service;
 
+use Exception;
 use K911\Swoole\Tests\Fixtures\Symfony\TestBundle\Entity\Test;
 use Doctrine\ORM\EntityManagerInterface;
 use Ramsey\Uuid\UuidFactoryInterface;
@@ -39,18 +40,26 @@ final class DummyService
 
     /**
      * @return Test[]
-     * @throws \InvalidArgumentException
-     * @throws \Ramsey\Uuid\Exception\UnsatisfiedDependencyException
-     * @throws \UnexpectedValueException
+     * @throws Exception
      */
     public function process(): array
     {
-        $test = new Test($this->uuidFactory->uuid4());
-        $this->entityManager->persist($test);
-        $this->entityManager->flush();
+        for ($i = 0; $i < 10; $i++) {
+            $this->newEntity();
+        }
 
         $tests = $this->entityManager->getRepository(Test::class)->findBy([], ['id' => 'desc'], 25);
 
         return $tests;
+    }
+
+    /**
+     *
+     */
+    private function newEntity(): void
+    {
+        $test = new Test($this->uuidFactory->uuid4());
+        $this->entityManager->persist($test);
+        $this->entityManager->flush();
     }
 }
