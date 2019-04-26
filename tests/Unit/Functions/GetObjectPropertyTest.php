@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace K911\Swoole\Tests\Unit\Functions;
 
-use function K911\Swoole\get_object_property;
+use K911\Swoole\Common\Reflection;
 use PHPUnit\Framework\TestCase;
 
 class GetObjectPropertyTest extends TestCase
@@ -21,21 +21,21 @@ class GetObjectPropertyTest extends TestCase
 
     public function testGetPublicProperty(): void
     {
-        $this->assertSame(TestObject::GOOD_VALUE, get_object_property($this->testObject, 'publicProp'));
+        $this->assertSame(TestObject::GOOD_VALUE, Reflection::getObjectProperty($this->testObject, 'publicProp'));
     }
 
     public function testGetProtectedProperty(): void
     {
-        $this->assertSame(TestObject::GOOD_VALUE, get_object_property($this->testObject, 'protectedProp'));
+        $this->assertSame(TestObject::GOOD_VALUE, Reflection::getObjectProperty($this->testObject, 'protectedProp'));
     }
 
     public function testGetPrivateProperty(): void
     {
-        $this->assertSame(TestObject::GOOD_VALUE, get_object_property($this->testObject, 'privateProp'));
+        $this->assertSame(TestObject::GOOD_VALUE, Reflection::getObjectProperty($this->testObject, 'privateProp'));
     }
 
     public function testGetDynamicProperty(): void
     {
-        $this->assertSame(TestObject::GOOD_VALUE, get_object_property($this->testObject, 'dynamicProp'));
+        $this->assertSame(TestObject::GOOD_VALUE, Reflection::getObjectProperty($this->testObject, 'dynamicProp'));
     }
 }

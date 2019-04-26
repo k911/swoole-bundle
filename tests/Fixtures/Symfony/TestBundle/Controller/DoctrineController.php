@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 /*
@@ -7,9 +8,9 @@ declare(strict_types=1);
 
 namespace K911\Swoole\Tests\Fixtures\Symfony\TestBundle\Controller;
 
-use K911\Swoole\Tests\Fixtures\Symfony\TestBundle\Service\DummyService;
 use Exception;
 use InvalidArgumentException;
+use K911\Swoole\Tests\Fixtures\Symfony\TestBundle\Service\DummyService;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
@@ -18,7 +19,6 @@ use Symfony\Component\Routing\Annotation\Route;
  */
 final class DoctrineController
 {
-
     /**
      * @var DummyService
      */
@@ -38,9 +38,10 @@ final class DoctrineController
      *     path="/doctrine"
      * )
      *
-     * @return Response
      * @throws InvalidArgumentException
      * @throws Exception
+     *
+     * @return Response
      */
     public function index()
     {
@@ -48,7 +49,7 @@ final class DoctrineController
         $testsStr = '';
 
         foreach ($tests as $test) {
-            $testsStr .= $test->getUuid()->toString() . '<br>';
+            $testsStr .= $test->getUuid()->toString().'<br>';
         }
 
         return new Response(

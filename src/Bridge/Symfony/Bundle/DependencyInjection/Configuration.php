@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace K911\Swoole\Bridge\Symfony\Bundle\DependencyInjection;
 
-use function K911\Swoole\decode_string_as_set;
+use K911\Swoole\Common\Decoder;
 use Symfony\Component\Config\Definition\Builder\TreeBuilder;
 use Symfony\Component\Config\Definition\ConfigurationInterface;
 
@@ -29,7 +29,7 @@ final class Configuration implements ConfigurationInterface
      */
     public function getConfigTreeBuilder(): TreeBuilder
     {
-        $rootNode = \method_exists($this->builder, 'getRootNode') ?
+        $rootNode = method_exists($this->builder, 'getRootNode') ?
             $this->builder->getRootNode() :
             $this->builder->root(self::CONFIG_NAME);
 
@@ -51,7 +51,7 @@ final class Configuration implements ConfigurationInterface
                             ->prototype('scalar')->end()
                             ->beforeNormalization()
                                 ->ifString()
-                                ->then(function ($v): array { return decode_string_as_set($v); })
+                                ->then(function ($v): array { return Decoder::decodeStringAsSet($v); })
                             ->end()
                         ->end()
                         ->arrayNode('trusted_proxies')
@@ -59,7 +59,7 @@ final class Configuration implements ConfigurationInterface
                             ->prototype('scalar')->end()
                             ->beforeNormalization()
                                 ->ifString()
-                                ->then(function ($v): array { return decode_string_as_set($v); })
+                                ->then(function ($v): array { return Decoder::decodeStringAsSet($v); })
                             ->end()
                         ->end()
                         ->enumNode('running_mode')
@@ -86,7 +86,7 @@ final class Configuration implements ConfigurationInterface
                             ->addDefaultsIfNotSet()
                             ->beforeNormalization()
                                 ->ifTrue(function ($v): bool {
-                                    return \is_string($v) || \is_bool($v) || \is_numeric($v) || null === $v;
+                                    return is_string($v) || is_bool($v) || is_numeric($v) || null === $v;
                                 })
                                 ->then(function ($v): array {
                                     return [

@@ -30,8 +30,8 @@ class TestAppKernel extends Kernel
 
     public function __construct(string $environment, bool $debug)
     {
-        if ('_cov' === \mb_substr($environment, -4, 4)) {
-            $environment = \mb_substr($environment, 0, -4);
+        if ('_cov' === mb_substr($environment, -4, 4)) {
+            $environment = mb_substr($environment, 0, -4);
             $this->coverageEnabled = true;
         } elseif ('cov' === $environment) {
             $this->coverageEnabled = true;
@@ -97,7 +97,7 @@ class TestAppKernel extends Kernel
 
         $confDir = $this->getProjectDir().'/config';
         $loader->load($confDir.'/*'.self::CONFIG_EXTENSIONS, 'glob');
-        if (\is_dir($confDir.'/'.$this->environment)) {
+        if (is_dir($confDir.'/'.$this->environment)) {
             $loader->load($confDir.'/'.$this->environment.'/**/*'.self::CONFIG_EXTENSIONS, 'glob');
         }
 

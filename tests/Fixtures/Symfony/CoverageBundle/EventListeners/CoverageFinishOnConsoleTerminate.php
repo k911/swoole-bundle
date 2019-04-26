@@ -20,7 +20,7 @@ final class CoverageFinishOnConsoleTerminate
     {
         $this->coverageManager->stop();
 
-        $slug = \str_replace(['-', ':'], '_', $commandEvent->getCommand()->getName());
-        $this->coverageManager->finish(\sprintf('test_cmd_%s', $slug));
+        $slug = str_replace(['-', ':'], '_', $commandEvent->getCommand()->getName());
+        $this->coverageManager->finish(sprintf('test_cmd_%s', $slug));
     }
 }

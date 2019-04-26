@@ -116,7 +116,7 @@ final class HttpServerConfiguration
         Assertion::keyExists(self::SWOOLE_HTTP_SERVER_CONFIGURATION, $key, 'There is no configuration mapping for setting "%s".');
 
         if ('serve_static' === $key) {
-            Assertion::inArray($value, \array_keys(self::SWOOLE_SERVE_STATIC));
+            Assertion::inArray($value, array_keys(self::SWOOLE_SERVE_STATIC));
         }
 
         if ('daemonize' === $key) {
@@ -128,16 +128,16 @@ final class HttpServerConfiguration
         }
 
         if ('log_level' === $key) {
-            Assertion::inArray($value, \array_keys(self::SWOOLE_LOG_LEVELS));
+            Assertion::inArray($value, array_keys(self::SWOOLE_LOG_LEVELS));
         }
 
         if ('buffer_output_size' === $key) {
-            Assertion::integer($value, \sprintf('Setting "%s" must be an integer.', $key));
+            Assertion::integer($value, sprintf('Setting "%s" must be an integer.', $key));
             Assertion::greaterThan($value, 0, 'Buffer output size value cannot be negative or zero, "%s" provided.');
         }
 
         if (\in_array($key, ['reactor_count', 'worker_count'], true)) {
-            Assertion::integer($value, \sprintf('Setting "%s" must be an integer.', $key));
+            Assertion::integer($value, sprintf('Setting "%s" must be an integer.', $key));
             Assertion::greaterThan($value, 0, 'Count value cannot be negative, "%s" provided.');
         }
     }
@@ -150,7 +150,7 @@ final class HttpServerConfiguration
     private function initializeSettings(array $init): void
     {
         $this->settings = [];
-        $cpuCores = \swoole_cpu_num();
+        $cpuCores = swoole_cpu_num();
 
         if (!isset($init['reactor_count'])) {
             $init['reactor_count'] = $cpuCores;
@@ -203,7 +203,7 @@ final class HttpServerConfiguration
 
     public function existsPidFile(): bool
     {
-        return $this->hasPidFile() && \file_exists($this->getPidFile());
+        return $this->hasPidFile() && file_exists($this->getPidFile());
     }
 
     /**
@@ -216,7 +216,7 @@ final class HttpServerConfiguration
         Assertion::true($this->existsPidFile(), 'Could not get pid file. It does not exists or server is not running in background.');
 
         /** @var string $contents */
-        $contents = \file_get_contents($this->getPidFile());
+        $contents = file_get_contents($this->getPidFile());
         Assertion::numeric($contents, 'Contents in pid file is not an integer or it is empty');
 
         return (int) $contents;
@@ -280,8 +280,8 @@ final class HttpServerConfiguration
         $swooleSettings = [];
         foreach ($this->settings as $key => $setting) {
             $swooleSettingKey = self::SWOOLE_HTTP_SERVER_CONFIGURATION[$key];
-            $swooleGetter = \sprintf('getSwoole%s', \str_replace('_', '', $swooleSettingKey));
-            if (\method_exists($this, $swooleGetter)) {
+            $swooleGetter = sprintf('getSwoole%s', str_replace('_', '', $swooleSettingKey));
+            if (method_exists($this, $swooleGetter)) {
                 $setting = $this->{$swooleGetter}();
             }
 

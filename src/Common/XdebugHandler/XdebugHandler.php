@@ -41,7 +41,7 @@ final class XdebugHandler
 
     private function isAllowed(): bool
     {
-        return false !== \getenv($this->allowXdebugEnvName);
+        return false !== getenv($this->allowXdebugEnvName);
     }
 
     public function allowXdebugEnvName(): string
@@ -52,8 +52,8 @@ final class XdebugHandler
     private function prepareEnvs(): array
     {
         $envs = [];
-        $lines = \getenv('LINES');
-        $columns = \getenv('COLUMNS');
+        $lines = getenv('LINES');
+        $columns = getenv('COLUMNS');
         if (false !== $lines) {
             $envs['LINES'] = $lines;
         }
@@ -68,7 +68,7 @@ final class XdebugHandler
     {
         $command = [PHP_BINARY, '-n', '-c', $this->createPreparedTempIniFile()];
         $currentCommand = $_SERVER['argv'];
-        $command = \array_merge($command, $currentCommand);
+        $command = array_merge($command, $currentCommand);
 
         $process = new Process($command, null, $this->prepareEnvs());
         $process->setTty(Process::isTtySupported());
@@ -79,28 +79,28 @@ final class XdebugHandler
 
     public function forwardSignals(Process $process): void
     {
-        \pcntl_async_signals(true);
+        pcntl_async_signals(true);
 
         $signalForwarder = function (int $signalNo) use ($process): void {
             $process->signal($signalNo);
         };
 
-        foreach (\array_keys(self::SIGNALS_MAP) as $signalNo) {
-            \pcntl_signal($signalNo, $signalForwarder);
+        foreach (array_keys(self::SIGNALS_MAP) as $signalNo) {
+            pcntl_signal($signalNo, $signalForwarder);
         }
     }
 
     private function createPreparedTempIniFile(): string
     {
-        $tempIniFilePath = \tempnam(\sys_get_temp_dir(), '');
+        $tempIniFilePath = tempnam(sys_get_temp_dir(), '');
         if (false === $tempIniFilePath) {
             throw new RuntimeException('Could not generate temporary file');
         }
 
         $preparedContent = $this->parsePhpIniContent($this->generateLoadedPhpIniFiles());
 
-        if (false === @\file_put_contents($tempIniFilePath, $preparedContent)) {
-            throw new RuntimeException(\sprintf('Could not write prepared temporary php ini file to "%s".', $tempIniFilePath));
+        if (false === @file_put_contents($tempIniFilePath, $preparedContent)) {
+            throw new RuntimeException(sprintf('Could not write prepared temporary php ini file to "%s".', $tempIniFilePath));
         }
 
         return $tempIniFilePath;
@@ -108,13 +108,13 @@ final class XdebugHandler
 
     private function generateLoadedPhpIniFiles(): Generator
     {
-        $loadedIniFile = \php_ini_loaded_file();
+        $loadedIniFile = php_ini_loaded_file();
         if (!empty($loadedIniFile)) {
             yield $loadedIniFile;
         }
 
-        foreach (\explode(',', \php_ini_scanned_files()) as $scanned) {
-            $preparedScanned = \trim($scanned);
+        foreach (explode(',', php_ini_scanned_files()) as $scanned) {
+            $preparedScanned = trim($scanned);
 
             if ('' !== $preparedScanned) {
                 yield $preparedScanned;
@@ -128,21 +128,21 @@ final class XdebugHandler
         $regex = '/^\s*(zend_extension\s*=.*xdebug.*)$/mi';
 
         foreach ($iniFiles as $iniFile) {
-            $iniContent = \file_get_contents($iniFile);
+            $iniContent = file_get_contents($iniFile);
             if (false === $iniContent) {
-                throw new RuntimeException(\sprintf(
+                throw new RuntimeException(sprintf(
                     'Could not get contents of ini file "%s".',
                     $iniFile
                 ));
             }
 
-            $data = \preg_replace($regex, ';$1', $iniContent);
+            $data = preg_replace($regex, ';$1', $iniContent);
             $content .= $data.PHP_EOL;
         }
 
         // Merge loaded settings into our ini content, if it is valid
-        if ($config = \parse_ini_string($content)) {
-            $loaded = \ini_get_all(null, false);
+        if ($config = parse_ini_string($content)) {
+            $loaded = ini_get_all(null, false);
             $content .= $this->mergeLoadedConfig($loaded, $config);
         }
 
@@ -166,13 +166,13 @@ final class XdebugHandler
 
         foreach ($loadedConfig as $name => $value) {
             // Value will either be null, string or array (HHVM only)
-            if ('apc.mmap_file_mask' === $name || !\is_string($value) || !\is_string($name) || 0 === \mb_strpos($name, 'xdebug')) {
+            if ('apc.mmap_file_mask' === $name || !\is_string($value) || !\is_string($name) || 0 === mb_strpos($name, 'xdebug')) {
                 continue;
             }
 
             if (!isset($iniConfig[$name]) || $iniConfig[$name] !== $value) {
                 // Double-quote escape each value
-                $content .= $name.'="'.\addcslashes($value, '\\"').'"'.PHP_EOL;
+                $content .= $name.'="'.addcslashes($value, '\\"').'"'.PHP_EOL;
             }
         }
 

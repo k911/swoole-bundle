@@ -76,7 +76,7 @@ final class ApiServerRequestHandler implements RequestHandlerInterface
                     return;
                 default:
                     $this->sendResponse($response, 405, [
-                        'error' => \sprintf('Method "%s" is not supported. Supported ones are: %s.', $method, \implode(', ', self::SUPPORTED_HTTP_METHODS)),
+                        'error' => sprintf('Method "%s" is not supported. Supported ones are: %s.', $method, implode(', ', self::SUPPORTED_HTTP_METHODS)),
                     ]);
 
                     return;
@@ -93,14 +93,14 @@ final class ApiServerRequestHandler implements RequestHandlerInterface
             'code' => $exception->getCode(),
             'line' => $exception->getLine(),
             'file' => $exception->getFile(),
-            'trace' => \explode("\n", $exception->getTraceAsString()),
+            'trace' => explode("\n", $exception->getTraceAsString()),
         ]);
     }
 
     private function parseRequestInfo(Request $request): array
     {
-        $method = \mb_strtoupper($request->server['request_method']);
-        $path = \mb_strtolower(\rtrim($request->server['path_info'], '/'));
+        $method = mb_strtoupper($request->server['request_method']);
+        $path = mb_strtolower(rtrim($request->server['path_info'], '/'));
         $path = '' === $path ? '/' : $path;
 
         return [$method, $path];
@@ -119,20 +119,20 @@ final class ApiServerRequestHandler implements RequestHandlerInterface
             }
 
             return [405, [
-                'error' => \sprintf('Method %s for route %s is not valid. Supported ones are: %s.', $method, $path, \implode(', ', \array_keys($route))),
+                'error' => sprintf('Method %s for route %s is not valid. Supported ones are: %s.', $method, $path, implode(', ', array_keys($route))),
             ]];
         }
 
         return [404, [
-            'error' => \sprintf('Route %s does not exists.', $path),
+            'error' => sprintf('Route %s does not exists.', $path),
             'routes' => $this->getRouteMap(),
         ]];
     }
 
     private function getRouteMap(): array
     {
-        return \array_map(function (array $route): array {
-            return \array_keys($route);
+        return array_map(function (array $route): array {
+            return array_keys($route);
         }, $this->routes);
     }
 
@@ -149,11 +149,11 @@ final class ApiServerRequestHandler implements RequestHandlerInterface
         $response->status($statusCode);
 
         $options = \defined('JSON_THROW_ON_ERROR') ? \JSON_THROW_ON_ERROR : 0;
-        $json = \json_encode($data, $options);
+        $json = json_encode($data, $options);
 
         // TODO: Drop on PHP 7.3 Migration
         if (!\defined('JSON_THROW_ON_ERROR') && false === $json) {
-            throw new \RuntimeException(\json_last_error_msg(), \json_last_error());
+            throw new \RuntimeException(json_last_error_msg(), json_last_error());
         }
 
         $response->end($json);

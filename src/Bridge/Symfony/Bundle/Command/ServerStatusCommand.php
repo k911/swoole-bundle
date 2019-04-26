@@ -91,12 +91,12 @@ final class ServerStatusCommand extends Command
             ['Running mode', $server['runningMode']],
             ['Master PID', $processes['master']['pid']],
             ['Manager PID', $processes['manager']['pid']],
-            [\sprintf('Worker[%d] PID', $processes['worker']['id']), $processes['worker']['pid']],
+            [sprintf('Worker[%d] PID', $processes['worker']['id']), $processes['worker']['pid']],
         ];
 
         foreach ($server['listeners'] as $id => ['host' => $host, 'port' => $port]) {
-            $rows[] = [\sprintf('Listener[%d] Host', $id), $host];
-            $rows[] = [\sprintf('Listener[%d] Port', $id), $port];
+            $rows[] = [sprintf('Listener[%d] Host', $id), $host];
+            $rows[] = [sprintf('Listener[%d] Port', $id), $port];
         }
 
         $io->table([

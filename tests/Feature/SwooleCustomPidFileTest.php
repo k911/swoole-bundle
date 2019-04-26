@@ -17,7 +17,7 @@ final class SwooleCustomPidFileTest extends ServerTestCase
             'swoole:server:start',
             '--host=localhost',
             '--port=9999',
-            \sprintf('--pid-file=%s', $pidFile),
+            sprintf('--pid-file=%s', $pidFile),
         ]);
 
         $this->assertFileNotExists($pidFile);
@@ -28,13 +28,13 @@ final class SwooleCustomPidFileTest extends ServerTestCase
         $this->assertProcessSucceeded($serverStart);
 
         $this->goAndWait(function () use ($pidFile): void {
-            $this->deferServerStop(\sprintf('--pid-file=%s', $pidFile));
+            $this->deferServerStop(sprintf('--pid-file=%s', $pidFile));
 
             $client = HttpClient::fromDomain('localhost', 9999, false);
             $this->assertTrue($client->connect());
 
             $this->assertFileExists($pidFile);
-            $this->assertIsNumeric(\file_get_contents($pidFile));
+            $this->assertIsNumeric(file_get_contents($pidFile));
 
             $this->assertHelloWorldRequestSucceeded($client);
         });
@@ -48,7 +48,7 @@ final class SwooleCustomPidFileTest extends ServerTestCase
             'swoole:server:start',
             '--host=localhost',
             '--port=9999',
-            \sprintf('--pid-file=%s', $pidFile),
+            sprintf('--pid-file=%s', $pidFile),
         ]);
 
         $this->assertFileExists($pidFile);
@@ -63,18 +63,18 @@ final class SwooleCustomPidFileTest extends ServerTestCase
 
     private function generateNotExistingCustomPidFile(): string
     {
-        $hash = \bin2hex(\random_bytes(8));
+        $hash = bin2hex(random_bytes(8));
 
-        return \sprintf('%s/custom-pid-file-%s.pid', self::FIXTURE_RESOURCES_DIR, $hash);
+        return sprintf('%s/custom-pid-file-%s.pid', self::FIXTURE_RESOURCES_DIR, $hash);
     }
 
     private function setUpExistingReadOnlyPidFile(): string
     {
-        $hash = \bin2hex(\random_bytes(8));
-        $readOnlyFile = \sprintf('%s/existing-readonly-pid-file-%s.pid', self::FIXTURE_RESOURCES_DIR, $hash);
+        $hash = bin2hex(random_bytes(8));
+        $readOnlyFile = sprintf('%s/existing-readonly-pid-file-%s.pid', self::FIXTURE_RESOURCES_DIR, $hash);
 
-        $this->assertNotFalse(\file_put_contents($readOnlyFile, '-9999'));
-        $this->assertTrue(\chmod($readOnlyFile, 0400));
+        $this->assertNotFalse(file_put_contents($readOnlyFile, '-9999'));
+        $this->assertTrue(chmod($readOnlyFile, 0400));
 
         return $readOnlyFile;
     }

@@ -35,7 +35,7 @@ class InotifyHMRTest extends TestCase
         $this->assertFileNotExists(self::NON_EXISTING_FILE);
 
         $this->expectException(InvalidArgumentException::class);
-        $this->expectExceptionMessage(\sprintf('File "%s" was expected to exist.', self::NON_EXISTING_FILE));
+        $this->expectExceptionMessage(sprintf('File "%s" was expected to exist.', self::NON_EXISTING_FILE));
 
         new InotifyHMR([self::NON_EXISTING_FILE]);
     }
@@ -45,12 +45,12 @@ class InotifyHMRTest extends TestCase
         $hmr = new InotifyHMR();
         $hmr->boot(['nonReloadableFiles' => self::NON_RELOADABLE_EXISTING_FILES]);
 
-        $expected = \array_unique(
-            \array_merge(\get_included_files(), self::NON_RELOADABLE_EXISTING_FILES)
+        $expected = array_unique(
+            array_merge(get_included_files(), self::NON_RELOADABLE_EXISTING_FILES)
         );
-        \sort($expected);
+        sort($expected);
         $result = $hmr->getNonReloadableFiles();
-        \sort($result);
+        sort($result);
 
         $this->assertSame($result, $expected);
     }
@@ -62,7 +62,7 @@ class InotifyHMRTest extends TestCase
         $hmr = new InotifyHMR();
 
         $this->expectException(InvalidArgumentException::class);
-        $this->expectExceptionMessage(\sprintf('File "%s" was expected to exist.', self::NON_EXISTING_FILE));
+        $this->expectExceptionMessage(sprintf('File "%s" was expected to exist.', self::NON_EXISTING_FILE));
 
         $hmr->boot(['nonReloadableFiles' => [self::NON_EXISTING_FILE]]);
     }

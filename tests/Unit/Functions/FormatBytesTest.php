@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace K911\Swoole\Tests\Unit\Functions;
 
-use function K911\Swoole\format_bytes;
+use K911\Swoole\Common\Formatter;
 use PHPUnit\Framework\TestCase;
 
 class FormatBytesTest extends TestCase
@@ -51,13 +51,13 @@ class FormatBytesTest extends TestCase
      */
     public function testFormatBytes(int $bytes, string $formatted): void
     {
-        $this->assertSame($formatted, format_bytes($bytes));
+        $this->assertSame($formatted, Formatter::formatBytes($bytes));
     }
 
     public function testNegativeBytes(): void
     {
         $this->expectException(\OutOfRangeException::class);
         $this->expectExceptionMessage('Bytes number cannot be negative');
-        format_bytes(-1);
+        Formatter::formatBytes(-1);
     }
 }

@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 /*
@@ -7,9 +8,9 @@ declare(strict_types=1);
 
 namespace K911\Swoole\Tests\Fixtures\Symfony\TestBundle\Service;
 
+use Doctrine\ORM\EntityManagerInterface;
 use Exception;
 use K911\Swoole\Tests\Fixtures\Symfony\TestBundle\Entity\Test;
-use Doctrine\ORM\EntityManagerInterface;
 use Ramsey\Uuid\UuidFactoryInterface;
 
 /**
@@ -17,7 +18,6 @@ use Ramsey\Uuid\UuidFactoryInterface;
  */
 final class DummyService
 {
-
     /**
      * @var EntityManagerInterface
      */
@@ -39,12 +39,13 @@ final class DummyService
     }
 
     /**
-     * @return Test[]
      * @throws Exception
+     *
+     * @return Test[]
      */
     public function process(): array
     {
-        for ($i = 0; $i < 10; $i++) {
+        for ($i = 0; $i < 10; ++$i) {
             $this->newEntity();
         }
 
@@ -54,7 +55,6 @@ final class DummyService
     }
 
     /**
-     *
      * @throws Exception
      */
     private function newEntity(): void

@@ -26,6 +26,6 @@ final class ClientConnectionErrorException extends \RuntimeException
 
     public static function unknown(int $errorCode): self
     {
-        return new self(\sprintf('Unknown [%d]', $errorCode), $errorCode);
+        return new self(sprintf('Unknown [%d]', $errorCode), $errorCode);
     }
 }

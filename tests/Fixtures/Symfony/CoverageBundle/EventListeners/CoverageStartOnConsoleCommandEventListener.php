@@ -18,7 +18,7 @@ final class CoverageStartOnConsoleCommandEventListener
 
     public function __invoke(ConsoleCommandEvent $commandEvent): void
     {
-        $slug = \str_replace(['-', ':'], '_', $commandEvent->getCommand()->getName());
-        $this->coverageManager->start(\sprintf('test_cmd_%s', $slug));
+        $slug = str_replace(['-', ':'], '_', $commandEvent->getCommand()->getName());
+        $this->coverageManager->start(sprintf('test_cmd_%s', $slug));
     }
 }

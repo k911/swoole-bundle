@@ -37,7 +37,7 @@ FROM composer:latest as app-installer
 WORKDIR /usr/src/app
 RUN composer global require "hirak/prestissimo:^0.3" --prefer-dist --no-progress --no-suggest --classmap-authoritative --ansi
 COPY composer.json composer.lock ./
-#RUN composer validate
+RUN composer validate
 ARG COMPOSER_ARGS="install"
 RUN composer ${COMPOSER_ARGS} --prefer-dist --ignore-platform-reqs --no-progress --no-suggest --no-scripts --no-autoloader --ansi
 COPY . ./
@@ -93,6 +93,7 @@ CMD ["swoole:server:run"]
 FROM base as CliDev
 RUN apk add --no-cache git
 ENV COMPOSER_ALLOW_SUPERUSER="1"
+USER app:runner
 COPY --chown=app:runner --from=app-installer /usr/bin/composer /usr/local/bin/composer
 WORKDIR /usr/src/app/tests/Fixtures/Symfony/app
 ENTRYPOINT ["./console"]

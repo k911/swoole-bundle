@@ -25,7 +25,7 @@ final class CodeCoverageRequestHandler implements RequestHandlerInterface
      */
     public function handle(Request $request, Response $response): void
     {
-        $testName = \sprintf('test_request_%s', \bin2hex(\random_bytes(8)));
+        $testName = sprintf('test_request_%s', bin2hex(random_bytes(8)));
         $this->codeCoverageManager->start($testName);
 
         $this->decorated->handle($request, $response);

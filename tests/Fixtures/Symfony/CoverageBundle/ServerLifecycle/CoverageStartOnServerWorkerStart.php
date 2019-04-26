@@ -24,7 +24,7 @@ final class CoverageStartOnServerWorkerStart implements WorkerStartHandlerInterf
      */
     public function handle(Server $worker, int $workerId): void
     {
-        $this->codeCoverageManager->start(\sprintf('test_worker_%d', $workerId));
+        $this->codeCoverageManager->start(sprintf('test_worker_%d', $workerId));
 
         if ($this->decorated instanceof WorkerStartHandlerInterface) {
             $this->decorated->handle($worker, $workerId);

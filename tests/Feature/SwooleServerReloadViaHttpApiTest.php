@@ -71,23 +71,23 @@ final class SwooleServerReloadViaHttpApiTest extends ServerTestCase
 
     private function replaceContentInTestController(string $text): void
     {
-        \file_put_contents(
+        file_put_contents(
             self::CONTROLLER_TEMPLATE_DEST,
-            \str_replace(self::CONTROLLER_TEMPLATE_REPLACE_TEXT, $text, \file_get_contents(self::CONTROLLER_TEMPLATE_SRC))
+            str_replace(self::CONTROLLER_TEMPLATE_REPLACE_TEXT, $text, file_get_contents(self::CONTROLLER_TEMPLATE_SRC))
         );
     }
 
     private function assertTestControllerResponseEquals(string $expected): void
     {
         $this->assertSame(
-            \str_replace(self::CONTROLLER_TEMPLATE_REPLACE_TEXT, $expected, \file_get_contents(self::CONTROLLER_TEMPLATE_SRC)),
-            \file_get_contents(self::CONTROLLER_TEMPLATE_DEST)
+            str_replace(self::CONTROLLER_TEMPLATE_REPLACE_TEXT, $expected, file_get_contents(self::CONTROLLER_TEMPLATE_SRC)),
+            file_get_contents(self::CONTROLLER_TEMPLATE_DEST)
         );
     }
 
     private function deferRestoreOriginalTemplateControllerResponse(): void
     {
-        \defer(function (): void {
+        defer(function (): void {
             $this->replaceContentInTestController(self::CONTROLLER_TEMPLATE_ORIGINAL_TEXT);
         });
     }

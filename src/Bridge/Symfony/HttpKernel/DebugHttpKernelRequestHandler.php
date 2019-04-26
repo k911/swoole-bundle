@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace K911\Swoole\Bridge\Symfony\HttpKernel;
 
-use function K911\Swoole\replace_object_property;
+use K911\Swoole\Common\Reflection;
 use K911\Swoole\Server\RequestHandler\RequestHandlerInterface;
 use Swoole\Http\Request;
 use Swoole\Http\Response;
@@ -30,7 +30,7 @@ final class DebugHttpKernelRequestHandler implements RequestHandlerInterface
     public function handle(Request $request, Response $response): void
     {
         if ($this->kernel->isDebug()) {
-            replace_object_property($this->kernel, 'startTime', \microtime(true));
+            Reflection::replaceObjectProperty($this->kernel, 'startTime', microtime(true));
         }
 
         $this->decorated->handle($request, $response);

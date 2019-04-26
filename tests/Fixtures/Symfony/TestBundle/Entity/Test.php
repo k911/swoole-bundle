@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 /*
@@ -18,7 +19,6 @@ use Ramsey\Uuid\UuidInterface;
  */
 class Test
 {
-
     /**
      * @var int
      * @ORM\Id()
@@ -50,8 +50,9 @@ class Test
     }
 
     /**
-     * @return UuidInterface
      * @throws InvalidUuidStringException
+     *
+     * @return UuidInterface
      */
     public function getUuid(): UuidInterface
     {

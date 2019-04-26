@@ -8,6 +8,9 @@ use Assert\Assertion;
 use Assert\AssertionFailedException;
 use Exception;
 use InvalidArgumentException;
+use K911\Swoole\Common\Decoder;
+use K911\Swoole\Common\Formatter;
+use K911\Swoole\Common\PhpPlatform;
 use K911\Swoole\Common\XdebugHandler\XdebugHandler;
 use K911\Swoole\Server\Config\Socket;
 use K911\Swoole\Server\Configurator\ConfiguratorInterface;
@@ -22,17 +25,6 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
-use function array_filter;
-use function count;
-use function filter_var;
-use function implode;
-use function in_array;
-use function is_string;
-use function K911\Swoole\decode_string_as_set;
-use function K911\Swoole\format_bytes;
-use function K911\Swoole\get_max_memory;
-use function sprintf;
-use function var_export;
 
 abstract class AbstractServerStartCommand extends Command
 {
@@ -233,8 +225,6 @@ abstract class AbstractServerStartCommand extends Command
      * @param HttpServerConfiguration $serverConfiguration
      * @param InputInterface          $input
      *
-     * @throws AssertionFailedException
-     *
      * @return array
      */
     protected function prepareRuntimeConfiguration(HttpServerConfiguration $serverConfiguration, InputInterface $input): array
@@ -263,13 +253,13 @@ abstract class AbstractServerStartCommand extends Command
     private function decodeSet($set): array
     {
         if (is_string($set)) {
-            return decode_string_as_set($set);
+            return Decoder::decodeStringAsSet($set);
         }
 
         Assertion::isArray($set);
 
         if (1 === count($set)) {
-            return decode_string_as_set($set[0]);
+            return Decoder::decodeStringAsSet($set[0]);
         }
 
         return $set;
@@ -294,7 +284,7 @@ abstract class AbstractServerStartCommand extends Command
             ['env', $this->parameterBag->get('kernel.environment')],
             ['debug', var_export($this->parameterBag->get('kernel.debug'), true)],
             ['worker_count', $serverConfiguration->getWorkerCount()],
-            ['memory_limit', format_bytes(get_max_memory())],
+            ['memory_limit', Formatter::formatBytes(PhpPlatform::getMaxMemory())],
             ['trusted_hosts', implode(', ', $runtimeConfiguration['trustedHosts'])],
         ];
 
@@ -306,7 +296,7 @@ abstract class AbstractServerStartCommand extends Command
             $trustedProxies = implode(', ', $runtimeConfiguration['trustedProxies']);
         }
 
-        if ($trustedProxies !== '') {
+        if ('' !== $trustedProxies) {
             $rows[] = ['trusted_proxies', $trustedProxies];
         }
 

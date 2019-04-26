@@ -11,6 +11,6 @@ final class PidFileNotAccessibleException extends \RuntimeException
 {
     public static function forFile(string $pidFile): self
     {
-        throw new self(\sprintf('Could not access pid file "%s".', $pidFile));
+        throw new self(sprintf('Could not access pid file "%s".', $pidFile));
     }
 }

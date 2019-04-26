@@ -33,7 +33,7 @@ class ServerTestCase extends KernelTestCase
         if (self::coverageEnabled()) {
             if ('test' === $env || null === $env) {
                 $env = 'cov';
-            } elseif ('_cov' !== \mb_substr($env, -4, 4)) {
+            } elseif ('_cov' !== mb_substr($env, -4, 4)) {
                 $env .= '_cov';
             }
         }
@@ -43,7 +43,7 @@ class ServerTestCase extends KernelTestCase
 
     public static function coverageEnabled(): bool
     {
-        return false !== \getenv('COVERAGE');
+        return false !== getenv('COVERAGE');
     }
 
     protected static function getKernelClass(): string
@@ -54,7 +54,7 @@ class ServerTestCase extends KernelTestCase
     public function goAndWait(callable $callable): void
     {
         try {
-            \go($this->wrapAndTrap($callable));
+            go($this->wrapAndTrap($callable));
         } catch (\RuntimeException $runtimeException) {
             if (self::SWOOLE_XDEBUG_CORO_WARNING_MESSAGE !== $runtimeException->getMessage()) {
                 throw $runtimeException;
@@ -83,7 +83,7 @@ class ServerTestCase extends KernelTestCase
      */
     public function deferProcessStop(Process $process, int $timeout = 3, ?int $signal = null): void
     {
-        \defer(function () use ($process, $timeout, $signal): void {
+        defer(function () use ($process, $timeout, $signal): void {
             $process->stop($timeout, $signal);
 
             $this->assertProcessSucceeded($process);
@@ -104,20 +104,20 @@ class ServerTestCase extends KernelTestCase
     {
         $this->assertStringContainsString(
             $expected,
-            \preg_replace('!\s+!', ' ', \str_replace(PHP_EOL, '', $commandTester->getDisplay()))
+            preg_replace('!\s+!', ' ', str_replace(PHP_EOL, '', $commandTester->getDisplay()))
         );
     }
 
     public function deferServerStop(string ...$args): void
     {
-        \defer(function () use ($args): void {
+        defer(function () use ($args): void {
             $this->serverStop(...$args);
         });
     }
 
     public function serverStop(string ...$args): void
     {
-        $processArgs = \array_merge(['swoole:server:stop'], $args);
+        $processArgs = array_merge(['swoole:server:stop'], $args);
         $serverStop = $this->createConsoleProcess($processArgs);
 
         $serverStop->setTimeout(3);
@@ -129,7 +129,7 @@ class ServerTestCase extends KernelTestCase
 
     public function createConsoleProcess(array $args, array $envs = [], $input = null, ?float $timeout = 60.0): Process
     {
-        $command = \array_merge([self::COMMAND], $args);
+        $command = array_merge([self::COMMAND], $args);
 
         if (!\array_key_exists('SWOOLE_TEST_XDEBUG_RESTART', $envs)) {
             if (self::coverageEnabled()) {
@@ -142,7 +142,7 @@ class ServerTestCase extends KernelTestCase
             }
         }
 
-        return new Process($command, \realpath(self::WORKING_DIRECTORY), $envs, $input, $timeout);
+        return new Process($command, realpath(self::WORKING_DIRECTORY), $envs, $input, $timeout);
     }
 
     public function assertHelloWorldRequestSucceeded(HttpClient $client): void
@@ -170,6 +170,6 @@ class ServerTestCase extends KernelTestCase
     protected function tearDown(): void
     {
         // Make sure everything is stopped
-        \sleep(1);
+        sleep(1);
     }
 }

@@ -11,6 +11,6 @@ final class MissingContentTypeException extends \InvalidArgumentException
 {
     public static function make(): self
     {
-        return new self(\sprintf('Server response did not contain mandatory header "Content-Type".'));
+        return new self(sprintf('Server response did not contain mandatory header "Content-Type".'));
     }
 }

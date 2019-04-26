@@ -57,9 +57,6 @@
         "doctrine/orm": "To use the EntityManager handler."
     },
     "autoload": {
-        "files": [
-            "src/functions_include.php"
-        ],
         "psr-4": {
             "K911\\Swoole\\": "src"
         }

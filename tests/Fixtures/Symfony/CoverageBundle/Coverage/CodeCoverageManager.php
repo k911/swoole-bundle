@@ -83,9 +83,9 @@ final class CodeCoverageManager
         }
 
         $timestamp = (new DateTimeImmutable())->getTimestamp();
-        $fileName = \sprintf('%s_%s.cov', $fileName ?? $this->testName, $timestamp);
+        $fileName = sprintf('%s_%s.cov', $fileName ?? $this->testName, $timestamp);
 
-        $this->writer->process($this->codeCoverage, \sprintf('%s/%s', $path ?? $this->coveragePath, $fileName));
+        $this->writer->process($this->codeCoverage, sprintf('%s/%s', $path ?? $this->coveragePath, $fileName));
         $this->codeCoverage->clear();
         $this->finished = true;
 
@@ -98,13 +98,13 @@ final class CodeCoverageManager
     {
         $coverageDir = $parameterBag->has('coverage.dir') ?
             $parameterBag->get('coverage.dir') :
-            \sprintf('%s/%s', \dirname(__DIR__, 5), 'src');
+            sprintf('%s/%s', \dirname(__DIR__, 5), 'src');
 
         $codeCoverage->filter()->addDirectoryToWhitelist($coverageDir);
     }
 
     private function generateTestName(): string
     {
-        return \sprintf('cc_test_%s', \bin2hex(\random_bytes(4)));
+        return sprintf('cc_test_%s', bin2hex(random_bytes(4)));
     }
 }

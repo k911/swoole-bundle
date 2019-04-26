@@ -58,7 +58,7 @@ final class ApiServer implements ApiServerInterface
         $swooleServer = $this->server->getServer();
 
         return [
-            'date' => \date(\DATE_ATOM),
+            'date' => date(\DATE_ATOM),
             'server' => [
                 'host' => $swooleServer->host,
                 'port' => $swooleServer->port,
@@ -72,9 +72,9 @@ final class ApiServer implements ApiServerInterface
 
     private function extractListenersStatus(HttpServer $server): array
     {
-        return \array_values(\array_map(function (Port $listener): array {
+        return array_values(array_map(function (Port $listener): array {
             return [
-                'host' => \property_exists($listener, 'host') ? $listener->host : '-',
+                'host' => property_exists($listener, 'host') ? $listener->host : '-',
                 'port' => $listener->port,
             ];
         }, $server->getListeners()));

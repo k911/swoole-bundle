@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace K911\Swoole\Tests\Unit\Functions;
 
-use function K911\Swoole\replace_object_property;
+use K911\Swoole\Common\Reflection;
 use PHPUnit\Framework\TestCase;
 
 class ReplaceObjectPropertyTest extends TestCase
@@ -23,7 +23,7 @@ class ReplaceObjectPropertyTest extends TestCase
     {
         $this->assertSame(TestObject::WRONG_VALUE, $this->testObject->getPublicProp());
 
-        replace_object_property($this->testObject, 'publicProp', TestObject::GOOD_VALUE);
+        Reflection::replaceObjectProperty($this->testObject, 'publicProp', TestObject::GOOD_VALUE);
 
         $this->assertSame(TestObject::GOOD_VALUE, $this->testObject->getPublicProp());
     }
@@ -32,7 +32,7 @@ class ReplaceObjectPropertyTest extends TestCase
     {
         $this->assertSame(TestObject::WRONG_VALUE, $this->testObject->getPublicProp());
 
-        replace_object_property($this->testObject, 'protectedProp', TestObject::GOOD_VALUE);
+        Reflection::replaceObjectProperty($this->testObject, 'protectedProp', TestObject::GOOD_VALUE);
 
         $this->assertSame(TestObject::GOOD_VALUE, $this->testObject->getProtectedProp());
     }
@@ -41,7 +41,7 @@ class ReplaceObjectPropertyTest extends TestCase
     {
         $this->assertSame(TestObject::WRONG_VALUE, $this->testObject->getPublicProp());
 
-        replace_object_property($this->testObject, 'privateProp', TestObject::GOOD_VALUE);
+        Reflection::replaceObjectProperty($this->testObject, 'privateProp', TestObject::GOOD_VALUE);
 
         $this->assertSame(TestObject::GOOD_VALUE, $this->testObject->getPrivateProp());
     }
@@ -50,7 +50,7 @@ class ReplaceObjectPropertyTest extends TestCase
     {
         $this->assertSame(TestObject::WRONG_VALUE, $this->testObject->getPublicProp());
 
-        replace_object_property($this->testObject, 'dynamicProp', TestObject::GOOD_VALUE);
+        Reflection::replaceObjectProperty($this->testObject, 'dynamicProp', TestObject::GOOD_VALUE);
 
         $this->assertSame(TestObject::GOOD_VALUE, $this->testObject->getDynamicProp());
     }

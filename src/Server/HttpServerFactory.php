@@ -28,7 +28,7 @@ final class HttpServerFactory
      */
     public static function make(Socket $main, string $runningMode = 'process', Socket ...$additional): Server
     {
-        Assertion::inArray($runningMode, \array_keys(self::SWOOLE_RUNNING_MODE));
+        Assertion::inArray($runningMode, array_keys(self::SWOOLE_RUNNING_MODE));
         $mainServer = new Server($main->host(), $main->port(), self::SWOOLE_RUNNING_MODE[$runningMode], $main->type());
 
         $usedPorts = [$main->port() => true];

@@ -136,18 +136,18 @@ final class AdvancedStaticFilesServer implements RequestHandlerInterface, Bootab
 
     private function checkPath(string $path): bool
     {
-        $extension = \pathinfo($path, PATHINFO_EXTENSION);
+        $extension = pathinfo($path, PATHINFO_EXTENSION);
 
         // eg. "file.js.map"
         if ('map' === $extension) {
-            $extension = \pathinfo(\pathinfo($path, PATHINFO_FILENAME), PATHINFO_EXTENSION);
+            $extension = pathinfo(pathinfo($path, PATHINFO_FILENAME), PATHINFO_EXTENSION);
         }
 
         if (!isset(self::FILE_EXTENSION_MIME_TYPE_MAP[$extension])) {
             return false;
         }
 
-        if (!\file_exists($path)) {
+        if (!file_exists($path)) {
             return false;
         }
 

@@ -62,24 +62,24 @@ final class SwooleServerHMRTest extends ServerTestCase
 
     private function replaceResponseInTestController(string $text): void
     {
-        \file_put_contents(
+        file_put_contents(
             self::CONTROLLER_TEMPLATE_DEST,
-            \str_replace(self::CONTROLLER_TEMPLATE_REPLACE_TEXT, $text, \file_get_contents(self::CONTROLLER_TEMPLATE_SRC))
+            str_replace(self::CONTROLLER_TEMPLATE_REPLACE_TEXT, $text, file_get_contents(self::CONTROLLER_TEMPLATE_SRC))
         );
-        \touch(self::CONTROLLER_TEMPLATE_DEST);
+        touch(self::CONTROLLER_TEMPLATE_DEST);
     }
 
     private function assertTestControllerResponseEquals(string $expected): void
     {
         $this->assertSame(
-            \str_replace(self::CONTROLLER_TEMPLATE_REPLACE_TEXT, $expected, \file_get_contents(self::CONTROLLER_TEMPLATE_SRC)),
-            \file_get_contents(self::CONTROLLER_TEMPLATE_DEST)
+            str_replace(self::CONTROLLER_TEMPLATE_REPLACE_TEXT, $expected, file_get_contents(self::CONTROLLER_TEMPLATE_SRC)),
+            file_get_contents(self::CONTROLLER_TEMPLATE_DEST)
         );
     }
 
     private function deferRestoreOriginalTemplateControllerResponse(): void
     {
-        \defer(function (): void {
+        defer(function (): void {
             $this->replaceResponseInTestController(self::CONTROLLER_TEMPLATE_ORIGINAL_TEXT);
         });
     }

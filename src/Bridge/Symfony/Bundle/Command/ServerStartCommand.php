@@ -6,7 +6,7 @@ namespace K911\Swoole\Bridge\Symfony\Bundle\Command;
 
 use K911\Swoole\Bridge\Symfony\Bundle\Exception\CouldNotCreatePidFileException;
 use K911\Swoole\Bridge\Symfony\Bundle\Exception\PidFileNotAccessibleException;
-use function K911\Swoole\get_object_property;
+use K911\Swoole\Common\Reflection;
 use K911\Swoole\Server\HttpServer;
 use K911\Swoole\Server\HttpServerConfiguration;
 use Symfony\Component\Console\Input\InputInterface;
@@ -48,11 +48,11 @@ final class ServerStartCommand extends AbstractServerStartCommand
     {
         $pidFile = $serverConfiguration->getPidFile();
 
-        if (!\touch($pidFile)) {
+        if (!touch($pidFile)) {
             throw PidFileNotAccessibleException::forFile($pidFile);
         }
 
-        if (!\is_writable($pidFile)) {
+        if (!is_writable($pidFile)) {
             throw CouldNotCreatePidFileException::forPath($pidFile);
         }
 
@@ -63,7 +63,7 @@ final class ServerStartCommand extends AbstractServerStartCommand
 
     private function closeSymfonyStyle(SymfonyStyle $io): void
     {
-        $output = get_object_property($io, 'output', OutputStyle::class);
+        $output = Reflection::getObjectProperty($io, 'output', OutputStyle::class);
         if ($output instanceof ConsoleOutput) {
             $this->closeConsoleOutput($output);
         } elseif ($output instanceof StreamOutput) {
@@ -78,7 +78,7 @@ final class ServerStartCommand extends AbstractServerStartCommand
      */
     private function closeConsoleOutput(ConsoleOutput $output): void
     {
-        \fclose($output->getStream());
+        fclose($output->getStream());
 
         /** @var StreamOutput $streamOutput */
         $streamOutput = $output->getErrorOutput();
@@ -89,6 +89,6 @@ final class ServerStartCommand extends AbstractServerStartCommand
     private function closeStreamOutput(StreamOutput $output): void
     {
         $output->setVerbosity(PHP_INT_MIN);
-        \fclose($output->getStream());
+        fclose($output->getStream());
     }
 }

@@ -62,7 +62,7 @@ final class CoroutinePool
     {
         Assertion::false(\extension_loaded('xdebug'), 'Swoole Coroutine is incompatible with Xdebug extension. Please disable it and try again.');
 
-        \go($coroutine);
+        go($coroutine);
     }
 
     private function wrapPushResultToChannel(Channel $channel, callable $coroutine): callable

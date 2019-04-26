@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace K911\Swoole\Tests\Unit\Functions;
 
-use function K911\Swoole\decode_string_as_set;
+use K911\Swoole\Common\Decoder;
 use PHPUnit\Framework\TestCase;
 
 class DecodeStringAsSetTest extends TestCase
@@ -47,6 +47,6 @@ class DecodeStringAsSetTest extends TestCase
      */
     public function testDecodeStringAsSet(?string $string, array $set): void
     {
-        $this->assertSame($set, decode_string_as_set($string));
+        $this->assertSame($set, Decoder::decodeStringAsSet($string));
     }
 }
