@@ -31,6 +31,11 @@ use Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException;
 use Symfony\Component\DependencyInjection\Loader\YamlFileLoader;
 use Symfony\Component\DependencyInjection\Reference;
 use Symfony\Component\HttpKernel\DependencyInjection\Extension;
+use function extension_loaded;
+use function interface_exists;
+use function mb_strtolower;
+use function str_replace;
+use function ucfirst;
 
 final class SwooleExtension extends Extension
 {

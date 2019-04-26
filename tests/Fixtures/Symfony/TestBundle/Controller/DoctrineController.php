@@ -48,7 +48,7 @@ final class DoctrineController
         $testsStr = '';
 
         foreach ($tests as $test) {
-            $testsStr .= $test->getUuid() . '<br>';
+            $testsStr .= $test->getUuid()->toString() . '<br>';
         }
 
         return new Response(

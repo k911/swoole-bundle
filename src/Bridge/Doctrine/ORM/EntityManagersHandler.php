@@ -8,9 +8,9 @@ declare(strict_types=1);
 namespace K911\Swoole\Bridge\Doctrine\ORM;
 
 use Doctrine\Bundle\DoctrineBundle\Registry;
-use Doctrine\Common\Persistence\Mapping\MappingException;
+use Doctrine\Common\Persistence\ObjectManager;
 use Doctrine\DBAL\Connection;
-use Doctrine\ORM\EntityManager;
+use Doctrine\ORM\EntityManagerInterface;
 use K911\Swoole\Bridge\Symfony\RequestCycle\InitializerInterface;
 use K911\Swoole\Bridge\Symfony\RequestCycle\TerminatorInterface;
 
@@ -25,7 +25,7 @@ final class EntityManagersHandler implements InitializerInterface, TerminatorInt
     private $connections;
 
     /**
-     * @var EntityManager[]
+     * @var EntityManagerInterface[]|ObjectManager[]
      */
     private $entityManagers;
 
@@ -35,7 +35,7 @@ final class EntityManagersHandler implements InitializerInterface, TerminatorInt
     public function __construct(Registry $doctrineRegistry)
     {
         $this->entityManagers = $doctrineRegistry->getManagers();
-        $this->connections = array_map(static function (EntityManager $entityManager) {
+        $this->connections = array_map(static function (EntityManagerInterface $entityManager) {
             return $entityManager->getConnection();
         }, $this->entityManagers);
     }
@@ -57,7 +57,6 @@ final class EntityManagersHandler implements InitializerInterface, TerminatorInt
 
     /**
      *
-     * @throws MappingException
      */
     public function terminate(): void
     {

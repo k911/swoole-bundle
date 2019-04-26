@@ -6,6 +6,7 @@ parameters:
     excludes_analyse:
         - tests/Fixtures/Symfony/app/var
         - tests/Fixtures/Symfony/app/TestAppKernel
+        - tests/Fixtures/Symfony/TestBundle/Migrations
     ignoreErrors:
         # Put false positives here
 

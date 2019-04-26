@@ -55,6 +55,7 @@ final class DummyService
 
     /**
      *
+     * @throws Exception
      */
     private function newEntity(): void
     {
