@@ -60,9 +60,6 @@ swoole:
             
             # see: \K911\Swoole\Bridge\Symfony\HttpFoundation\CloudFrontRequestFactory
             cloudfront_proto_header_handler: true
-            
-            # see: \K911\Swoole\Bridge\Doctrine\ORM\EntityManagerHandler
-            entity_manager_handler: true
         
         # swoole http server settings
         # see https://www.swoole.co.uk/docs/modules/swoole-server/configuration
