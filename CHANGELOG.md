@@ -1,4 +1,19 @@
 <a name=""></a>
+# [](https://github.com/k911/swoole-bundle/compare/v0.5.1...v) (2019-04-28)
+
+
+
+<a name="0.5.1"></a>
+## [0.5.1](https://github.com/k911/swoole-bundle/compare/v0.5.0...v0.5.1) (2019-04-28)
+
+
+### Bug Fixes
+
+* **static-server:** Fix unset public dir path in "AdvancedStaticFilesServer" ([#52](https://github.com/k911/swoole-bundle/issues/52)) ([4ef8cb5](https://github.com/k911/swoole-bundle/commit/4ef8cb5))
+
+
+
+<a name=""></a>
 # [](https://github.com/k911/swoole-bundle/compare/v0.5.0...v) (2019-04-26)
 
 
