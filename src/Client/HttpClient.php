@@ -32,6 +32,7 @@ final class HttpClient
     private const SUPPORTED_CONTENT_TYPES = [
         Http::CONTENT_TYPE_APPLICATION_JSON,
         Http::CONTENT_TYPE_TEXT_PLAIN,
+        Http::CONTENT_TYPE_TEXT_HTML,
     ];
 
     private const ACCEPTABLE_CONNECTING_EXIT_CODES = [
@@ -211,6 +212,7 @@ final class HttpClient
 
                 return \json_decode($client->body, true, 512, JSON_THROW_ON_ERROR);
             case Http::CONTENT_TYPE_TEXT_PLAIN:
+            case Http::CONTENT_TYPE_TEXT_HTML:
                 return $client->body;
             default:
                 throw UnsupportedContentTypeException::forContentType($contentType, self::SUPPORTED_CONTENT_TYPES);

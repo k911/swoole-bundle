@@ -1,0 +1,4 @@
+swoole:
+    http_server:
+        static: auto
+        hmr: auto
