@@ -135,6 +135,10 @@ class ServerTestCase extends KernelTestCase
             if (self::coverageEnabled()) {
                 $envs['COVERAGE'] = '1';
                 $envs['APP_ENV'] = self::resolveEnvironment($envs['APP_ENV'] ?? null);
+
+                if (!\array_key_exists('APP_DEBUG', $envs) && 'prod_cov' === $envs['APP_ENV']) {
+                    $envs['APP_DEBUG'] = '0';
+                }
             }
 
             if (!\array_key_exists('SWOOLE_ALLOW_XDEBUG', $envs)) {
@@ -159,6 +163,13 @@ class ServerTestCase extends KernelTestCase
     {
         if (\extension_loaded('xdebug')) {
             $this->markTestSkipped('Test is incompatible with Xdebug extension. Please disable it and try again. To generate code coverage use "pcov" extension.');
+        }
+    }
+
+    protected function markTestSkippedIfInotifyDisabled(): void
+    {
+        if (!\extension_loaded('inotify')) {
+            $this->markTestSkipped('Swoole Bundle HMR requires "inotify" PHP extension present and installed on the system.');
         }
     }
 

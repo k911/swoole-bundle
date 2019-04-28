@@ -19,6 +19,7 @@ final class Http
 
     public const CONTENT_TYPE_APPLICATION_JSON = 'application/json';
     public const CONTENT_TYPE_TEXT_PLAIN = 'text/plain';
+    public const CONTENT_TYPE_TEXT_HTML = 'text/html';
 
     private function __construct()
     {

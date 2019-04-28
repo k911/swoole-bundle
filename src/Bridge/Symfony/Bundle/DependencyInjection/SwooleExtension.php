@@ -99,9 +99,8 @@ final class SwooleExtension extends Extension implements PrependExtensionInterfa
         if ('advanced' === $static['strategy']) {
             $container->register(AdvancedStaticFilesServer::class)
                 ->addArgument(new Reference(AdvancedStaticFilesServer::class.'.inner'))
-                ->setAutowired(true)
-                ->setAutoconfigured(true)
-                ->setPublic(false)
+                ->addArgument(new Reference(HttpServerConfiguration::class))
+                ->addTag('swoole_bundle.bootable_service')
                 ->setDecoratedService(RequestHandlerInterface::class, null, -60);
         }
 
@@ -138,9 +137,8 @@ final class SwooleExtension extends Extension implements PrependExtensionInterfa
         }
 
         if ('inotify' === $hmr) {
-            $container->autowire(HotModuleReloaderInterface::class, InotifyHMR::class)
-                ->setAutoconfigured(true)
-                ->setPublic(false);
+            $container->register(HotModuleReloaderInterface::class, InotifyHMR::class)
+                ->addTag('swoole_bundle.bootable_service');
         }
 
         $container->autowire(HMRWorkerStartHandler::class)
@@ -183,9 +181,7 @@ final class SwooleExtension extends Extension implements PrependExtensionInterfa
         if ($config['trust_all_proxies_handler']) {
             $container->register(TrustAllProxiesRequestHandler::class)
                 ->addArgument(new Reference(TrustAllProxiesRequestHandler::class.'.inner'))
-                ->setAutowired(true)
-                ->setAutoconfigured(true)
-                ->setPublic(false)
+                ->addTag('swoole_bundle.bootable_service')
                 ->setDecoratedService(RequestHandlerInterface::class, null, -10);
         }
 
