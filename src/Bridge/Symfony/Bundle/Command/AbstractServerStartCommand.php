@@ -282,7 +282,9 @@ abstract class AbstractServerStartCommand extends Command
         $rows = [
             ['env', $this->parameterBag->get('kernel.environment')],
             ['debug', \var_export($this->parameterBag->get('kernel.debug'), true)],
+            ['running_mode', $serverConfiguration->getRunningMode()],
             ['worker_count', $serverConfiguration->getWorkerCount()],
+            ['reactor_count', $serverConfiguration->getReactorCount()],
             ['memory_limit', format_bytes(get_max_memory())],
             ['trusted_hosts', \implode(', ', $runtimeConfiguration['trustedHosts'])],
         ];
