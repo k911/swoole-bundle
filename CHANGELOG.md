@@ -1,4 +1,19 @@
 <a name=""></a>
+# [](https://github.com/k911/swoole-bundle/compare/v0.5.2...v) (2019-04-30)
+
+
+
+<a name="0.5.2"></a>
+## [0.5.2](https://github.com/k911/swoole-bundle/compare/v0.5.1...v0.5.2) (2019-04-30)
+
+
+### Bug Fixes
+
+* **server:** Make sure "reactor" running mode works correctly ([#53](https://github.com/k911/swoole-bundle/issues/53)) ([69dfea2](https://github.com/k911/swoole-bundle/commit/69dfea2))
+
+
+
+<a name=""></a>
 # [](https://github.com/k911/swoole-bundle/compare/v0.5.1...v) (2019-04-28)
 
 
