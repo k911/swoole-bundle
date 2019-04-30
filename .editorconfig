@@ -21,6 +21,9 @@ indent_size = 2
 [src/Bridge/Symfony/**/*.{yml,yaml}]
 indent_size = 4
 
+[tests/Fixtures/Symfony/app/config/**/*.{yml,yaml}]
+indent_size = 4
+
 [composer.json]
 indent_size = 4
 

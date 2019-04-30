@@ -9,6 +9,11 @@ use K911\Swoole\Tests\Fixtures\Symfony\TestBundle\Test\ServerTestCase;
 
 final class SwooleServerStartStopCommandTest extends ServerTestCase
 {
+    protected function setUp(): void
+    {
+        $this->markTestSkippedIfXdebugEnabled();
+    }
+
     public function testStartCallStop(): void
     {
         $serverStart = $this->createConsoleProcess([
@@ -17,9 +22,28 @@ final class SwooleServerStartStopCommandTest extends ServerTestCase
             '--port=9999',
         ]);
 
-        if (self::coverageEnabled()) {
-            $serverStart->disableOutput();
-        }
+        $serverStart->setTimeout(3);
+        $serverStart->run();
+
+        $this->assertProcessSucceeded($serverStart);
+
+        $this->goAndWait(function (): void {
+            $this->deferServerStop();
+
+            $client = HttpClient::fromDomain('localhost', 9999, false);
+            $this->assertTrue($client->connect());
+            $this->assertHelloWorldRequestSucceeded($client);
+        });
+    }
+
+    public function testStartCallStopOnReactorRunningMode(): void
+    {
+        $serverStart = $this->createConsoleProcess([
+            'swoole:server:start',
+            '--host=localhost',
+            '--port=9999',
+        ], ['APP_ENV' => 'reactor']);
+
         $serverStart->setTimeout(3);
         $serverStart->run();
 
