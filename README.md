@@ -59,7 +59,7 @@ Symfony integration with [Swoole](https://www.swoole.co.uk/) to speed up your ap
 
 - Built-in API Server
 
-    Swoole Bundle API Server allows to manage and access Swoole HTTP Server metrics in real time.
+    Swoole Bundle API Server allows to manage Swoole HTTP Server in real time.
 
     - Reload worker processes
     - Shutdown server
