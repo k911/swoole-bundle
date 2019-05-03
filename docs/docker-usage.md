@@ -2,7 +2,7 @@
 
 ## Streaming logs
 
-Application logs in symfony by default are kept in files. In Docker containers, which should be ephemeral you should either stream logs to specific service (like AWS CloudWatch) or print it to the `stdout` or `sterr` streams. For both cases you should use `monolog` bundle.
+Symfony application logs are kept in files by default. In Docker containers, which should be ephemeral, you should either stream logs to specific service (like AWS CloudWatch) or print them to the `stdout` or `sterr` streams. For both cases you should use `monolog` bundle.
 
 ```bash
 composer require monolog
@@ -14,6 +14,7 @@ Example configuration using `monolog` and `symfony`, can be found in demo projec
 
 Relevant configuration files:
 
+- [docker-compose.yml](https://github.com/k911/swoole-bundle-symfony-demo/blob/master/docker-compose.yml)
 - [config/services.yaml](https://github.com/k911/swoole-bundle-symfony-demo/blob/master/config/services.yaml)
 - [config/packages/dev/monolog.yaml](https://github.com/k911/swoole-bundle-symfony-demo/blob/master/config/packages/dev/monolog.yaml)
 - [config/packages/prod/monolog.yaml](https://github.com/k911/swoole-bundle-symfony-demo/blob/master/config/packages/prod/monolog.yaml)
