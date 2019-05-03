@@ -102,7 +102,7 @@ CMD ["swoole:server:run"]
 
 ## Demo project
 
-If you want to quickly test above configuration on your computer clone [`k911/swoole-bundle-symfony-demo`](https://github.com/k911/swoole-bundle-symfony-demo) repository run two simple commands:
+If you want to quickly test above configuration on your computer, clone [`k911/swoole-bundle-symfony-demo`](https://github.com/k911/swoole-bundle-symfony-demo) repository and run two simple commands:
 
 ```bash
 git clone https://github.com/k911/swoole-bundle-symfony-demo.git
