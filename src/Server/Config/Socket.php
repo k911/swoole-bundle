@@ -47,7 +47,7 @@ final class Socket
      *
      * @throws \Assert\AssertionFailedException
      */
-    public function __construct(string $host = 'localhost', int $port = 9501, string $type = 'tcp', bool $ssl = false)
+    public function __construct(string $host = '0.0.0.0', int $port = 9501, string $type = 'tcp', bool $ssl = false)
     {
         $this->setHost($host);
         $this->setPort($port);

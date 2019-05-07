@@ -9,7 +9,7 @@ Documentation of available configuration parameters. See also symfony [bundle co
 swoole:
     http_server:
         port: 9501
-        host: localhost
+        host: 0.0.0.0
         running_mode: 'process'
         socket_type: tcp
         ssl_enabled: false
