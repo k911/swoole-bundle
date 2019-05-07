@@ -9,32 +9,50 @@ use K911\Swoole\Tests\Fixtures\Symfony\TestBundle\Test\ServerTestCase;
 
 final class SwooleServerRunCommandTest extends ServerTestCase
 {
+    protected function setUp(): void
+    {
+        $this->markTestSkippedIfXdebugEnabled();
+    }
+
     public function testRunAndCall(): void
     {
-        $server = $this->createConsoleProcess([
+        $serverRun = $this->createConsoleProcess([
             'swoole:server:run',
             '--host=localhost',
             '--port=9999',
         ]);
 
-        $server->disableOutput();
-        $server->setTimeout(10);
-        $server->start();
+        $serverRun->setTimeout(10);
+        $serverRun->start();
 
-        $this->goAndWait(function () use ($server): void {
-            $this->deferProcessStop($server);
+        $this->goAndWait(function () use ($serverRun): void {
+            $this->deferProcessStop($serverRun);
 
             $client = HttpClient::fromDomain('localhost', 9999, false);
             $this->assertTrue($client->connect());
 
-            $response = $client->send('/')['response'];
+            $this->assertHelloWorldRequestSucceeded($client);
+        });
+    }
 
-            $this->assertTrue(true);
+    public function testRunAndCallOnReactorRunningMode(): void
+    {
+        $serverRun = $this->createConsoleProcess([
+            'swoole:server:run',
+            '--host=localhost',
+            '--port=9999',
+        ], ['APP_ENV' => 'reactor']);
 
-            $this->assertSame(200, $response['statusCode']);
-            $this->assertSame([
-                'hello' => 'world!',
-            ], $response['body']);
+        $serverRun->setTimeout(10);
+        $serverRun->start();
+
+        $this->goAndWait(function () use ($serverRun): void {
+            $this->deferProcessStop($serverRun);
+
+            $client = HttpClient::fromDomain('localhost', 9999, false);
+            $this->assertTrue($client->connect());
+
+            $this->assertHelloWorldRequestSucceeded($client);
         });
     }
 }

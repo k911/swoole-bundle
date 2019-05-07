@@ -1,4 +1,59 @@
 <a name=""></a>
+# [](https://github.com/k911/swoole-bundle/compare/v0.5.2...v) (2019-04-30)
+
+
+
+<a name="0.5.2"></a>
+## [0.5.2](https://github.com/k911/swoole-bundle/compare/v0.5.1...v0.5.2) (2019-04-30)
+
+
+### Bug Fixes
+
+* **server:** Make sure "reactor" running mode works correctly ([#53](https://github.com/k911/swoole-bundle/issues/53)) ([69dfea2](https://github.com/k911/swoole-bundle/commit/69dfea2))
+
+
+
+<a name=""></a>
+# [](https://github.com/k911/swoole-bundle/compare/v0.5.1...v) (2019-04-28)
+
+
+
+<a name="0.5.1"></a>
+## [0.5.1](https://github.com/k911/swoole-bundle/compare/v0.5.0...v0.5.1) (2019-04-28)
+
+
+### Bug Fixes
+
+* **static-server:** Fix unset public dir path in "AdvancedStaticFilesServer" ([#52](https://github.com/k911/swoole-bundle/issues/52)) ([4ef8cb5](https://github.com/k911/swoole-bundle/commit/4ef8cb5))
+
+
+
+<a name=""></a>
+# [](https://github.com/k911/swoole-bundle/compare/v0.5.0...v) (2019-04-26)
+
+
+
+<a name="0.5.0"></a>
+# [0.5.0](https://github.com/k911/swoole-bundle/compare/v0.4.4...v0.5.0) (2019-04-26)
+
+
+### Bug Fixes
+
+* **di:** Do not use integer node for port ([ac6fdcf](https://github.com/k911/swoole-bundle/commit/ac6fdcf))
+* **hmr:** Drop unused reference to SymfonyStyle object in InotifyHMR ([6b22485](https://github.com/k911/swoole-bundle/commit/6b22485))
+* **reload:** Make sure command works on macOS system ([4d99e9c](https://github.com/k911/swoole-bundle/commit/4d99e9c))
+
+
+### Features
+
+* **apiserver:** Create API Server component ([#32](https://github.com/k911/swoole-bundle/issues/32)) ([a8d0ec2](https://github.com/k911/swoole-bundle/commit/a8d0ec2)), closes [#2](https://github.com/k911/swoole-bundle/issues/2)
+* **server:** Add setting for "buffer_output_size" ([#33](https://github.com/k911/swoole-bundle/issues/33)) ([7a50864](https://github.com/k911/swoole-bundle/commit/7a50864))
+* **server:** Set-up hooks on lifecycle events ([271a341](https://github.com/k911/swoole-bundle/commit/271a341))
+* Add meaningful exceptions ([#46](https://github.com/k911/swoole-bundle/issues/46)) ([4e2cc6d](https://github.com/k911/swoole-bundle/commit/4e2cc6d))
+
+
+
+<a name=""></a>
 # [](https://github.com/k911/swoole-bundle/compare/v0.4.4...v) (2019-01-06)
 
 

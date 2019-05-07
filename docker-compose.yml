@@ -1,0 +1,83 @@
+version: "3.6"
+services:
+  cli:
+    image: "${REGISTRY:-docker.io}/${NAMESPACE:-k911}/${IMAGE:-swoole-bundle-cli}:${TAG:-latest}"
+    build:
+      context: .
+      target: Cli
+      args:
+        PHP_TAG: "${PHP_VERSION:-7.3}-cli-alpine${ALPINE_VERSION:-3.9}"
+        PHP_API_VERSION: "${PHP_API_VERSION:-20180731}"
+        COMPOSER_ARGS: "${COMPOSER_ARGS:-install}"
+        SWOOLE_VERSION: "${SWOOLE_VERSION:-4.3.1}"
+    ports:
+      - 9501:9501
+
+  composer:
+    image: "${REGISTRY:-docker.io}/${NAMESPACE:-k911}/${IMAGE:-swoole-bundle-composer}:${TAG:-latest}"
+    build:
+      context: .
+      target: Composer
+      args:
+        PHP_TAG: "${PHP_VERSION:-7.3}-cli-alpine${ALPINE_VERSION:-3.9}"
+        PHP_API_VERSION: "${PHP_API_VERSION:-20180731}"
+        COMPOSER_ARGS: "${COMPOSER_ARGS:-install}"
+        SWOOLE_VERSION: "${SWOOLE_VERSION:-4.3.1}"
+
+  coverage-xdebug:
+    image: "${REGISTRY:-docker.io}/${NAMESPACE:-k911}/${IMAGE:-swoole-bundle-coverage-xdebug}:${TAG:-latest}"
+    build:
+      context: .
+      target: CoverageXdebug
+      args:
+        PHP_TAG: "${PHP_VERSION:-7.3}-cli-alpine${ALPINE_VERSION:-3.9}"
+        PHP_API_VERSION: "${PHP_API_VERSION:-20180731}"
+        COMPOSER_ARGS: "${COMPOSER_ARGS:-install}"
+        SWOOLE_VERSION: "${SWOOLE_VERSION:-4.3.1}"
+    volumes:
+      - "./cov:/usr/src/app/cov"
+
+  coverage-pcov:
+    image: "${REGISTRY:-docker.io}/${NAMESPACE:-k911}/${IMAGE:-swoole-bundle-coverage-pcov}:${TAG:-latest}"
+    build:
+      context: .
+      target: CoveragePcov
+      args:
+        PHP_TAG: "${PHP_VERSION:-7.3}-cli-alpine${ALPINE_VERSION:-3.9}"
+        PHP_API_VERSION: "${PHP_API_VERSION:-20180731}"
+        COMPOSER_ARGS: "${COMPOSER_ARGS:-install}"
+        SWOOLE_VERSION: "${SWOOLE_VERSION:-4.3.1}"
+    volumes:
+      - "./cov:/usr/src/app/cov"
+
+  coverage-xdebug-feature-with-retry:
+    image: "${REGISTRY:-docker.io}/${NAMESPACE:-k911}/${IMAGE:-swoole-bundle-coverage-xdebug}:${TAG:-latest}"
+    entrypoint:
+      - /bin/bash
+    command:
+      - tests/run-feature-tests-code-coverage.sh
+    build:
+      context: .
+      target: CoverageXdebug
+      args:
+        PHP_TAG: "${PHP_VERSION:-7.3}-cli-alpine${ALPINE_VERSION:-3.9}"
+        PHP_API_VERSION: "${PHP_API_VERSION:-20180731}"
+        COMPOSER_ARGS: "${COMPOSER_ARGS:-install}"
+        SWOOLE_VERSION: "${SWOOLE_VERSION:-4.3.1}"
+    volumes:
+      - "./cov:/usr/src/app/cov"
+
+  merge-code-coverage:
+    image: "${REGISTRY:-docker.io}/${NAMESPACE:-k911}/${IMAGE:-swoole-bundle-composer-pcov}:${TAG:-latest}"
+    command: merge-code-coverage
+    build:
+      context: .
+      target: CoveragePcov
+      args:
+        PHP_TAG: "${PHP_VERSION:-7.3}-cli-alpine${ALPINE_VERSION:-3.9}"
+        PHP_API_VERSION: "${PHP_API_VERSION:-20180731}"
+        COMPOSER_ARGS: "${COMPOSER_ARGS:-install}"
+        SWOOLE_VERSION: "${SWOOLE_VERSION:-4.3.1}"
+    volumes:
+      - "./cov:/usr/src/app/cov:ro"
+      - "./clover.xml:/usr/src/app/clover.xml"

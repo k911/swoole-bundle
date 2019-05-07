@@ -1,10 +1,13 @@
 version: '2'
 plugins:
+  shellcheck:
+    enabled: true
+
   duplication:
     enabled: true
     config:
       languages:
-      - php
+        - php
 
   # rules: https://github.com/squizlabs/PHP_CodeSniffer/tree/master/src/Standards
   phpcodesniffer:
@@ -29,7 +32,7 @@ plugins:
     enabled: true
 
 exclude_patterns:
-- tests
-- src/Bridge/Symfony/Bundle/DependencyInjection
-# TODO: Remove when part of package (not internal)
-- src/Client/HttpClient.php
+  - tests
+  - src/Bridge/Symfony/Bundle/DependencyInjection
+  # TODO: Remove when part of package (not internal)
+  - src/Client/HttpClient.php

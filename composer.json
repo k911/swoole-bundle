@@ -12,13 +12,11 @@
     ],
     "license": "MIT",
     "homepage": "https://github.com/k911/swoole-bundle",
-    "authors": [
-        {
-            "name": "Konrad Obal",
-            "email": "konrad.obal@gmail.com",
-            "homepage": "https://github.com/k911"
-        }
-    ],
+    "authors": [{
+        "name": "Konrad Obal",
+        "email": "konrad.obal@gmail.com",
+        "homepage": "https://github.com/k911"
+    }],
     "require": {
         "php": "^7.2",
         "ext-swoole": "^4",
@@ -33,7 +31,6 @@
     "require-dev": {
         "doctrine/annotations": "^1.6",
         "doctrine/orm": "^2.6.3",
-        "eaglewu/swoole-ide-helper": "dev-master",
         "friendsofphp/php-cs-fixer": "^2.14",
         "jangregor/phpstan-prophecy": "^0.3.0",
         "phpstan/phpstan": "^0.11.4",
@@ -43,6 +40,7 @@
         "phpunit/php-code-coverage": "^7.0",
         "phpunit/phpcov": "^6.0",
         "phpunit/phpunit": "^8.0.4",
+        "swoole/ide-helper": "^4.3",
         "symfony/debug": "^4.2",
         "symfony/framework-bundle": "^4.2.4",
         "symfony/monolog-bridge": "^4.2",
@@ -72,12 +70,21 @@
         "console": [
             "php tests/Fixtures/Symfony/app/console --ansi"
         ],
-        "analyse": [
-            "phpstan analyze src -l 7 --ansi",
-            "",
-            "phpstan analyze tests -l 4 -c phpstan.tests.neon --ansi",
-            "",
+        "static-analyse-src": [
+            "phpstan analyze src -l 7 --ansi"
+        ],
+        "static-analyse-tests": [
+            "phpstan analyze tests -l 4 -c phpstan.tests.neon --ansi"
+        ],
+        "cs-analyse": [
             "php-cs-fixer fix -v --dry-run --diff --stop-on-violation --ansi"
+        ],
+        "analyse": [
+            "@static-analyse-src",
+            "",
+            "@static-analyse-tests",
+            "",
+            "@cs-analyse"
         ],
         "test": [
             "@analyse",
@@ -93,7 +100,7 @@
             "COVERAGE=1 phpunit tests/Feature --coverage-php cov/feature-tests.cov --colors=always --process-isolation"
         ],
         "merge-code-coverage": [
-            "phpcov merge cov --clover clover.xml"
+            "phpcov merge cov --clover=clover.xml"
         ],
         "fix": "php-cs-fixer fix -v --ansi",
         "unit-tests": [

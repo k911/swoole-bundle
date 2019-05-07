@@ -1,4 +1,4 @@
-#!/usr/bin/env sh
+#!/usr/bin/env bash
 
 # Safe check - skips relese commit generation when already tagged commit
 if [[ $(git name-rev --name-only --tags HEAD) = "v$VERSION" ]]; then
@@ -10,7 +10,7 @@ fi
 RECOMMENDED_BUMP=$(conventional-recommended-bump -p angular)
 
 # Split version by dots
-V=( ${VERSION//./ } )
+IFS='.' read -r -a V <<< "$VERSION"
 
 # Ignore postfix like "-dev"
 ((V[2]++))
@@ -54,9 +54,9 @@ $(conventional-changelog)
 git tag "v${NEW_VERSION}"
 
 # Push commit and tag
-git remote add authorized https://travis:${GH_TOKEN}@github.com/k911/swoole-bundle.git
+git remote add authorized "https://travis:${GH_TOKEN}@github.com/k911/swoole-bundle.git"
 git push authorized HEAD:master --tags
 git push authorized HEAD:develop
 
 # Make github release
-conventional-github-releaser -p angular -t ${GH_TOKEN}
+conventional-github-releaser -p angular -t "${GH_TOKEN}"

@@ -8,17 +8,24 @@ indent_style = space
 indent_size = 4
 trim_trailing_whitespace = true
 
-[*.json]
+[Makefile]
+indent_size = 4
+indent_style = tab
+
+[*.pid]
+insert_final_newline = false
+
+[*.{yml,yaml,json}]
 indent_size = 2
+
+[src/Bridge/Symfony/**/*.{yml,yaml}]
+indent_size = 4
+
+[tests/Fixtures/Symfony/app/config/**/*.{yml,yaml}]
+indent_size = 4
 
 [composer.json]
 indent_size = 4
 
-[.travis.yml]
-indent_size = 2
-
-[.circleci/config.yml]
-indent_size = 2
-
 [*.md]
-trim_trailing_whitespace = false
+insert_final_newline = false

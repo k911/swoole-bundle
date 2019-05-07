@@ -17,19 +17,28 @@ final class HttpServerFactory
     ];
 
     /**
-     * @param Socket $socket      default socket
+     * @param Socket $main
      * @param string $runningMode
+     * @param Socket ...$additional
      *
      * @return Server
      *
      * @see https://github.com/swoole/swoole-docs/blob/master/modules/swoole-server/methods/construct.md#parameter
+     * @see https://github.com/swoole/swoole-docs/blob/master/modules/swoole-server/methods/addListener.md#prototype
      */
-    public static function make(Socket $socket, string $runningMode = 'process'): Server
+    public static function make(Socket $main, string $runningMode = 'process', Socket ...$additional): Server
     {
         Assertion::inArray($runningMode, \array_keys(self::SWOOLE_RUNNING_MODE));
+        $mainServer = new Server($main->host(), $main->port(), self::SWOOLE_RUNNING_MODE[$runningMode], $main->type());
 
-        $server = new Server($socket->host(), $socket->port(), self::SWOOLE_RUNNING_MODE[$runningMode], $socket->type());
+        $usedPorts = [$main->port() => true];
+        foreach ($additional as $socket) {
+            Assertion::keyNotExists($usedPorts, $socket->port(), 'Socket with port %s is already used. Ports cannot be duplicated.');
 
-        return $server;
+            $additionalServer = $mainServer->addListener($socket->host(), $socket->port(), $socket->type());
+            $usedPorts[$additionalServer->port] = true;
+        }
+
+        return $mainServer;
     }
 }

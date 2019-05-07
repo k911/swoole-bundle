@@ -38,7 +38,7 @@ final class ServerStopCommand extends Command
     protected function configure(): void
     {
         $this->setDescription('Stop Swoole HTTP server running in the background.')
-            ->addOption('pid_file', null, InputOption::VALUE_REQUIRED, 'Pid file', $this->parameterBag->get('kernel.project_dir').'/var/swoole.pid');
+            ->addOption('pid-file', null, InputOption::VALUE_REQUIRED, 'Pid file', $this->parameterBag->get('kernel.project_dir').'/var/swoole.pid');
     }
 
     /**
@@ -50,7 +50,7 @@ final class ServerStopCommand extends Command
     {
         $io = new SymfonyStyle($input, $output);
 
-        $this->serverConfiguration->daemonize($input->getOption('pid_file'));
+        $this->serverConfiguration->daemonize($input->getOption('pid-file'));
 
         try {
             $this->server->shutdown();

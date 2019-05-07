@@ -23,9 +23,9 @@ final class WithHttpServerConfiguration implements ConfiguratorInterface
     {
         $server->set($this->configuration->getSwooleSettings());
 
-        $defaultSocket = $this->configuration->getDefaultSocket();
+        $defaultSocket = $this->configuration->getServerSocket();
         if (0 === $defaultSocket->port()) {
-            $this->configuration->changeDefaultSocket($defaultSocket->withPort($server->port));
+            $this->configuration->changeServerSocket($defaultSocket->withPort($server->port));
         }
     }
 }

@@ -15,19 +15,21 @@ final class SwooleServerHMRTest extends ServerTestCase
     private const CONTROLLER_TEMPLATE_SRC = __DIR__.'/../Fixtures/Symfony/TestBundle/Controller/ReplacedContentTestController.php.tmpl';
     private const CONTROLLER_TEMPLATE_DEST = __DIR__.'/../Fixtures/Symfony/TestBundle/Controller/ReplacedContentTestController.php';
 
-    public function testStartCallHMRCallStop(): void
+    public function testStartCallHMRCallStopWithAutoRegistration(): void
     {
+        $this->markTestSkippedIfInotifyDisabled();
+
         $serverStart = $this->createConsoleProcess([
             'swoole:server:start',
             '--host=localhost',
             '--port=9999',
-        ], ['APP_ENV' => 'hmr']);
+        ], ['APP_ENV' => 'auto']);
 
         $serverStart->disableOutput();
         $serverStart->setTimeout(3);
         $serverStart->run();
 
-        $this->assertTrue($serverStart->isSuccessful());
+        $this->assertProcessSucceeded($serverStart);
 
         $this->goAndWait(function (): void {
             $this->deferServerStop();
@@ -41,13 +43,57 @@ final class SwooleServerHMRTest extends ServerTestCase
             $this->assertSame(200, $response1['statusCode']);
             $this->assertSame('Wrong response!', $response1['body']);
 
-            Coroutine::sleep($this->coverageEnabled() ? 5 : 3);
+            Coroutine::sleep(self::coverageEnabled() ? 5 : 3);
 
             $expectedResponse = 'Hello world from swoole reloaded worker by HMR!';
             $this->replaceResponseInTestController($expectedResponse);
             $this->assertTestControllerResponseEquals($expectedResponse);
 
-            Coroutine::sleep($this->coverageEnabled() ? 5 : 3);
+            Coroutine::sleep(self::coverageEnabled() ? 5 : 3);
+
+            $response3 = $client->send('/test/replaced/content')['response'];
+
+            $this->assertSame(200, $response3['statusCode']);
+            $this->assertSame($expectedResponse, $response3['body']);
+        });
+    }
+
+    public function testHMRDisabledByDefaultOnProduction(): void
+    {
+        $this->markTestSkippedIfInotifyDisabled();
+
+        $serverStart = $this->createConsoleProcess([
+            'swoole:server:start',
+            '--host=localhost',
+            '--port=9999',
+        ], ['APP_ENV' => 'prod']);
+
+        $serverStart->disableOutput();
+        $serverStart->setTimeout(3);
+        $serverStart->run();
+
+        $this->assertProcessSucceeded($serverStart);
+
+        $this->goAndWait(function (): void {
+            $this->deferServerStop();
+            $this->deferRestoreOriginalTemplateControllerResponse();
+
+            $client = HttpClient::fromDomain('localhost', 9999, false);
+            $this->assertTrue($client->connect());
+
+            $response1 = $client->send('/test/replaced/content')['response'];
+
+            $this->assertSame(200, $response1['statusCode']);
+
+            $expectedResponse = 'Wrong response!';
+            $this->assertSame($expectedResponse, $response1['body']);
+
+            Coroutine::sleep(self::coverageEnabled() ? 5 : 3);
+
+            $this->replaceResponseInTestController($expectedResponse);
+            $this->assertTestControllerResponseEquals($expectedResponse);
+
+            Coroutine::sleep(self::coverageEnabled() ? 5 : 3);
 
             $response3 = $client->send('/test/replaced/content')['response'];
 

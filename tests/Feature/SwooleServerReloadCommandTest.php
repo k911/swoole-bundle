@@ -23,11 +23,13 @@ final class SwooleServerReloadCommandTest extends ServerTestCase
             '--port=9999',
         ]);
 
-        $serverStart->disableOutput();
+        if (self::coverageEnabled()) {
+            $serverStart->disableOutput();
+        }
         $serverStart->setTimeout(3);
         $serverStart->run();
 
-        $this->assertTrue($serverStart->isSuccessful());
+        $this->assertProcessSucceeded($serverStart);
 
         $this->goAndWait(function (): void {
             $this->deferServerStop();
@@ -51,7 +53,7 @@ final class SwooleServerReloadCommandTest extends ServerTestCase
             $this->assertNotSame($expectedResponse, $response2['body']);
 
             $this->runSwooleServerReload();
-            Coroutine::sleep($this->coverageEnabled() ? 3 : 1);
+            Coroutine::sleep(self::coverageEnabled() ? 3 : 1);
 
             $response3 = $client->send('/test/replaced/content')['response'];
 
@@ -62,13 +64,19 @@ final class SwooleServerReloadCommandTest extends ServerTestCase
 
     private function runSwooleServerReload(): void
     {
-        $serverStart = $this->createConsoleProcess(['swoole:server:reload']);
+        $serverReload = $this->createConsoleProcess(['swoole:server:reload']);
 
-        $serverStart->disableOutput();
-        $serverStart->setTimeout(3);
-        $serverStart->run();
+        if (self::coverageEnabled()) {
+            $serverReload->disableOutput();
+        }
+        $serverReload->setTimeout(3);
+        $serverReload->run();
 
-        $this->assertTrue($serverStart->isSuccessful());
+        $this->assertProcessSucceeded($serverReload);
+
+        if (!self::coverageEnabled()) {
+            $this->assertStringContainsString('Swoole HTTP Server\'s workers reloaded successfully', $serverReload->getOutput());
+        }
     }
 
     private function replaceContentInTestController(string $text): void

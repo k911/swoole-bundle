@@ -17,6 +17,13 @@ class InotifyHMRTest extends TestCase
         __DIR__.'/InotifyHMRTest.php',
     ];
 
+    protected function setUp(): void
+    {
+        if (!\extension_loaded('inotify')) {
+            $this->markTestSkipped('Swoole Bundle HMR requires "inotify" PHP extension present and installed on the system.');
+        }
+    }
+
     public function testConstructSetGetNonReloadableFiles(): void
     {
         $hmr = new InotifyHMR(self::NON_RELOADABLE_EXISTING_FILES);

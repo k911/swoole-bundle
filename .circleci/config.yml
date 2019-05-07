@@ -1,6 +1,231 @@
 version: 2.1
+orbs:
+  codecov: codecov/codecov@1.0.4
+aliases:
+  # Steps
+  - &prepare-swoole-version-env
+    run:
+      name: Export latest swoole version env if SWOOLE_VERSION=latest
+      command: |-
+        if [ "latest" = "$SWOOLE_VERSION" ]; then
+          LATEST_SWOOLE_VERSION="$(curl http://pecl.php.net/get/swoole/stable -s -I | grep Content-Disposition | sed 's/Content-Disposition: attachment;filename=swoole-\(.*\)\.tgz/\1/')"
+          LATEST_SWOOLE_VERSION="${LATEST_SWOOLE_VERSION//[$'\t\r\n ']}"
+          echo "LATEST_SWOOLE_VERSION=$LATEST_SWOOLE_VERSION"
+          echo "export SWOOLE_VERSION='$LATEST_SWOOLE_VERSION'" >> $BASH_ENV
+        fi;
+
+  - &dump-coverage-env
+    run:
+      name: Dump coverage env for hash
+      command: |-
+        echo "COVERAGE=1" >> dumped.env;
+
+  - &dump-env-vars
+    run:
+      name: Dump env for hash
+      command: |-
+        echo "PHP_VERSION=$PHP_VERSION" >> dumped.env;
+        echo "ALPINE_VERSION=$ALPINE_VERSION" >> dumped.env;
+        echo "PHP_API_VERSION=$PHP_API_VERSION" >> dumped.env;
+        echo "COMPOSER_ARGS=$COMPOSER_ARGS" >> dumped.env;
+        echo "SWOOLE_VERSION=$SWOOLE_VERSION" >> dumped.env;
+        cat dumped.env;
+
+  - &restore-docker-cache
+    restore_cache:
+      keys:
+        - docker-{{ checksum "dumped.env" }}-{{ checksum "Dockerfile" }}-{{ checksum "docker-compose.yml" }}-{{ checksum "composer.lock" }}
+        - docker-{{ checksum "dumped.env" }}-{{ checksum "Dockerfile" }}-{{ checksum "docker-compose.yml" }}
+        - docker-{{ checksum "dumped.env" }}-{{ checksum "Dockerfile" }}
+        - docker-{{ checksum "dumped.env" }}
+        - docker
+
+  - &load-docker-cache
+    run:
+      name: Load Docker layer cache
+      command: |-
+        # credits to: https://blog.jondh.me.uk/2018/04/strategies-for-docker-layer-caching-in-circleci/
+        set +o pipefail
+        if [ -f /home/circleci/caches/${CIRCLE_PROJECT_REPONAME}.tar.gz ]; then
+          gunzip -c /home/circleci/caches/${CIRCLE_PROJECT_REPONAME}.tar.gz | docker load;
+          docker images;
+        fi
+
+  - &docker-compose-build-basic
+    run:
+      name: Docker-Compose Build
+      command: docker-compose build composer
+
+  - &docker-compose-build-all
+    run:
+      name: Docker-Compose Build
+      command: docker-compose build
+
+  - &code-style-analysis
+    run:
+      name: Code style analysis
+      command: docker-compose run composer cs-analyse
+
+  - &static-src-analysis
+    run:
+      name: Sources static analysis
+      command: docker-compose run composer static-analyse-src
+
+  - &static-tests-analysis
+    run:
+      name: Test sources static analysis
+      command: docker-compose run composer static-analyse-tests
+
+  - &prepare-cov-permissions
+    run:
+      name: Prepare files and dirs permissions for code coverage containers
+      command: |-
+        mkdir -p cov;
+        touch clover.xml;
+        sudo chown 1000:1000 cov clover.xml;
+
+  - &run-unit-tests
+    run:
+      name: Run unit tests
+      command: docker-compose run composer unit-tests
+
+  - &run-unit-tests-with-coverage
+    run:
+      name: Run unit tests with coverage (pcov)
+      command: docker-compose run coverage-pcov
+
+  - &run-feature-tests
+    run:
+      name: Run feature tests
+      command: docker-compose run composer feature-tests
+
+  - &run-feature-tests-with-coverage-xdebug
+    run:
+      name: Run feature tests with coverage (xdebug) and retry
+      command: docker-compose run coverage-xdebug-feature-with-retry
+
+  - &run-feature-tests-with-coverage-pcov
+    run:
+      name: Run feature tests with coverage (pcov)
+      command: docker-compose run coverage-pcov feature-code-coverage
+
+  - &prepare-codeclimate-reporter
+    run:
+      name: Prepare CodeClimate Code Coverage reporter
+      command: |-
+        curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter;
+        chmod +x ./cc-test-reporter;
+        ./cc-test-reporter before-build;
+
+  - &upload-codeclimate-report
+    run:
+      name: Send Code Coverage report to CodeClimate
+      command: ./cc-test-reporter after-build -t clover --exit-code 0 --prefix /usr/src/app
+
+  - &upload-codecov-report
+    codecov/upload:
+      file: clover.xml
+
+  - &merge-code-coverage
+    run:
+      name: Merge code coverage files generated across test suites
+      command: docker-compose run merge-code-coverage
+
+  - &export-docker-cache
+    run:
+      name: Export Docker image layer cache
+      command: |-
+        mkdir -p /home/circleci/caches
+        docker-compose build composer | grep '\-\-\->' | grep -v 'Using cache' | sed -e 's/[ >-]//g' > /tmp/layers.txt
+        docker save $(cat /tmp/layers.txt) | gzip > /home/circleci/caches/${CIRCLE_PROJECT_REPONAME}.tar.gz
+
+  - &save-docker-cache
+    save_cache:
+      key: docker-{{ checksum "dumped.env" }}-{{ checksum "Dockerfile" }}-{{ checksum "docker-compose.yml" }}-{{ checksum "composer.lock" }}
+      paths:
+        - /home/circleci/caches
+
+  # Build environments
+  - &docker-env
+    working_directory: ~/workdir
+    machine:
+      enabled: true
+      # Ubuntu 16.04, docker 18.09.3, docker-compose 1.23.1
+      image: ubuntu-1604:201903-01
+
+  # Steps
+  - &docker-default
+    steps:
+      - checkout
+      - *prepare-swoole-version-env
+      - *dump-env-vars
+      - *restore-docker-cache
+      - *load-docker-cache
+      - *docker-compose-build-basic
+      - *code-style-analysis
+      - *static-src-analysis
+      - *static-tests-analysis
+      - *run-unit-tests
+      - *run-feature-tests
+      - *export-docker-cache
+      - *save-docker-cache
+
+  - &docker-coverage
+    steps:
+      - checkout
+      - *prepare-swoole-version-env
+      - *dump-coverage-env
+      - *dump-env-vars
+      - *restore-docker-cache
+      - *load-docker-cache
+      - *prepare-codeclimate-reporter
+      - *prepare-cov-permissions
+      - *docker-compose-build-all
+      - *code-style-analysis
+      - *static-src-analysis
+      - *static-tests-analysis
+      - *run-unit-tests-with-coverage
+      - *run-feature-tests-with-coverage-pcov
+      - *run-feature-tests-with-coverage-xdebug
+      - *merge-code-coverage
+      - *upload-codecov-report
+      - *upload-codeclimate-report
+      - *export-docker-cache
+      - *save-docker-cache
 
 jobs:
+  php-73-cc:
+    <<: *docker-env
+    <<: *docker-coverage
+
+  php-73:
+    <<: *docker-env
+    <<: *docker-default
+
+  php-73-latest:
+    <<: *docker-env
+    <<: *docker-default
+    environment:
+      COMPOSER_ARGS: update
+      SWOOLE_VERSION: latest
+
+  php-72:
+    <<: *docker-env
+    <<: *docker-default
+    environment:
+      PHP_VERSION: 7.2
+      ALPINE_VERSION: 3.8
+      PHP_API_VERSION: "20170718"
+
+  php-72-lowest:
+    <<: *docker-env
+    <<: *docker-default
+    environment:
+      PHP_VERSION: 7.2
+      ALPINE_VERSION: 3.8
+      PHP_API_VERSION: "20170718"
+      COMPOSER_ARGS: update --prefer-lowest
+
   check-composer-config:
     docker:
       - image: composer:1
@@ -24,7 +249,22 @@ jobs:
 
 workflows:
   version: 2.1
-  pr-checks:
+  pull-request-checks:
     jobs:
       - check-composer-config
       - validate-commit-message
+      - php-73:
+          requires:
+            - check-composer-config
+      - php-73-cc:
+          requires:
+            - check-composer-config
+      - php-73-latest:
+          requires:
+            - check-composer-config
+      - php-72:
+          requires:
+            - check-composer-config
+      - php-72-lowest:
+          requires:
+            - check-composer-config

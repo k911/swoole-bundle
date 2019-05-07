@@ -6,8 +6,13 @@ namespace K911\Swoole\Server;
 
 use Assert\Assertion;
 use K911\Swoole\Server\Config\Socket;
+use K911\Swoole\Server\Config\Sockets;
 
-final class HttpServerConfiguration
+/**
+ * @todo Create interface and split this class
+ * @final
+ */
+class HttpServerConfiguration
 {
     /**
      * @todo add more
@@ -42,26 +47,27 @@ final class HttpServerConfiguration
         'error' => SWOOLE_LOG_ERROR,
     ];
 
-    private $defaultSocket;
+    private $sockets;
     private $runningMode;
     private $settings;
 
     /**
-     * @param Socket $defaultSocket
-     * @param string $runningMode
-     * @param array  $settings      settings available:
-     *                              - reactor_count (default: number of cpu cores)
-     *                              - worker_count (default: 2 * number of cpu cores)
-     *                              - serve_static_files (default: false)
-     *                              - public_dir (default: '%kernel.root_dir%/public')
-     *                              - buffer_output_size (default: '2097152' unit in byte (2MB))
+     * @param Sockets $sockets
+     * @param string  $runningMode
+     * @param array   $settings    settings available:
+     *                             - reactor_count (default: number of cpu cores)
+     *                             - worker_count (default: 2 * number of cpu cores)
+     *                             - serve_static_files (default: false)
+     *                             - public_dir (default: '%kernel.root_dir%/public')
+     *                             - buffer_output_size (default: '2097152' unit in byte (2MB))
      *
      * @throws \Assert\AssertionFailedException
      */
-    public function __construct(Socket $defaultSocket, string $runningMode = 'process', array $settings = [])
+    public function __construct(Sockets $sockets, string $runningMode = 'process', array $settings = [])
     {
+        $this->sockets = $sockets;
+
         $this->changeRunningMode($runningMode);
-        $this->changeDefaultSocket($defaultSocket);
         $this->initializeSettings($settings);
     }
 
@@ -70,69 +76,6 @@ final class HttpServerConfiguration
         Assertion::inArray($runningMode, ['process', 'reactor', 'thread']);
 
         $this->runningMode = $runningMode;
-    }
-
-    /**
-     * @param Socket $socket
-     */
-    public function changeDefaultSocket(Socket $socket): void
-    {
-        $this->defaultSocket = $socket;
-    }
-
-    /**
-     * @param string $publicDir
-     *
-     * @throws \Assert\AssertionFailedException
-     */
-    public function enableServingStaticFiles(string $publicDir): void
-    {
-        $settings = [
-            'public_dir' => $publicDir,
-        ];
-
-        if ('off' === $this->settings['serve_static']) {
-            $settings['serve_static'] = 'default';
-        }
-
-        $this->setSettings($settings);
-    }
-
-    /**
-     * @param string $key
-     * @param mixed  $value
-     *
-     * @throws \Assert\AssertionFailedException
-     */
-    private function validateSetting(string $key, $value): void
-    {
-        Assertion::keyExists(self::SWOOLE_HTTP_SERVER_CONFIGURATION, $key, 'There is no configuration mapping for setting "%s".');
-
-        if ('serve_static' === $key) {
-            Assertion::inArray($value, \array_keys(self::SWOOLE_SERVE_STATIC));
-        }
-
-        if ('daemonize' === $key) {
-            Assertion::boolean($value);
-        }
-
-        if ('public_dir' === $key) {
-            Assertion::directory($value, 'Public directory does not exists. Tried "%s".');
-        }
-
-        if ('log_level' === $key) {
-            Assertion::inArray($value, \array_keys(self::SWOOLE_LOG_LEVELS));
-        }
-
-        if ('buffer_output_size' === $key) {
-            Assertion::integer($value, \sprintf('Setting "%s" must be an integer.', $key));
-            Assertion::greaterThan($value, 0, 'Buffer output size value cannot be negative or zero, "%s" provided.');
-        }
-
-        if (\in_array($key, ['reactor_count', 'worker_count'], true)) {
-            Assertion::integer($value, \sprintf('Setting "%s" must be an integer.', $key));
-            Assertion::greaterThan($value, 0, 'Count value cannot be negative, "%s" provided.');
-        }
     }
 
     /**
@@ -174,14 +117,46 @@ final class HttpServerConfiguration
         Assertion::false($this->servingStaticContent() && !$this->hasPublicDir(), 'Enabling static files serving requires providing "public_dir" setting.');
     }
 
-    public function getRunningMode(): string
+    /**
+     * @param string $key
+     * @param mixed  $value
+     *
+     * @throws \Assert\AssertionFailedException
+     */
+    private function validateSetting(string $key, $value): void
     {
-        return $this->runningMode;
+        Assertion::keyExists(self::SWOOLE_HTTP_SERVER_CONFIGURATION, $key, 'There is no configuration mapping for setting "%s".');
+
+        switch ($key) {
+            case 'serve_static':
+                Assertion::inArray($value, \array_keys(self::SWOOLE_SERVE_STATIC));
+                break;
+            case 'daemonize':
+                Assertion::boolean($value);
+                break;
+            case 'public_dir':
+                Assertion::directory($value, 'Public directory does not exists. Tried "%s".');
+                break;
+            case 'log_level':
+                Assertion::inArray($value, \array_keys(self::SWOOLE_LOG_LEVELS));
+                break;
+            case 'buffer_output_size':
+                Assertion::integer($value, \sprintf('Setting "%s" must be an integer.', $key));
+                Assertion::greaterThan($value, 0, 'Buffer output size value cannot be negative or zero, "%s" provided.');
+                break;
+            case 'reactor_count':
+            case 'worker_count':
+                Assertion::integer($value, \sprintf('Setting "%s" must be an integer.', $key));
+                Assertion::greaterThan($value, 0, 'Count value cannot be negative, "%s" provided.');
+                break;
+            default:
+                return;
+        }
     }
 
-    public function hasPublicDir(): bool
+    public function isDaemon(): bool
     {
-        return isset($this->settings['public_dir']);
+        return isset($this->settings['daemonize']);
     }
 
     public function hasPidFile(): bool
@@ -194,9 +169,50 @@ final class HttpServerConfiguration
         return isset($this->settings['serve_static']) && 'off' !== $this->settings['serve_static'];
     }
 
-    public function existsPidFile(): bool
+    public function hasPublicDir(): bool
     {
-        return $this->hasPidFile() && \file_exists($this->getPidFile());
+        return isset($this->settings['public_dir']);
+    }
+
+    /**
+     * @param Socket $socket
+     */
+    public function changeServerSocket(Socket $socket): void
+    {
+        $this->sockets->changeServerSocket($socket);
+    }
+
+    public function getSockets(): Sockets
+    {
+        return $this->sockets;
+    }
+
+    /**
+     * @param string $publicDir
+     *
+     * @throws \Assert\AssertionFailedException
+     */
+    public function enableServingStaticFiles(string $publicDir): void
+    {
+        $settings = [
+            'public_dir' => $publicDir,
+        ];
+
+        if ('off' === $this->settings['serve_static']) {
+            $settings['serve_static'] = 'default';
+        }
+
+        $this->setSettings($settings);
+    }
+
+    public function isReactorRunningMode(): bool
+    {
+        return 'reactor' === $this->runningMode;
+    }
+
+    public function getRunningMode(): string
+    {
+        return $this->runningMode;
     }
 
     /**
@@ -213,6 +229,11 @@ final class HttpServerConfiguration
         Assertion::numeric($contents, 'Contents in pid file is not an integer or it is empty');
 
         return (int) $contents;
+    }
+
+    public function existsPidFile(): bool
+    {
+        return $this->hasPidFile() && \file_exists($this->getPidFile());
     }
 
     /**
@@ -234,12 +255,12 @@ final class HttpServerConfiguration
 
     public function getReactorCount(): int
     {
-        return $this->settings['worker_count'];
+        return $this->settings['reactor_count'];
     }
 
-    public function getDefaultSocket(): Socket
+    public function getServerSocket(): Socket
     {
-        return $this->defaultSocket;
+        return $this->sockets->getServerSocket();
     }
 
     /**
@@ -262,9 +283,9 @@ final class HttpServerConfiguration
     /**
      * Get settings formatted for swoole http server.
      *
-     * @see \Swoole\Http\Server::set()
-     *
      * @return array
+     *
+     * @see \Swoole\Http\Server::set()
      *
      * @todo create swoole settings transformer
      */
@@ -287,9 +308,9 @@ final class HttpServerConfiguration
     }
 
     /**
-     * @see getSwooleSettings()
-     *
      * @return int
+     *
+     * @see getSwooleSettings()
      */
     public function getSwooleLogLevel(): int
     {
@@ -297,9 +318,9 @@ final class HttpServerConfiguration
     }
 
     /**
-     * @see getSwooleSettings()
-     *
      * @return bool
+     *
+     * @see getSwooleSettings()
      */
     public function getSwooleEnableStaticHandler(): bool
     {
@@ -309,11 +330,6 @@ final class HttpServerConfiguration
     public function getSwooleDocumentRoot(): ?string
     {
         return 'default' === $this->settings['serve_static'] ? $this->settings['public_dir'] : null;
-    }
-
-    public function isDaemon(): bool
-    {
-        return isset($this->settings['daemonize']);
     }
 
     /**

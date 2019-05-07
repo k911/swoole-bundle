@@ -60,6 +60,12 @@ class CoverageBundle extends Bundle
             ->setArgument('$decorated', new Reference(CodeCoverageRequestHandler::class.'.inner'))
             ->setDecoratedService(RequestHandlerInterface::class, null, -9999);
 
+        $container->autowire('swoole_bundle.server.api_server.coverage_request_handler', CodeCoverageRequestHandler::class)
+            ->setPublic(false)
+            ->setAutoconfigured(true)
+            ->setArgument('$decorated', new Reference('swoole_bundle.server.api_server.coverage_request_handler.inner'))
+            ->setDecoratedService('swoole_bundle.server.api_server.request_handler', null, -9999);
+
         $container->autowire(CoverageStartOnServerStart::class)
             ->setPublic(false)
             ->setAutoconfigured(true)

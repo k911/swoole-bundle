@@ -10,32 +10,25 @@ env:
   global:
     - COMPOSER_ARGS=install
     - SWOOLE_VERSION=4.3.1
-    - CC_TEST_REPORTER_ID=77af0c58a2646fe49fb7df502c38a56560e074fbc8b3086f2d33032b44c885a8
 
 matrix:
   include:
-    - php: 7.2
-    - php: 7.2
+    - php: "7.2"
+    - php: "7.2"
       env:
         - "COMPOSER_ARGS='update --prefer-lowest'"
-    - php: 7.3
-    - php: 7.3
-      before_script:
-        - >-
-            curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64
-            > ./cc-test-reporter
-        - chmod +x ./cc-test-reporter
-        - ./cc-test-reporter before-build
-      after_success:
-        - composer merge-code-coverage
-        - ./cc-test-reporter after-build -t clover --exit-code $TRAVIS_TEST_RESULT
-        - bash <(curl -s https://codecov.io/bash)
+    - php: "7.3"
       env:
-        - COVERAGE=1
         - DEPLOY=1
-    - php: 7.3
+    - php: "7.3"
       env:
         - SWOOLE_LATEST=1
+        - COMPOSER_ARGS=update
+    - php: "7.3"
+      env:
+        - SWOOLE_LATEST=1
+    - php: "7.3"
+      env:
         - COMPOSER_ARGS=update
 
 before_script:
@@ -61,10 +54,8 @@ install:
 
 script:
   - composer analyse
-  - if [[ "$COVERAGE" != "1" ]]; then composer unit-tests; fi
-  - if [[ "$COVERAGE" != "1" ]]; then composer feature-tests; fi
-  - if [[ "$COVERAGE" == "1" ]]; then composer unit-code-coverage; fi
-  - if [[ "$COVERAGE" == "1" ]]; then travis_retry bash ./tests/run-feature-tests-code-coverage.sh; fi
+  - composer unit-tests
+  - composer feature-tests
 
 before_deploy:
   - >-
