@@ -183,4 +183,21 @@ class ServerTestCase extends KernelTestCase
         // Make sure everything is stopped
         \sleep(1);
     }
+
+    protected function generateUniqueHash(int $factor = 8): string
+    {
+        try {
+            return \bin2hex(\random_bytes($factor));
+        } catch (\Exception $e) {
+            $array = \range(1, $factor * 2);
+            \shuffle($array);
+
+            return \implode('', $array);
+        }
+    }
+
+    protected function currentUnixTimestamp(): int
+    {
+        return (new \DateTimeImmutable())->getTimestamp();
+    }
 }

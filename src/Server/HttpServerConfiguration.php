@@ -14,6 +14,17 @@ use K911\Swoole\Server\Config\Sockets;
  */
 class HttpServerConfiguration
 {
+    private const SWOOLE_HTTP_SERVER_CONFIG_DAEMONIZE = 'daemonize';
+    private const SWOOLE_HTTP_SERVER_CONFIG_SERVE_STATIC = 'serve_static';
+    private const SWOOLE_HTTP_SERVER_CONFIG_REACTOR_COUNT = 'reactor_count';
+    private const SWOOLE_HTTP_SERVER_CONFIG_WORKER_COUNT = 'worker_count';
+    private const SWOOLE_HTTP_SERVER_CONFIG_TASK_WORKER_COUNT = 'task_worker_count';
+    private const SWOOLE_HTTP_SERVER_CONFIG_PUBLIC_DIR = 'public_dir';
+    private const SWOOLE_HTTP_SERVER_CONFIG_LOG_FILE = 'log_file';
+    private const SWOOLE_HTTP_SERVER_CONFIG_LOG_LEVEL = 'log_level';
+    private const SWOOLE_HTTP_SERVER_CONFIG_PID_FILE = 'pid_file';
+    private const SWOOLE_HTTP_SERVER_CONFIG_BUFFER_OUTPUT_SIZE = 'buffer_output_size';
+
     /**
      * @todo add more
      *
@@ -21,15 +32,16 @@ class HttpServerConfiguration
      * @see https://github.com/swoole/swoole-docs/blob/master/modules/swoole-http-server/configuration.md
      */
     private const SWOOLE_HTTP_SERVER_CONFIGURATION = [
-        'reactor_count' => 'reactor_num',
-        'daemonize' => 'daemonize',
-        'worker_count' => 'worker_num',
-        'serve_static' => 'enable_static_handler',
-        'public_dir' => 'document_root',
-        'log_file' => 'log_file',
-        'log_level' => 'log_level',
-        'pid_file' => 'pid_file',
-        'buffer_output_size' => 'buffer_output_size',
+        self::SWOOLE_HTTP_SERVER_CONFIG_REACTOR_COUNT => 'reactor_num',
+        self::SWOOLE_HTTP_SERVER_CONFIG_DAEMONIZE => 'daemonize',
+        self::SWOOLE_HTTP_SERVER_CONFIG_WORKER_COUNT => 'worker_num',
+        self::SWOOLE_HTTP_SERVER_CONFIG_SERVE_STATIC => 'enable_static_handler',
+        self::SWOOLE_HTTP_SERVER_CONFIG_PUBLIC_DIR => 'document_root',
+        self::SWOOLE_HTTP_SERVER_CONFIG_LOG_FILE => 'log_file',
+        self::SWOOLE_HTTP_SERVER_CONFIG_LOG_LEVEL => 'log_level',
+        self::SWOOLE_HTTP_SERVER_CONFIG_PID_FILE => 'pid_file',
+        self::SWOOLE_HTTP_SERVER_CONFIG_BUFFER_OUTPUT_SIZE => 'buffer_output_size',
+        self::SWOOLE_HTTP_SERVER_CONFIG_TASK_WORKER_COUNT => 'task_worker_num',
     ];
 
     private const SWOOLE_SERVE_STATIC = [
@@ -57,6 +69,7 @@ class HttpServerConfiguration
      * @param array   $settings    settings available:
      *                             - reactor_count (default: number of cpu cores)
      *                             - worker_count (default: 2 * number of cpu cores)
+     *                             - task_worker_count (default: unset; "auto" => number of cpu cores; number of task workers)
      *                             - serve_static_files (default: false)
      *                             - public_dir (default: '%kernel.root_dir%/public')
      *                             - buffer_output_size (default: '2097152' unit in byte (2MB))
@@ -88,12 +101,16 @@ class HttpServerConfiguration
         $this->settings = [];
         $cpuCores = \swoole_cpu_num();
 
-        if (!isset($init['reactor_count'])) {
-            $init['reactor_count'] = $cpuCores;
+        if (!isset($init[self::SWOOLE_HTTP_SERVER_CONFIG_REACTOR_COUNT])) {
+            $init[self::SWOOLE_HTTP_SERVER_CONFIG_REACTOR_COUNT] = $cpuCores;
         }
 
-        if (!isset($init['worker_count'])) {
-            $init['worker_count'] = 2 * $cpuCores;
+        if (!isset($init[self::SWOOLE_HTTP_SERVER_CONFIG_WORKER_COUNT])) {
+            $init[self::SWOOLE_HTTP_SERVER_CONFIG_WORKER_COUNT] = 2 * $cpuCores;
+        }
+
+        if (\array_key_exists(self::SWOOLE_HTTP_SERVER_CONFIG_TASK_WORKER_COUNT, $init) && 'auto' === $init[self::SWOOLE_HTTP_SERVER_CONFIG_TASK_WORKER_COUNT]) {
+            $init[self::SWOOLE_HTTP_SERVER_CONFIG_TASK_WORKER_COUNT] = $cpuCores;
         }
 
         $this->setSettings($init);
@@ -128,24 +145,25 @@ class HttpServerConfiguration
         Assertion::keyExists(self::SWOOLE_HTTP_SERVER_CONFIGURATION, $key, 'There is no configuration mapping for setting "%s".');
 
         switch ($key) {
-            case 'serve_static':
+            case self::SWOOLE_HTTP_SERVER_CONFIG_SERVE_STATIC:
                 Assertion::inArray($value, \array_keys(self::SWOOLE_SERVE_STATIC));
                 break;
-            case 'daemonize':
+            case self::SWOOLE_HTTP_SERVER_CONFIG_DAEMONIZE:
                 Assertion::boolean($value);
                 break;
-            case 'public_dir':
+            case self::SWOOLE_HTTP_SERVER_CONFIG_PUBLIC_DIR:
                 Assertion::directory($value, 'Public directory does not exists. Tried "%s".');
                 break;
-            case 'log_level':
+            case self::SWOOLE_HTTP_SERVER_CONFIG_LOG_LEVEL:
                 Assertion::inArray($value, \array_keys(self::SWOOLE_LOG_LEVELS));
                 break;
-            case 'buffer_output_size':
+            case self::SWOOLE_HTTP_SERVER_CONFIG_BUFFER_OUTPUT_SIZE:
                 Assertion::integer($value, \sprintf('Setting "%s" must be an integer.', $key));
                 Assertion::greaterThan($value, 0, 'Buffer output size value cannot be negative or zero, "%s" provided.');
                 break;
-            case 'reactor_count':
-            case 'worker_count':
+            case self::SWOOLE_HTTP_SERVER_CONFIG_TASK_WORKER_COUNT:
+            case self::SWOOLE_HTTP_SERVER_CONFIG_REACTOR_COUNT:
+            case self::SWOOLE_HTTP_SERVER_CONFIG_WORKER_COUNT:
                 Assertion::integer($value, \sprintf('Setting "%s" must be an integer.', $key));
                 Assertion::greaterThan($value, 0, 'Count value cannot be negative, "%s" provided.');
                 break;
@@ -156,22 +174,22 @@ class HttpServerConfiguration
 
     public function isDaemon(): bool
     {
-        return isset($this->settings['daemonize']);
+        return isset($this->settings[self::SWOOLE_HTTP_SERVER_CONFIG_DAEMONIZE]);
     }
 
     public function hasPidFile(): bool
     {
-        return isset($this->settings['pid_file']);
+        return isset($this->settings[self::SWOOLE_HTTP_SERVER_CONFIG_PID_FILE]);
     }
 
     public function servingStaticContent(): bool
     {
-        return isset($this->settings['serve_static']) && 'off' !== $this->settings['serve_static'];
+        return isset($this->settings[self::SWOOLE_HTTP_SERVER_CONFIG_SERVE_STATIC]) && 'off' !== $this->settings[self::SWOOLE_HTTP_SERVER_CONFIG_SERVE_STATIC];
     }
 
     public function hasPublicDir(): bool
     {
-        return isset($this->settings['public_dir']);
+        return isset($this->settings[self::SWOOLE_HTTP_SERVER_CONFIG_PUBLIC_DIR]);
     }
 
     /**
@@ -195,11 +213,11 @@ class HttpServerConfiguration
     public function enableServingStaticFiles(string $publicDir): void
     {
         $settings = [
-            'public_dir' => $publicDir,
+            self::SWOOLE_HTTP_SERVER_CONFIG_PUBLIC_DIR => $publicDir,
         ];
 
-        if ('off' === $this->settings['serve_static']) {
-            $settings['serve_static'] = 'default';
+        if ('off' === $this->settings[self::SWOOLE_HTTP_SERVER_CONFIG_SERVE_STATIC]) {
+            $settings[self::SWOOLE_HTTP_SERVER_CONFIG_SERVE_STATIC] = 'default';
         }
 
         $this->setSettings($settings);
@@ -243,19 +261,19 @@ class HttpServerConfiguration
      */
     public function getPidFile(): string
     {
-        Assertion::keyIsset($this->settings, 'pid_file', 'Setting "%s" is not set.');
+        Assertion::keyIsset($this->settings, self::SWOOLE_HTTP_SERVER_CONFIG_PID_FILE, 'Setting "%s" is not set.');
 
-        return $this->settings['pid_file'];
+        return $this->settings[self::SWOOLE_HTTP_SERVER_CONFIG_PID_FILE];
     }
 
     public function getWorkerCount(): int
     {
-        return $this->settings['worker_count'];
+        return $this->settings[self::SWOOLE_HTTP_SERVER_CONFIG_WORKER_COUNT];
     }
 
     public function getReactorCount(): int
     {
-        return $this->settings['reactor_count'];
+        return $this->settings[self::SWOOLE_HTTP_SERVER_CONFIG_REACTOR_COUNT];
     }
 
     public function getServerSocket(): Socket
@@ -270,9 +288,9 @@ class HttpServerConfiguration
      */
     public function getPublicDir(): ?string
     {
-        Assertion::keyIsset($this->settings, 'public_dir', 'Setting "%s" is not set.');
+        Assertion::keyIsset($this->settings, self::SWOOLE_HTTP_SERVER_CONFIG_PUBLIC_DIR, 'Setting "%s" is not set.');
 
-        return $this->settings['public_dir'];
+        return $this->settings[self::SWOOLE_HTTP_SERVER_CONFIG_PUBLIC_DIR];
     }
 
     public function getSettings(): array
@@ -314,7 +332,7 @@ class HttpServerConfiguration
      */
     public function getSwooleLogLevel(): int
     {
-        return self::SWOOLE_LOG_LEVELS[$this->settings['log_level']];
+        return self::SWOOLE_LOG_LEVELS[$this->settings[self::SWOOLE_HTTP_SERVER_CONFIG_LOG_LEVEL]];
     }
 
     /**
@@ -324,12 +342,12 @@ class HttpServerConfiguration
      */
     public function getSwooleEnableStaticHandler(): bool
     {
-        return self::SWOOLE_SERVE_STATIC[$this->settings['serve_static']];
+        return self::SWOOLE_SERVE_STATIC[$this->settings[self::SWOOLE_HTTP_SERVER_CONFIG_SERVE_STATIC]];
     }
 
     public function getSwooleDocumentRoot(): ?string
     {
-        return 'default' === $this->settings['serve_static'] ? $this->settings['public_dir'] : null;
+        return 'default' === $this->settings[self::SWOOLE_HTTP_SERVER_CONFIG_SERVE_STATIC] ? $this->settings[self::SWOOLE_HTTP_SERVER_CONFIG_PUBLIC_DIR] : null;
     }
 
     /**
@@ -339,12 +357,17 @@ class HttpServerConfiguration
      */
     public function daemonize(?string $pidFile = null): void
     {
-        $settings = ['daemonize' => true];
+        $settings = [self::SWOOLE_HTTP_SERVER_CONFIG_DAEMONIZE => true];
 
         if (null !== $pidFile) {
-            $settings['pid_file'] = $pidFile;
+            $settings[self::SWOOLE_HTTP_SERVER_CONFIG_PID_FILE] = $pidFile;
         }
 
         $this->setSettings($settings);
+    }
+
+    public function getTaskWorkerCount(): int
+    {
+        return $this->settings[self::SWOOLE_HTTP_SERVER_CONFIG_TASK_WORKER_COUNT] ?? 0;
     }
 }

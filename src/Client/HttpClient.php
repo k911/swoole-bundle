@@ -105,7 +105,6 @@ final class HttpClient
 
         $this->client->setMethod($method);
         $this->client->setHeaders($headers);
-        $this->client->execute($path);
 
         if (null !== $data) {
             if (\is_string($data)) {
@@ -114,6 +113,8 @@ final class HttpClient
                 $this->serializeRequestData($this->client, $data);
             }
         }
+
+        $this->client->execute($path);
 
         return $this->resolveResponse($this->client, $timeout);
     }
@@ -137,7 +138,7 @@ final class HttpClient
             throw new \RuntimeException(\json_last_error_msg(), \json_last_error());
         }
 
-        $client->headers[Http::HEADER_CONTENT_TYPE] = Http::CONTENT_TYPE_APPLICATION_JSON;
+        $client->requestHeaders[Http::HEADER_CONTENT_TYPE] = Http::CONTENT_TYPE_APPLICATION_JSON;
         $client->setData($json);
     }
 
