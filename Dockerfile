@@ -16,7 +16,7 @@ RUN pecl install xdebug && \
     docker-php-ext-enable xdebug
 
 FROM ext-builder as ext-swoole
-ARG SWOOLE_VERSION="4.3.1"
+ARG SWOOLE_VERSION="4.3.4"
 RUN pecl install swoole-${SWOOLE_VERSION} && \
     docker-php-ext-enable swoole
 
