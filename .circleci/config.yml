@@ -1,6 +1,6 @@
 version: 2.1
 orbs:
-  codecov: codecov/codecov@1.0.4
+  codecov: codecov/codecov@1.0.5
 aliases:
   # Steps
   - &prepare-swoole-version-env
@@ -54,27 +54,27 @@ aliases:
   - &docker-compose-build-basic
     run:
       name: Docker-Compose Build
-      command: docker-compose build composer
+      command: docker-compose build --pull composer
 
   - &docker-compose-build-all
     run:
       name: Docker-Compose Build
-      command: docker-compose build
+      command: docker-compose build --pull
 
   - &code-style-analysis
     run:
       name: Code style analysis
-      command: docker-compose run composer cs-analyse
+      command: docker-compose run --rm composer cs-analyse
 
   - &static-src-analysis
     run:
       name: Sources static analysis
-      command: docker-compose run composer static-analyse-src
+      command: docker-compose run --rm composer static-analyse-src
 
   - &static-tests-analysis
     run:
       name: Test sources static analysis
-      command: docker-compose run composer static-analyse-tests
+      command: docker-compose run --rm composer static-analyse-tests
 
   - &prepare-cov-permissions
     run:
@@ -87,27 +87,27 @@ aliases:
   - &run-unit-tests
     run:
       name: Run unit tests
-      command: docker-compose run composer unit-tests
+      command: docker-compose run --rm composer unit-tests
 
   - &run-unit-tests-with-coverage
     run:
       name: Run unit tests with coverage (pcov)
-      command: docker-compose run coverage-pcov
+      command: docker-compose run --rm coverage-pcov
 
   - &run-feature-tests
     run:
       name: Run feature tests
-      command: docker-compose run composer feature-tests
+      command: docker-compose run --rm composer feature-tests
 
   - &run-feature-tests-with-coverage-xdebug
     run:
       name: Run feature tests with coverage (xdebug) and retry
-      command: docker-compose run coverage-xdebug-feature-with-retry
+      command: docker-compose run --rm coverage-xdebug-feature-with-retry
 
   - &run-feature-tests-with-coverage-pcov
     run:
       name: Run feature tests with coverage (pcov)
-      command: docker-compose run coverage-pcov feature-code-coverage
+      command: docker-compose run --rm coverage-pcov feature-code-coverage
 
   - &prepare-codeclimate-reporter
     run:
@@ -129,7 +129,7 @@ aliases:
   - &merge-code-coverage
     run:
       name: Merge code coverage files generated across test suites
-      command: docker-compose run merge-code-coverage
+      command: docker-compose run --rm merge-code-coverage
 
   - &export-docker-cache
     run:
