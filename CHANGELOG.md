@@ -1,4 +1,19 @@
 <a name=""></a>
+# [](https://github.com/k911/swoole-bundle/compare/v0.5.3...v) (2019-06-06)
+
+
+
+<a name="0.5.3"></a>
+## [0.5.3](https://github.com/k911/swoole-bundle/compare/v0.5.2...v0.5.3) (2019-06-06)
+
+
+### Bug Fixes
+
+* **config:** set default host value to '0.0.0.0' ([#55](https://github.com/k911/swoole-bundle/issues/55)) ([2c9221d](https://github.com/k911/swoole-bundle/commit/2c9221d))
+
+
+
+<a name=""></a>
 # [](https://github.com/k911/swoole-bundle/compare/v0.5.2...v) (2019-04-30)
 
 
