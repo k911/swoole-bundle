@@ -175,6 +175,9 @@ final class Configuration implements ConfigurationInterface
                                 ->integerNode('reactor_count')
                                     ->min(1)
                                 ->end()
+                                ->scalarNode('task_worker_count')
+                                    ->defaultNull()
+                                ->end()
                             ->end()
                         ->end() // settings
                     ->end()

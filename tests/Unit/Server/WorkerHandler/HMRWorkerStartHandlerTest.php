@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace K911\Swoole\Tests\Unit\Server\WorkerHandler;
 
 use K911\Swoole\Server\WorkerHandler\HMRWorkerStartHandler;
-use K911\Swoole\Tests\Unit\Server\IdMother;
+use K911\Swoole\Tests\Unit\Server\IntMother;
 use K911\Swoole\Tests\Unit\Server\Runtime\HMR\HMRSpy;
 use K911\Swoole\Tests\Unit\Server\SwooleServerMock;
 use PHPUnit\Framework\TestCase;
@@ -36,7 +36,7 @@ class HMRWorkerStartHandlerTest extends TestCase
     {
         $serverMock = SwooleServerMock::make(true);
 
-        $this->hmrWorkerStartHandler->handle($serverMock, IdMother::random());
+        $this->hmrWorkerStartHandler->handle($serverMock, IntMother::random());
 
         $this->assertFalse($serverMock->registeredTick);
     }
@@ -45,7 +45,7 @@ class HMRWorkerStartHandlerTest extends TestCase
     {
         $serverMock = SwooleServerMock::make();
 
-        $this->hmrWorkerStartHandler->handle($serverMock, IdMother::random());
+        $this->hmrWorkerStartHandler->handle($serverMock, IntMother::random());
 
         $this->assertTrue($serverMock->registeredTick);
         $this->assertSame(2000, $serverMock->registeredTickTuple[0]);

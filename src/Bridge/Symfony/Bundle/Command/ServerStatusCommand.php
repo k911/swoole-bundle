@@ -123,8 +123,11 @@ final class ServerStatusCommand extends Command
             ['Active connections', $server['connection_num'], '1'],
             ['Accepted connections', $server['accept_count'], '1'],
             ['Closed connections', $server['close_count'], '1'],
+            ['All workers', $workers, '1'],
             ['Active workers', $activeWorkers, '1'],
             ['Idle workers', $idleWorkers, '1'],
+            ['Running coroutines', $server['coroutine_num'], '1'],
+            ['Tasks in queue', $server['tasking_num'], '1'],
         ]);
     }
 

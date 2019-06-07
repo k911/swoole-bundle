@@ -10,15 +10,19 @@ use K911\Swoole\Bridge\Symfony\HttpFoundation\CloudFrontRequestFactory;
 use K911\Swoole\Bridge\Symfony\HttpFoundation\RequestFactoryInterface;
 use K911\Swoole\Bridge\Symfony\HttpFoundation\TrustAllProxiesRequestHandler;
 use K911\Swoole\Bridge\Symfony\HttpKernel\DebugHttpKernelRequestHandler;
+use K911\Swoole\Bridge\Symfony\Messenger\SwooleServerTaskTransportFactory;
+use K911\Swoole\Bridge\Symfony\Messenger\SwooleServerTaskTransportHandler;
 use K911\Swoole\Server\Config\Socket;
 use K911\Swoole\Server\Config\Sockets;
 use K911\Swoole\Server\Configurator\ConfiguratorInterface;
+use K911\Swoole\Server\HttpServer;
 use K911\Swoole\Server\HttpServerConfiguration;
 use K911\Swoole\Server\RequestHandler\AdvancedStaticFilesServer;
 use K911\Swoole\Server\RequestHandler\RequestHandlerInterface;
 use K911\Swoole\Server\Runtime\BootableInterface;
 use K911\Swoole\Server\Runtime\HMR\HotModuleReloaderInterface;
 use K911\Swoole\Server\Runtime\HMR\InotifyHMR;
+use K911\Swoole\Server\TaskHandler\TaskHandlerInterface;
 use K911\Swoole\Server\WorkerHandler\HMRWorkerStartHandler;
 use K911\Swoole\Server\WorkerHandler\WorkerStartHandlerInterface;
 use Symfony\Component\Config\FileLocator;
@@ -28,6 +32,8 @@ use Symfony\Component\DependencyInjection\Extension\PrependExtensionInterface;
 use Symfony\Component\DependencyInjection\Loader\YamlFileLoader;
 use Symfony\Component\DependencyInjection\Reference;
 use Symfony\Component\HttpKernel\DependencyInjection\Extension;
+use Symfony\Component\Messenger\MessageBusInterface;
+use Symfony\Component\Messenger\Transport\TransportFactoryInterface;
 
 final class SwooleExtension extends Extension implements PrependExtensionInterface
 {
@@ -58,6 +64,10 @@ final class SwooleExtension extends Extension implements PrependExtensionInterfa
         $config = $this->processConfiguration($configuration, $configs);
 
         $this->registerHttpServer($config['http_server'], $container);
+
+        if (\interface_exists(TransportFactoryInterface::class)) {
+            $this->registerSwooleServerTransportConfiguration($container);
+        }
     }
 
     /**
@@ -76,6 +86,18 @@ final class SwooleExtension extends Extension implements PrependExtensionInterfa
         $container->setParameter('swoole.http_server.api.port', $config['api']['port']);
 
         $this->registerHttpServerConfiguration($config, $container);
+    }
+
+    private function registerSwooleServerTransportConfiguration(ContainerBuilder $container): void
+    {
+        $container->register(SwooleServerTaskTransportFactory::class)
+            ->addTag('messenger.transport_factory')
+            ->addArgument(new Reference(HttpServer::class));
+
+        $container->register(SwooleServerTaskTransportHandler::class)
+            ->addArgument(new Reference(MessageBusInterface::class))
+            ->addArgument(new Reference(SwooleServerTaskTransportHandler::class.'.inner'))
+            ->setDecoratedService(TaskHandlerInterface::class, null, -10);
     }
 
     private function registerHttpServerConfiguration(array $config, ContainerBuilder $container): void

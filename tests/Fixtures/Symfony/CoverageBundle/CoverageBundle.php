@@ -9,6 +9,7 @@ use K911\Swoole\Server\LifecycleHandler\ServerManagerStopHandlerInterface;
 use K911\Swoole\Server\LifecycleHandler\ServerShutdownHandlerInterface;
 use K911\Swoole\Server\LifecycleHandler\ServerStartHandlerInterface;
 use K911\Swoole\Server\RequestHandler\RequestHandlerInterface;
+use K911\Swoole\Server\TaskHandler\TaskHandlerInterface;
 use K911\Swoole\Server\WorkerHandler\WorkerStartHandlerInterface;
 use K911\Swoole\Tests\Fixtures\Symfony\CoverageBundle\Coverage\CodeCoverageManager;
 use K911\Swoole\Tests\Fixtures\Symfony\CoverageBundle\EventListeners\CoverageFinishOnConsoleTerminate;
@@ -19,6 +20,7 @@ use K911\Swoole\Tests\Fixtures\Symfony\CoverageBundle\ServerLifecycle\CoverageSt
 use K911\Swoole\Tests\Fixtures\Symfony\CoverageBundle\ServerLifecycle\CoverageStartOnServerManagerStop;
 use K911\Swoole\Tests\Fixtures\Symfony\CoverageBundle\ServerLifecycle\CoverageStartOnServerStart;
 use K911\Swoole\Tests\Fixtures\Symfony\CoverageBundle\ServerLifecycle\CoverageStartOnServerWorkerStart;
+use K911\Swoole\Tests\Fixtures\Symfony\CoverageBundle\TaskHandler\CodeCoverageTaskHandler;
 use SebastianBergmann\CodeCoverage\CodeCoverage;
 use SebastianBergmann\CodeCoverage\Report\PHP;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
@@ -95,5 +97,11 @@ class CoverageBundle extends Bundle
             ->setAutoconfigured(true)
             ->setArgument('$decorated', new Reference(CoverageStartOnServerManagerStop::class.'.inner'))
             ->setDecoratedService(ServerManagerStopHandlerInterface::class);
+
+        $container->autowire(CodeCoverageTaskHandler::class)
+            ->setPublic(false)
+            ->setAutoconfigured(true)
+            ->setArgument('$decorated', new Reference(CodeCoverageTaskHandler::class.'.inner'))
+            ->setDecoratedService(TaskHandlerInterface::class);
     }
 }

@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "9620f3dda7c0b3ee425dd64c98292f1e",
+    "content-hash": "a837a53423e50eddc0b7a1f7a2c2251d",
     "packages": [
         {
             "name": "beberlei/assert",
@@ -2691,7 +2691,7 @@
                     "homepage": "https://nette.org/contributors"
                 }
             ],
-            "description": "🔍 Nette Finder: find files and directories with an intuitive API.",
+            "description": "? Nette Finder: find files and directories with an intuitive API.",
             "homepage": "https://nette.org",
             "keywords": [
                 "filesystem",
@@ -2751,7 +2751,7 @@
                     "homepage": "https://nette.org/contributors"
                 }
             ],
-            "description": "🍸 Nette NEON: encodes and decodes NEON file format.",
+            "description": "? Nette NEON: encodes and decodes NEON file format.",
             "homepage": "http://ne-on.org",
             "keywords": [
                 "export",
@@ -5210,6 +5210,80 @@
             "time": "2019-06-06T08:35:06+00:00"
         },
         {
+            "name": "symfony/messenger",
+            "version": "v4.3.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/symfony/messenger.git",
+                "reference": "47d2b91e111da96045208cceb86d4732c39d385e"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/symfony/messenger/zipball/47d2b91e111da96045208cceb86d4732c39d385e",
+                "reference": "47d2b91e111da96045208cceb86d4732c39d385e",
+                "shasum": ""
+            },
+            "require": {
+                "php": "^7.1.3",
+                "psr/log": "~1.0"
+            },
+            "conflict": {
+                "symfony/debug": "<4.1",
+                "symfony/event-dispatcher": "<4.3"
+            },
+            "require-dev": {
+                "doctrine/dbal": "^2.5",
+                "psr/cache": "~1.0",
+                "symfony/console": "~3.4|~4.0",
+                "symfony/debug": "~4.1",
+                "symfony/dependency-injection": "~3.4.19|^4.1.8",
+                "symfony/doctrine-bridge": "~3.4|~4.0",
+                "symfony/event-dispatcher": "~4.3",
+                "symfony/http-kernel": "~3.4|~4.0",
+                "symfony/process": "~3.4|~4.0",
+                "symfony/property-access": "~3.4|~4.0",
+                "symfony/serializer": "~3.4|~4.0",
+                "symfony/service-contracts": "^1.1",
+                "symfony/stopwatch": "~3.4|~4.0",
+                "symfony/validator": "~3.4|~4.0",
+                "symfony/var-dumper": "~3.4|~4.0"
+            },
+            "suggest": {
+                "enqueue/messenger-adapter": "For using the php-enqueue library as a transport."
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "4.3-dev"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Symfony\\Component\\Messenger\\": ""
+                },
+                "exclude-from-classmap": [
+                    "/Tests/"
+                ]
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Symfony Community",
+                    "homepage": "https://symfony.com/contributors"
+                },
+                {
+                    "name": "Samuel Roze",
+                    "email": "samuel.roze@gmail.com"
+                }
+            ],
+            "description": "Symfony Messenger Component",
+            "homepage": "https://symfony.com",
+            "time": "2019-06-05T13:18:57+00:00"
+        },
+        {
             "name": "symfony/monolog-bridge",
             "version": "v4.3.1",
             "source": {
@@ -6152,7 +6226,7 @@
     "prefer-lowest": false,
     "platform": {
         "php": "^7.2",
-        "ext-swoole": "^4"
+        "ext-swoole": "^4.3.4"
     },
     "platform-dev": []
 }

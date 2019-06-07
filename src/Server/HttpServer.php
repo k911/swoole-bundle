@@ -135,6 +135,11 @@ final class HttpServer
         return $this->server;
     }
 
+    public function dispatchTask($data): void
+    {
+        $this->getServer()->task($data);
+    }
+
     /**
      * @return Listener[]
      */
