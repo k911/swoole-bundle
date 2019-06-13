@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace K911\Swoole\Bridge\Symfony\Bundle\DependencyInjection;
 
+use Assert\Assertion;
 use Doctrine\ORM\EntityManagerInterface;
 use K911\Swoole\Bridge\Doctrine\ORM\EntityManagerHandler;
 use K911\Swoole\Bridge\Symfony\HttpFoundation\CloudFrontRequestFactory;
@@ -14,6 +15,7 @@ use K911\Swoole\Bridge\Symfony\HttpKernel\DebugHttpKernelRequestHandler;
 use K911\Swoole\Bridge\Symfony\Messenger\SwooleServerTaskTransportFactory;
 use K911\Swoole\Bridge\Symfony\Messenger\SwooleServerTaskTransportHandler;
 use K911\Swoole\Bridge\Upscale\Blackfire\WithProfiler;
+use K911\Swoole\Server\Config\EventCallbacks;
 use K911\Swoole\Server\Config\Socket;
 use K911\Swoole\Server\Config\Sockets;
 use K911\Swoole\Server\Configurator\ConfiguratorInterface;
@@ -27,7 +29,9 @@ use K911\Swoole\Server\RequestHandler\RequestHandlerInterface;
 use K911\Swoole\Server\Runtime\BootableInterface;
 use K911\Swoole\Server\Runtime\HMR\HotModuleReloaderInterface;
 use K911\Swoole\Server\Runtime\HMR\InotifyHMR;
+use K911\Swoole\Server\ServerInterface;
 use K911\Swoole\Server\TaskHandler\TaskHandlerInterface;
+use K911\Swoole\Server\TestDumpingHandler;
 use K911\Swoole\Server\WorkerHandler\HMRWorkerStartHandler;
 use K911\Swoole\Server\WorkerHandler\WorkerStartHandlerInterface;
 use Symfony\Component\Config\FileLocator;
@@ -43,6 +47,30 @@ use Upscale\Swoole\Blackfire\Profiler;
 
 final class SwooleExtension extends Extension implements PrependExtensionInterface
 {
+    private const SWOOLE_BUNDLE_CONFIG_TO_SWOOLE_SERVER_EVENTS = [
+        'server_start' => EventCallbacks::EVENT_SERVER_START,
+        'server_shutdown' => EventCallbacks::EVENT_SERVER_SHUTDOWN,
+        'manager_start' => EventCallbacks::EVENT_MANAGER_START,
+        'manager_stop' => EventCallbacks::EVENT_MANAGER_STOP,
+        'worker_start' => EventCallbacks::EVENT_WORKER_START,
+        'worker_stop' => EventCallbacks::EVENT_WORKER_STOP,
+        'worker_exit' => EventCallbacks::EVENT_WORKER_EXIT,
+        'worker_error' => EventCallbacks::EVENT_WORKER_ERROR,
+        'task' => EventCallbacks::EVENT_TASK,
+        'task_finish' => EventCallbacks::EVENT_TASK_FINISH,
+        'pipe_message' => EventCallbacks::EVENT_PIPE_MESSAGE,
+        'before_reload' => EventCallbacks::EVENT_BEFORE_RELOAD,
+        'after_reload' => EventCallbacks::EVENT_AFTER_RELOAD,
+        'connect' => EventCallbacks::EVENT_CONNECT,
+        'receive' => EventCallbacks::EVENT_RECEIVE,
+        'close' => EventCallbacks::EVENT_CLOSE,
+        'packet' => EventCallbacks::EVENT_PACKET,
+        'http_request' => EventCallbacks::EVENT_HTTP_REQUEST,
+        'websocket_handshake' => EventCallbacks::EVENT_WEBSOCKET_HANDSHAKE,
+        'websocket_open' => EventCallbacks::EVENT_WEBSOCKET_OPEN,
+        'websocket_message' => EventCallbacks::EVENT_WEBSOCKET_MESSAGE,
+    ];
+
     /**
      * {@inheritdoc}
      */
@@ -61,6 +89,7 @@ final class SwooleExtension extends Extension implements PrependExtensionInterfa
         $loader = new YamlFileLoader($container, new FileLocator(__DIR__.'/../Resources/config'));
         $loader->load('services.yaml');
         $loader->load('commands.yaml');
+        $loader->load('server.yaml');
 
         $container->registerForAutoconfiguration(BootableInterface::class)
             ->addTag('swoole_bundle.bootable_service')
@@ -70,6 +99,10 @@ final class SwooleExtension extends Extension implements PrependExtensionInterfa
         ;
 
         $config = $this->processConfiguration($configuration, $configs);
+
+        if (!empty($config['server'])) {
+            $this->registerServer($config['server'], $container);
+        }
 
         $this->registerHttpServer($config['http_server'], $container);
 
@@ -349,5 +382,238 @@ final class SwooleExtension extends Extension implements PrependExtensionInterfa
     private function isDebugOrNotProd(ContainerBuilder $container): bool
     {
         return $this->isDebug($container) || !$this->isProd($container);
+    }
+
+    private function configureSocketDefinition(Definition $socketDef, array $config): void
+    {
+        $socketDef->setArguments([
+            '$host' => $config['socket']['host'],
+            '$port' => $config['socket']['port'],
+            '$type' => $config['socket']['type'],
+            '$encryption' => $config['encryption']['enabled'],
+        ]);
+    }
+
+    private function mergeListenerToConfig(array $config, array $listener): array
+    {
+//        $isListenerConfig = !isset($config['running_mode']);
+        [
+            'encryption' => $encryption,
+            'http' => $http,
+            'websocket' => $websocket,
+        ] = $listener;
+
+        if ($websocket['enabled']) {
+            $config['open_websocket_protocol'] = true;
+        }
+
+        if ($http['enabled']) {
+            $config['open_http_protocol'] = true;
+            if ($http['http2']) {
+                $config['open_http2_protocol'] = true;
+            }
+        }
+
+        if ($encryption['enabled']) {
+            /* @see swoole-src/swoole_server_port.cc#525 */
+            /* @see swoole-src/swoole_runtime.cc#1007 */
+
+            if (!empty($encryption['certificate_authority'])) {
+                if (!empty($encryption['certificate_authority']['file'])) {
+                    $config['ssl_cafile'] = $encryption['file'];
+                } elseif (!empty($encryption['certificate_authority']['path'])) {
+                    $config['ssl_capath'] = $encryption['path'];
+                }
+            }
+
+            if (!empty($encryption['server_certificate'])) {
+                $config['ssl_cert_file'] = $encryption['server_certificate']['file'];
+                $config['ssl_key_file'] = $encryption['server_certificate']['key']['file'];
+                if (!empty($encryption['server_certificate']['key']['passphrase'])) {
+                    $config['ssl_passphrase'] = $encryption['server_certificate']['key']['passphrase'];
+                }
+            }
+
+            if (!empty($encryption['client_certificate'])) {
+                $config['ssl_client_cert_file'] = $encryption['client_certificate']['file'];
+                $config['ssl_allow_self_signed'] = $encryption['client_certificate']['insecure'] ?? false;
+
+                if ($encryption['client_certificate']['verify']['enabled']) {
+                    $config['ssl_verify_peer'] = true;
+                    if (!empty($encryption['client_certificate']['verify']['depth'])) {
+                        $config['ssl_verify_depth'] = $encryption['client_certificate']['verify']['depth'];
+                    }
+                }
+            }
+
+//            $config['ssl_disable_compression'] = $listener['encryption']['xxx'];
+//            $config['ssl_host_name'] = $listener['encryption']['xxx'];
+            if (!empty($encryption['ciphers'])) {
+                $config['ssl_ciphers'] = $encryption['ciphers'];
+            }
+        }
+
+        return $config;
+    }
+
+    private function configureLazySwooleServerObjectUsingProxyManager(Definition $serverDefinition): void
+    {
+        if ($this->proxyManagerInstalled()) {
+            $serverDefinition->setClass(ServerInterface::class)
+                ->setLazy(true)
+                ->setFactory([new Reference('swoole_bundle.server.factory'), 'make'])
+                ->setArguments([])
+            ;
+        }
+    }
+
+    private function registerServer(array $server, ContainerBuilder $container): void
+    {
+        $serverDefinition = $container->getDefinition('swoole_bundle.server');
+        if ($this->proxyManagerInstalled()) {
+            $this->configureLazySwooleServerObjectUsingProxyManager($serverDefinition);
+        }
+
+        $listenerTemplates = $server['templates']['listeners'] ?? [];
+        $handlerTemplates = $server['templates']['handlers'] ?? [];
+        $serverHandlers = $server['handlers'] ?? [];
+
+        $serverConfig = $server['config'] ?? [];
+
+        $mainSocketDefinition = $container->getDefinition('swoole_bundle.server.main_socket');
+        $this->configureSocketDefinition($mainSocketDefinition, $server);
+
+        $listenersDefinition = $container->getDefinition('swoole_bundle.server.listeners');
+        $handlersDefinition = $container->getDefinition('swoole_bundle.server.callbacks');
+
+        $this->configureEventCallbacks($handlersDefinition, $container, $handlerTemplates, $serverHandlers);
+
+        $serverConfigDefinition = $container->getDefinition('swoole_bundle.server.config');
+
+        $serverConfigDefinition->setArguments([
+            '$runningMode' => $server['running_mode'],
+            '$config' => $this->mergeListenerToConfig($serverConfig, $server),
+        ]);
+    }
+
+    private function configureEventCallbacks(Definition $eventCallbacks, ContainerBuilder $container, array $handlerTemplates, array $handlersMap): void
+    {
+        foreach ($handlersMap as $eventName => $handlers) {
+            foreach ($this->prepareDefinitions($handlers, $container, 'swoole_bundle.server.handlers', $handlerTemplates) as $definitionConfig) {
+                /**
+                 * @var string     $id
+                 * @var Definition $definition
+                 * @var array      $config
+                 */
+                [
+                    $id,
+                    $definition,
+                    $config,
+                ] = $definitionConfig;
+                $this->configureHandler($eventName, $definition, $config);
+                $eventCallbacks->addMethodCall('register', [
+                    self::SWOOLE_BUNDLE_CONFIG_TO_SWOOLE_SERVER_EVENTS[$eventName],
+                    [new Reference($id), 'handle'],
+                    $config['priority'],
+                ]);
+            }
+        }
+    }
+
+    // special configuration for different handlers
+    private function configureHandler(string $eventName, Definition $handler, array $config): void
+    {
+        switch ($handler->getClass()) {
+            case TestDumpingHandler::class:
+                $handler->addMethodCall('setText', [$eventName]);
+                // no break
+            default:
+                // noop
+        }
+    }
+
+    private function filterDefinitionId(string $definitionId): string
+    {
+        if (0 === \mb_strpos($definitionId, '@')) {
+            return \mb_substr($definitionId, 1, \mb_strlen($definitionId));
+        }
+
+        return $definitionId;
+    }
+
+    private function copyDefinition(ContainerBuilder $container, string $definitionId, string $newDefinitionId): Definition
+    {
+        return $container->setDefinition($newDefinitionId,
+            $container->getDefinition($definitionId)
+        );
+    }
+
+    private function prepareDefinitionWithParent(array $definition, array $parent, ContainerBuilder $container, string $idPrefix, int $counter): array
+    {
+        $id = \sprintf('service_%d', $counter);
+        $parentName = $definition['parent'];
+        if (!empty($definition['id'])) {
+            $id = $this->filterDefinitionId($definition['id']);
+            Assertion::false($container->has($id), \sprintf('Service "%s" cannot be used in service group "%s" when parent "%s" is defined', $id, $idPrefix, $parentName));
+        }
+
+        $id = \sprintf('%s.%s', $idPrefix, $id);
+        Assertion::false($container->has($id), \sprintf('Service ID "%s" cannot be used in service group "%s" with parent "%s", because ID has been already registered in container', $id, $idPrefix, $parentName));
+
+        $templateId = $this->filterDefinitionId($parent['id']);
+        Assertion::true($container->has($templateId), \sprintf('Service template "%s" has defined invalid template service ID "%s", because it does not exist in container', $parentName, $templateId));
+        $serviceDefinition = $this->copyDefinition($container, $templateId, $id);
+
+        return [$id, $serviceDefinition, $definition];
+    }
+
+    private function prepareLoneDefinition(array $definition, ContainerBuilder $container): array
+    {
+        Assertion::notEmptyKey($definition, 'id');
+        $id = $this->filterDefinitionId($definition['id']);
+        $serviceDefinition = $container->getDefinition($id);
+
+        return [$id, $serviceDefinition, $definition];
+    }
+
+    private function prepareDefinitions(array $children, ContainerBuilder $container, string $idPrefix = 'swoole_bundle.server.listeners', array $predefinedParents = []): \Generator
+    {
+        $generatedIdCounter = 0;
+        foreach ($children as $child) {
+            if (!empty($child['parent'])) {
+                ++$generatedIdCounter;
+                Assertion::notEmptyKey($predefinedParents, $child['parent'], \sprintf('Template "%%s" could not be found for service group "%s"', $idPrefix));
+                yield $this->prepareDefinitionWithParent($child, $predefinedParents[$child['parent']], $container, $idPrefix, $generatedIdCounter);
+            } else {
+                yield $this->prepareLoneDefinition($child, $container);
+            }
+        }
+    }
+
+    private function deepRecursiveNotEmptyMerge(array $base, array $override): array
+    {
+        $result = $base;
+
+        foreach ($override as $key => $value) {
+            if (empty($value)) {
+                continue;
+            }
+
+            if (\is_array($value)) {
+                $result[$key] = isset($base[$key]) && \is_array($base[$key]) ? $this->deepRecursiveNotEmptyMerge($base[$key], $value) : $value;
+
+                continue;
+            }
+
+            $result[$key] = $value;
+        }
+
+        return $result;
+    }
+
+    private function proxyManagerInstalled(): bool
+    {
+        // If symfony/proxy-manager-bridge is installed this class exists
+        return \class_exists('\Symfony\Bridge\ProxyManager\LazyProxy\Instantiator\RuntimeInstantiator');
     }
 }

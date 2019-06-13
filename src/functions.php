@@ -101,3 +101,37 @@ function decode_string_as_set(?string $stringSet, string $separator = ',', array
 
     return $set;
 }
+
+/**
+ * @param mixed ...$args
+ *
+ * @throws \ReflectionException
+ *
+ * @return mixed
+ */
+function call_unaccessible_method(object $object, string $method, ...$args)
+{
+    $reflector = new \ReflectionObject($object);
+    $reflectedMethod = $reflector->getMethod($method);
+    $reflectedMethod->setAccessible(true);
+
+    return $reflectedMethod->invokeArgs($object, $args);
+}
+
+/**
+ * @param class-string $className
+ * @param mixed        ...$args
+ *
+ * @throws \ReflectionException
+ *
+ * @return mixed
+ */
+function call_unaccessible_static_method(string $className, string $method, ...$args)
+{
+    $reflection = new \ReflectionClass($className);
+    $object = $reflection->newInstanceWithoutConstructor();
+    $reflectedMethod = $reflection->getMethod($method);
+    $reflectedMethod->setAccessible(true);
+
+    return $reflectedMethod->invokeArgs($object, $args);
+}

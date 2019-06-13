@@ -1,0 +1,145 @@
+swoole:
+    server:
+        templates:
+            handlers:
+                sigIntHandler:
+                    id: swoole_bundle.server.templates.handlers.sig_int_handler
+                symfonyDefaultHttpHandler:
+                    id: swoole_bundle.server.templates.handlers.api_server_http_handler
+                    config: {}
+            listeners:
+                http:
+                    socket:
+                        host: localhost
+                        port: 9200
+                        type: tcp_dualstack
+                    http:
+                        enabled: true
+                        http2: true
+                    encryption:
+                        enabled: false
+                    config: {}
+                    handlers:
+                        http_request:
+                            -   parent: symfonyDefaultHttpHandler
+
+#        running_mode: reactor
+        socket:
+            host: localhost
+            port: 9443
+            type: tcp_dualstack
+        http:
+            enabled: true
+            http2: true
+        encryption:
+            enabled: true
+            client_certificate:
+                file: ~
+                insecure: false
+                verify:
+                    enabled: false
+                    depth: ~
+            server_certificate:
+                file: "%bundle.root_dir%/scratchpad/ssl/cert-1/cert.pem"
+                key:
+                    file: "%bundle.root_dir%/scratchpad/ssl/cert-1/cert-key.pem"
+                    passphrase: ~
+            certificate_authority:
+                file: ~
+                path: ~
+            type: ~
+            ciphers: ~
+
+        config: {}
+        # swoole server optional global config
+
+        # swoole event handlers on "server" objects
+        handlers:
+            server_start:
+                # predefined handler:
+                - sigIntHandler
+                # the same as
+                # - parent: sigIntHandler
+
+                # predefined handler 2:
+                - '@swoole_bundle.server.templates.handlers.test_1'
+                # the same as
+                # - id: '@swoole_bundle.server.templates.handlers.sig_int_handler'
+
+                # use external service from container
+                -   id: '@swoole_bundle.server.templates.handlers.test_2'
+                -   id: 'swoole_bundle.server.templates.handlers.test_3'
+#            http_request:
+#                # reference predefined handler with overrides, which will create new service in container
+#                -   parent: symfonyDefaultHttpHandler
+#                    # service will be constructed, with id like: `swoole_bundle.server.handler.http_request.main2`
+#                    id: main2
+#                    config: {}
+#                    # ... optional config, only for "predefined" service templates
+
+        listeners:
+            -   id: test
+                parent: test
+            -   id: custom
+                parent: ~
+                socket:
+                    host: localhost
+                    port: 9100
+                    type: tcp_dualstack
+                http:
+                    enabled: true
+                    http2: true
+                encryption:
+                    enabled: false
+                config: {}
+                # swoole listener/port optional config
+                handlers:
+                    http_request:
+                        -   parent: swooleBundleApiHandler
+                            id: swooleBundleApi2
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -4,16 +4,16 @@ services:
         autoconfigure: true
         public: false
 
-    'K911\Swoole\Bridge\Symfony\Bundle\Command\ServerStatusCommand':
+    K911\Swoole\Bridge\Symfony\Bundle\Command\ServerStatusCommand:
         tags: [ { name: console.command, command: 'swoole:server:status' } ]
 
-    'K911\Swoole\Bridge\Symfony\Bundle\Command\ServerStopCommand':
+    K911\Swoole\Bridge\Symfony\Bundle\Command\ServerStopCommand:
         tags: [ { name: console.command, command: 'swoole:server:stop' } ]
 
-    'K911\Swoole\Bridge\Symfony\Bundle\Command\ServerReloadCommand':
+    K911\Swoole\Bridge\Symfony\Bundle\Command\ServerReloadCommand:
         tags: [ { name: console.command, command: 'swoole:server:reload' } ]
 
-    'swoole_bundle.server.http_server.configurator.for_server_start_command':
+    swoole_bundle.server.http_server.configurator.for_server_start_command:
         class: K911\Swoole\Server\Configurator\CallableChainConfigurator
         factory: ['@K911\Swoole\Server\Configurator\CallableChainConfiguratorFactory', 'make']
         arguments:
@@ -21,12 +21,12 @@ services:
             - '@swoole_bundle.server.http_server.configurator.with_request_handler'
         autoconfigure: false
 
-    'K911\Swoole\Bridge\Symfony\Bundle\Command\ServerStartCommand':
+    K911\Swoole\Bridge\Symfony\Bundle\Command\ServerStartCommand:
         tags: [ { name: console.command, command: 'swoole:server:start' } ]
         arguments:
             $serverConfigurator: '@swoole_bundle.server.http_server.configurator.for_server_start_command'
 
-    'swoole_bundle.server.http_server.configurator.for_server_run_command':
+    swoole_bundle.server.http_server.configurator.for_server_run_command:
         class: K911\Swoole\Server\Configurator\CallableChainConfigurator
         factory: ['@K911\Swoole\Server\Configurator\CallableChainConfiguratorFactory', 'make']
         arguments:
@@ -35,12 +35,12 @@ services:
             - '@swoole_bundle.server.http_server.configurator.with_sigint_handler'
         autoconfigure: false
 
-    'K911\Swoole\Bridge\Symfony\Bundle\Command\ServerRunCommand':
+    K911\Swoole\Bridge\Symfony\Bundle\Command\ServerRunCommand:
         tags: [ { name: console.command, command: 'swoole:server:run' } ]
         arguments:
             $serverConfigurator: '@swoole_bundle.server.http_server.configurator.for_server_run_command'
 
-    'swoole_bundle.server.http_server.configurator.for_server_profile_command':
+    swoole_bundle.server.http_server.configurator.for_server_profile_command:
         class: K911\Swoole\Server\Configurator\CallableChainConfigurator
         factory: ['@K911\Swoole\Server\Configurator\CallableChainConfiguratorFactory', 'make']
         arguments:
@@ -49,7 +49,18 @@ services:
             - '@swoole_bundle.server.http_server.configurator.with_sigint_handler'
         autoconfigure: false
 
-    'K911\Swoole\Bridge\Symfony\Bundle\Command\ServerProfileCommand':
+    K911\Swoole\Bridge\Symfony\Bundle\Command\ServerProfileCommand:
         tags: [ { name: console.command, command: 'swoole:server:profile' } ]
         arguments:
             $serverConfigurator: '@swoole_bundle.server.http_server.configurator.for_server_profile_command'
+
+
+    K911\Swoole\Bridge\Symfony\Bundle\Command\Beta\ServerRunCommand:
+        tags: [ { name: console.command, command: 'swoole:server:beta:run' } ]
+        autoconfigure: true
+        autowire: true
+        arguments:
+            $server: '@swoole_bundle.server'
+            $serverConfig: '@swoole_bundle.server.config'
+            $serverListeners: '@swoole_bundle.server.listeners'
+            $serverEventCallbacks: '@swoole_bundle.server.callbacks'

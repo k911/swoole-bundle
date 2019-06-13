@@ -53,7 +53,7 @@ final class HttpClient implements \Serializable
         return self::fromDomain(
             $socket->host(),
             $socket->port(),
-            $socket->ssl(),
+            $socket->secure(),
             $options
         );
     }

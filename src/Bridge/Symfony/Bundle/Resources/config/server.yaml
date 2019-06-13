@@ -1,0 +1,65 @@
+services:
+    _defaults:
+        autowire: false
+        autoconfigure: false
+        public: false
+
+    swoole_bundle.server:
+        class: K911\Swoole\Server\ServerProxy
+        arguments:
+            $factory: '@swoole_bundle.server.factory'
+
+    swoole_bundle.server.factory:
+        class: K911\Swoole\Server\ServerFactory
+        arguments:
+            $config: '@swoole_bundle.server.config'
+            $listeners: '@swoole_bundle.server.listeners'
+            $callbacks: '@swoole_bundle.server.callbacks'
+
+    swoole_bundle.server.config:
+        class: K911\Swoole\Server\Config\ServerConfig
+
+    swoole_bundle.server.main_socket:
+        class: K911\Swoole\Server\Config\Socket
+
+    swoole_bundle.server.listeners:
+        class: K911\Swoole\Server\Config\Listeners
+        arguments:
+            $mainSocket: '@swoole_bundle.server.main_socket'
+            $additionalListeners: []
+
+    swoole_bundle.server.callbacks:
+        class: K911\Swoole\Server\Config\EventCallbacks
+
+    K911\Swoole\Server\ServerInterface:
+        alias: swoole_bundle.server
+
+    K911\Swoole\Server\ServerFactoryInterface:
+        alias: swoole_bundle.server.factory
+
+    K911\Swoole\Server\Server:
+        alias: swoole_bundle.server
+
+    # predefined
+    swoole_bundle.server.templates.handlers.sig_int_handler:
+        class: K911\Swoole\Server\LifecycleHandler\SigIntHandler
+
+    swoole_bundle.server.templates.handlers.api_server_http_handler:
+        class: K911\Swoole\Server\Api\ApiServerRequestHandler
+        autoconfigure: true
+        autowire: true
+
+    swoole_bundle.server.templates.handlers.test_1:
+        class: K911\Swoole\Server\TestDumpingHandler
+        arguments:
+            - 'test_1'
+
+    swoole_bundle.server.templates.handlers.test_2:
+        class: K911\Swoole\Server\TestDumpingHandler
+        arguments:
+            - 'test_1'
+
+    swoole_bundle.server.templates.handlers.test_3:
+        class: K911\Swoole\Server\TestDumpingHandler
+        arguments:
+            - 'test_1'
