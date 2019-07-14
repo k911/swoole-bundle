@@ -1,4 +1,4 @@
-ARG PHP_TAG="7.3-cli-alpine3.9"
+ARG PHP_TAG="7.3-cli-alpine3.10"
 
 FROM php:$PHP_TAG as ext-builder
 RUN docker-php-source extract && \
@@ -16,7 +16,7 @@ RUN pecl install xdebug && \
     docker-php-ext-enable xdebug
 
 FROM ext-builder as ext-swoole
-ARG SWOOLE_VERSION="4.3.4"
+ARG SWOOLE_VERSION="4.4.0"
 RUN pecl install swoole-${SWOOLE_VERSION} && \
     docker-php-ext-enable swoole
 
