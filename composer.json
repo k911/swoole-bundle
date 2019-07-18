@@ -110,10 +110,13 @@
     },
     "extra": {
         "branch-alias": {
-            "dev-develop": "v0.5.x-dev"
+            "dev-develop": "v0.6.x-dev"
         }
     },
     "config": {
-        "sort-packages": true
+        "sort-packages": true,
+        "platform": {
+            "php": "7.2.19"
+        }
     }
 }
