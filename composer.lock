@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "d800a741c8b333d264064571f2a448f4",
+    "content-hash": "e9dd0870b44f5054f244898561b2a159",
     "packages": [
         {
             "name": "beberlei/assert",
@@ -4921,16 +4921,16 @@
         },
         {
             "name": "swoole/ide-helper",
-            "version": "4.4.0",
+            "version": "4.3.4",
             "source": {
                 "type": "git",
                 "url": "https://github.com/swoole/ide-helper.git",
-                "reference": "d8fcff025cd386635f74fe68fb669be4c5b4a0d4"
+                "reference": "7035aeb5c6d42c22b44aef1304aac62d6733b5e5"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/swoole/ide-helper/zipball/d8fcff025cd386635f74fe68fb669be4c5b4a0d4",
-                "reference": "d8fcff025cd386635f74fe68fb669be4c5b4a0d4",
+                "url": "https://api.github.com/repos/swoole/ide-helper/zipball/7035aeb5c6d42c22b44aef1304aac62d6733b5e5",
+                "reference": "7035aeb5c6d42c22b44aef1304aac62d6733b5e5",
                 "shasum": ""
             },
             "require-dev": {
@@ -4954,7 +4954,7 @@
                 }
             ],
             "description": "IDE help files for Swoole.",
-            "time": "2019-07-07T19:43:22+00:00"
+            "time": "2019-05-22T19:49:35+00:00"
         },
         {
             "name": "symfony/cache",
@@ -6338,7 +6338,7 @@
     "prefer-lowest": false,
     "platform": {
         "php": "^7.2",
-        "ext-swoole": "^4.3.4"
+        "ext-swoole": "~4.3.6"
     },
     "platform-dev": [],
     "platform-overrides": {
