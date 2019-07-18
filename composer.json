@@ -19,7 +19,7 @@
     }],
     "require": {
         "php": "^7.2",
-        "ext-swoole": "^4.3.4",
+        "ext-swoole": "~4.3.6",
         "beberlei/assert": "^3.0",
         "symfony/config": "^4.3.1",
         "symfony/console": "^4.3.1",
@@ -40,7 +40,7 @@
         "phpunit/php-code-coverage": "^7.0",
         "phpunit/phpcov": "^6.0",
         "phpunit/phpunit": "^8.0.4",
-        "swoole/ide-helper": "^4.3",
+        "swoole/ide-helper": "~4.3.4",
         "symfony/debug": "^4.3.1",
         "symfony/framework-bundle": "^4.3.1",
         "symfony/messenger": "^4.3.1",
@@ -110,10 +110,13 @@
     },
     "extra": {
         "branch-alias": {
-            "dev-develop": "v0.5.x-dev"
+            "dev-develop": "v0.6.x-dev"
         }
     },
     "config": {
-        "sort-packages": true
+        "sort-packages": true,
+        "platform": {
+            "php": "7.2.19"
+        }
     }
 }

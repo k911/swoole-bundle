@@ -12,11 +12,13 @@
 
 Symfony integration with [Swoole](https://www.swoole.co.uk/) to speed up your applications.
 
-- [Quick start guide](#quick-start-guide)
-- [Features](#features)
-- [Requirements](#requirements)
-- [Configuration](./docs/configuration-reference.md)
-- [Usage with Docker](./docs/docker-usage.md)
+- [Swoole Bundle](#Swoole-Bundle)
+  - [Quick start guide](#Quick-start-guide)
+  - [Features](#Features)
+  - [Requirements](#Requirements)
+    - [Swoole](#Swoole)
+      - [Version check](#Version-check)
+      - [Installation](#Installation)
 
 ## Quick start guide
 
@@ -75,8 +77,9 @@ Symfony integration with [Swoole](https://www.swoole.co.uk/) to speed up your ap
 
 ## Requirements
 
-- Swoole PHP Extension `^4.3.0`
-- Symfony `^4.2`
+- PHP version `>= 7.2.19`
+- Swoole PHP Extension `>= 4.3.6`
+- Symfony `>= 4.2.10`
 
 Additional requirements to enable specific features:
 
