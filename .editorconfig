@@ -9,7 +9,6 @@ indent_size = 4
 trim_trailing_whitespace = true
 
 [Makefile]
-indent_size = 4
 indent_style = tab
 
 [*.pid]
@@ -29,3 +28,4 @@ indent_size = 4
 
 [*.md]
 insert_final_newline = false
+trim_trailing_whitespace = false
