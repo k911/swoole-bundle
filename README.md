@@ -84,6 +84,12 @@ Symfony integration with [Swoole](https://www.swoole.co.uk/) to speed up your ap
 
     Since Swoole HTTP Server runs in Event Loop and do not flush memory between requests, to keep DX equal with normal servers, this bundle uses code replacement techinque, using `inotify` PHP Extension to allow contionus development. It is enabled by default (when extension is found), and requires no additional configuration. You can turn it off in bundle configuration.
 
+- Symfony Messenger integration
+
+    *Available since version: `0.6`*
+
+    Swoole Server Task Transport has been integrated into this bundle to allow easy execution of asynchronous actions. Documentation of this feature is available [here](docs/swoole-task-symfony-messenger-transport.md).
+
 ## Requirements
 
 - PHP version `>= 7.2.19`
