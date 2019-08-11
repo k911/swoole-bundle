@@ -20,9 +20,7 @@ final class StaticFilesServingTest extends ServerTestCase
         $serverRun->setTimeout(10);
         $serverRun->start();
 
-        $this->goAndWait(function () use ($serverRun): void {
-            $this->deferProcessStop($serverRun);
-
+        $this->runAsCoroutineAndWait(function (): void {
             $client = HttpClient::fromDomain('localhost', 9999, false);
             $this->assertTrue($client->connect());
 
@@ -37,6 +35,8 @@ Disallow: /
 EOF;
             $this->assertSame($expectedResponseBody, $response['body']);
         });
+
+        $serverRun->stop();
     }
 
     public function testDefaultSwooleStaticFilesServing(): void
@@ -50,9 +50,7 @@ EOF;
         $serverRun->setTimeout(10);
         $serverRun->start();
 
-        $this->goAndWait(function () use ($serverRun): void {
-            $this->deferProcessStop($serverRun);
-
+        $this->runAsCoroutineAndWait(function () use ($serverRun): void {
             $client = HttpClient::fromDomain('localhost', 9999, false);
             $this->assertTrue($client->connect());
 
@@ -67,6 +65,8 @@ Disallow: /
 EOF;
             $this->assertSame($expectedResponseBody, $response['body']);
         });
+
+        $serverRun->stop();
     }
 
     public function testDisabledStaticFilesServingOnProductionByDefault(): void
@@ -80,9 +80,7 @@ EOF;
         $serverRun->setTimeout(10);
         $serverRun->start();
 
-        $this->goAndWait(function () use ($serverRun): void {
-            $this->deferProcessStop($serverRun);
-
+        $this->runAsCoroutineAndWait(function (): void {
             $client = HttpClient::fromDomain('localhost', 9999, false);
             $this->assertTrue($client->connect());
 
@@ -90,5 +88,7 @@ EOF;
 
             $this->assertSame(404, $response['statusCode']);
         });
+
+        $serverRun->stop();
     }
 }

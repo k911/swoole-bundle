@@ -28,7 +28,7 @@ final class SwooleServerStatusCommandTest extends ServerTestCase
 
         $this->assertProcessSucceeded($serverStart);
 
-        $this->goAndWait(function (): void {
+        $this->runAsCoroutineAndWait(function (): void {
             $this->deferServerStop();
 
             $client = HttpClient::fromDomain('localhost', 9999, false);
@@ -76,7 +76,7 @@ final class SwooleServerStatusCommandTest extends ServerTestCase
         $command = $application->find('swoole:server:status');
         $commandTester = new CommandTester($command);
 
-        $this->goAndWait(function () use ($commandTester): void {
+        $this->runAsCoroutineAndWait(function () use ($commandTester): void {
             $this->deferServerStop();
 
             $client = HttpClient::fromDomain('localhost', 9999, false);

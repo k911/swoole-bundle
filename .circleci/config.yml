@@ -209,22 +209,17 @@ jobs:
       COMPOSER_ARGS: update --ignore-platform-reqs
       SWOOLE_VERSION: latest
 
-  php-72:
+  php-73-lowest:
     <<: *docker-env
     <<: *docker-default
     environment:
-      PHP_VERSION: 7.2
-      ALPINE_VERSION: 3.8
-      PHP_API_VERSION: "20170718"
-
-  php-72-lowest:
-    <<: *docker-env
-    <<: *docker-default
-    environment:
-      PHP_VERSION: 7.2
-      ALPINE_VERSION: 3.8
-      PHP_API_VERSION: "20170718"
       COMPOSER_ARGS: update --prefer-lowest
+
+  php-74-beta:
+    <<: *docker-env
+    <<: *docker-default
+    environment:
+      PHP_VERSION: 7.4.0beta2
 
   check-composer-config:
     docker:
@@ -262,9 +257,9 @@ workflows:
       - php-73-latest:
           requires:
             - check-composer-config
-      - php-72:
+      - php-73-lowest:
           requires:
             - check-composer-config
-      - php-72-lowest:
+      - php-74-beta:
           requires:
             - check-composer-config

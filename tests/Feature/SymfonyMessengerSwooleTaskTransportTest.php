@@ -32,9 +32,7 @@ final class SymfonyMessengerSwooleTaskTransportTest extends ServerTestCase
         $serverRun->setTimeout(10);
         $serverRun->start();
 
-        $this->goAndWait(function () use ($serverRun, $testFile, $testFileContent): void {
-            $this->deferProcessStop($serverRun);
-
+        $this->runAsCoroutineAndWait(function () use ($testFile, $testFileContent): void {
             $client = HttpClient::fromDomain('localhost', 9999, false);
             $this->assertTrue($client->connect());
 
@@ -50,6 +48,8 @@ final class SymfonyMessengerSwooleTaskTransportTest extends ServerTestCase
 
             Coroutine::sleep($this->coverageEnabled() ? 1 : 3);
         });
+
+        $serverRun->stop();
 
         $this->assertFileExists($testFilePath);
         $this->assertSame($testFileContent, \file_get_contents($testFilePath));

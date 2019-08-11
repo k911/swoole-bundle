@@ -6,8 +6,7 @@ namespace K911\Swoole\Tests\Fixtures\Symfony\TestBundle\Test;
 
 use K911\Swoole\Client\HttpClient;
 use K911\Swoole\Tests\Fixtures\Symfony\TestAppKernel;
-use PHPUnit\Framework\Exception;
-use Swoole\Event;
+use Swoole\Coroutine\Scheduler;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\Console\Tester\CommandTester;
 use Symfony\Component\HttpKernel\KernelInterface;
@@ -51,43 +50,26 @@ class ServerTestCase extends KernelTestCase
         return TestAppKernel::class;
     }
 
-    public function goAndWait(callable $callable): void
+    public function runAsCoroutineAndWait(callable $callable): void
     {
+        $scheduler = new Scheduler();
+
         try {
-            \go($this->wrapAndTrap($callable));
+            $scheduler->add($callable);
+            $scheduler->start();
         } catch (\RuntimeException $runtimeException) {
             if (self::SWOOLE_XDEBUG_CORO_WARNING_MESSAGE !== $runtimeException->getMessage()) {
                 throw $runtimeException;
             }
         }
-        Event::wait();
     }
 
-    private function wrapAndTrap(callable $callable): callable
+    public function killAllProcessesListeningOnPort(int $port, int $timeout = 3): void
     {
-        return function () use ($callable): void {
-            try {
-                $callable();
-            } catch (Exception $failedException) {
-                throw $failedException;
-            } catch (\Throwable $exception) {
-                throw $exception;
-            }
-        };
-    }
-
-    /**
-     * @param Process $process
-     * @param int     $timeout seconds
-     * @param int     $signal  [default=SIGKILL]
-     */
-    public function deferProcessStop(Process $process, int $timeout = 3, ?int $signal = null): void
-    {
-        \defer(function () use ($process, $timeout, $signal): void {
-            $process->stop($timeout, $signal);
-
-            $this->assertProcessSucceeded($process);
-        });
+        $killAllReactorProcesses = new Process(['/bin/sh', '-c', "kill -9 $(lsof -i :$port | grep php | awk '{print $2}') &> /dev/null"]);
+        $killAllReactorProcesses->setTimeout($timeout);
+        $killAllReactorProcesses->run();
+        $this->assertProcessSucceeded($killAllReactorProcesses);
     }
 
     public function assertProcessSucceeded(Process $process): void

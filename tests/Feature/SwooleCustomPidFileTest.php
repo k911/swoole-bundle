@@ -27,7 +27,7 @@ final class SwooleCustomPidFileTest extends ServerTestCase
 
         $this->assertProcessSucceeded($serverStart);
 
-        $this->goAndWait(function () use ($pidFile): void {
+        $this->runAsCoroutineAndWait(function () use ($pidFile): void {
             $this->deferServerStop(\sprintf('--pid-file=%s', $pidFile));
 
             $client = HttpClient::fromDomain('localhost', 9999, false);
