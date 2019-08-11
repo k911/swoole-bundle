@@ -42,7 +42,7 @@ final class SwooleServerReloadViaApiClientTest extends ServerTestCase
 
         $this->assertTrue($serverStart->isSuccessful());
 
-        $this->goAndWait(function () use ($apiClient): void {
+        $this->runAsCoroutineAndWait(function () use ($apiClient): void {
             $this->deferServerStop();
             $this->deferRestoreOriginalTemplateControllerResponse();
 
@@ -93,7 +93,7 @@ final class SwooleServerReloadViaApiClientTest extends ServerTestCase
 
         $this->assertTrue($serverStart->isSuccessful());
 
-        $this->goAndWait(function () use ($apiClient): void {
+        $this->runAsCoroutineAndWait(function () use ($apiClient): void {
             $this->deferServerStop();
             $this->deferRestoreOriginalTemplateControllerResponse();
 

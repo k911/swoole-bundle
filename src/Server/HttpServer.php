@@ -29,11 +29,13 @@ final class HttpServer
     private $listeners = [];
     private $signalTerminate;
     private $signalReload;
+    private $signalKill;
 
     public function __construct(HttpServerConfiguration $configuration, bool $running = false)
     {
         $this->signalTerminate = \defined('SIGTERM') ? (int) \constant('SIGTERM') : 15;
         $this->signalReload = \defined('SIGUSR1') ? (int) \constant('SIGUSR1') : 10;
+        $this->signalKill = \defined('SIGKILL') ? (int) \constant('SIGKILL') : 2;
 
         $this->running = $running;
         $this->configuration = $configuration;
@@ -80,7 +82,7 @@ final class HttpServer
         if ($this->server instanceof Server) {
             $this->server->shutdown();
         } elseif ($this->isRunningInBackground()) {
-            Process::kill($this->configuration->getPid(), $this->signalTerminate);
+            $this->gracefulSignalShutdown($this->configuration->getPid(), 2);
         } else {
             throw NotRunningException::make();
         }
@@ -173,5 +175,21 @@ final class HttpServer
         }
 
         throw PortUnavailableException::fortPort($port);
+    }
+
+    private function gracefulSignalShutdown(int $masterPid, float $timeoutSeconds): void
+    {
+        Process::kill($masterPid, $this->signalTerminate);
+
+        $start = $now = \microtime(true);
+        $max = $start + $timeoutSeconds;
+        while ($this->isRunningInBackground() && $now < $max) {
+            $now = \microtime(true);
+            \usleep(1000);
+        }
+
+        if ($this->isRunningInBackground()) {
+            Process::kill($masterPid, $this->signalKill);
+        }
     }
 }

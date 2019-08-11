@@ -25,14 +25,14 @@ final class SwooleServerRunCommandTest extends ServerTestCase
         $serverRun->setTimeout(10);
         $serverRun->start();
 
-        $this->goAndWait(function () use ($serverRun): void {
-            $this->deferProcessStop($serverRun);
-
+        $this->runAsCoroutineAndWait(function (): void {
             $client = HttpClient::fromDomain('localhost', 9999, false);
             $this->assertTrue($client->connect());
 
             $this->assertHelloWorldRequestSucceeded($client);
         });
+
+        $serverRun->stop();
     }
 
     public function testRunAndCallOnReactorRunningMode(): void
@@ -46,13 +46,15 @@ final class SwooleServerRunCommandTest extends ServerTestCase
         $serverRun->setTimeout(10);
         $serverRun->start();
 
-        $this->goAndWait(function () use ($serverRun): void {
-            $this->deferProcessStop($serverRun);
-
+        $this->runAsCoroutineAndWait(function (): void {
             $client = HttpClient::fromDomain('localhost', 9999, false);
             $this->assertTrue($client->connect());
 
             $this->assertHelloWorldRequestSucceeded($client);
         });
+
+        $serverRun->stop();
+
+        $this->killAllProcessesListeningOnPort(9999);
     }
 }

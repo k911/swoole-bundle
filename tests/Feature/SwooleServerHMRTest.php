@@ -31,7 +31,7 @@ final class SwooleServerHMRTest extends ServerTestCase
 
         $this->assertProcessSucceeded($serverStart);
 
-        $this->goAndWait(function (): void {
+        $this->runAsCoroutineAndWait(function (): void {
             $this->deferServerStop();
             $this->deferRestoreOriginalTemplateControllerResponse();
 
@@ -74,7 +74,7 @@ final class SwooleServerHMRTest extends ServerTestCase
 
         $this->assertProcessSucceeded($serverStart);
 
-        $this->goAndWait(function (): void {
+        $this->runAsCoroutineAndWait(function (): void {
             $this->deferServerStop();
             $this->deferRestoreOriginalTemplateControllerResponse();
 

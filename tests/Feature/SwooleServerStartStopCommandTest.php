@@ -27,7 +27,7 @@ final class SwooleServerStartStopCommandTest extends ServerTestCase
 
         $this->assertProcessSucceeded($serverStart);
 
-        $this->goAndWait(function (): void {
+        $this->runAsCoroutineAndWait(function (): void {
             $this->deferServerStop();
 
             $client = HttpClient::fromDomain('localhost', 9999, false);
@@ -49,7 +49,7 @@ final class SwooleServerStartStopCommandTest extends ServerTestCase
 
         $this->assertProcessSucceeded($serverStart);
 
-        $this->goAndWait(function (): void {
+        $this->runAsCoroutineAndWait(function (): void {
             $this->deferServerStop();
 
             $client = HttpClient::fromDomain('localhost', 9999, false);
