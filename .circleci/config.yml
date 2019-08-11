@@ -206,7 +206,7 @@ jobs:
     <<: *docker-env
     <<: *docker-default
     environment:
-      COMPOSER_ARGS: update
+      COMPOSER_ARGS: update --ignore-platform-reqs
       SWOOLE_VERSION: latest
 
   php-72:
