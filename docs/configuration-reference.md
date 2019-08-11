@@ -2,7 +2,8 @@
 
 Documentation of available configuration parameters. See also symfony [bundle configuration](./../src/Bridge/Symfony/Bundle/DependencyInjection/Configuration.php) file or [swoole documentation](https://github.com/swoole/swoole-docs/tree/master/modules).
 
-- [HTTP Server](#http-server)
+- [Swoole Bundle Configuration](#swoole-bundle-configuration)
+  - [HTTP Server](#http-server)
 
 ## HTTP Server
 
@@ -73,6 +74,7 @@ swoole:
             reactor_count: 2
             worker_count: 4
             # when not set, swoole sets these are automatically set based on count of host CPU cores
+            task_worker_count: 2 # one of: positive number, "auto", or null to disable creation of task worker processes (default: null)
 
             log_level: auto
             # can be one of: (default) auto, debug, trace, info, notice, warning, error
