@@ -50,7 +50,7 @@ EOF;
         $serverRun->setTimeout(10);
         $serverRun->start();
 
-        $this->runAsCoroutineAndWait(function () use ($serverRun): void {
+        $this->runAsCoroutineAndWait(function (): void {
             $client = HttpClient::fromDomain('localhost', 9999, false);
             $this->assertTrue($client->connect());
 

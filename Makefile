@@ -6,6 +6,7 @@ clean/coverage:
 .PHONY: clean/tests/resources
 clean/tests/resources:
 	@rm -rf tests/Fixtures/resources/*.pid
+	@rm -rf tests/Fixtures/resources/*.txt
 
 .PHONY: clean/fixtures/cache
 clean/fixtures/cache:
