@@ -15,6 +15,7 @@ return PhpCsFixer\Config::create()
         '@Symfony:risky' => true,
         '@PHP71Migration' => true,
         '@PHP71Migration:risky' => true,
+        '@PHP73Migration' => true,
         'array_syntax' => ['syntax' => 'short'],
         'combine_consecutive_issets' => true,
         'combine_consecutive_unsets' => true,
@@ -29,6 +30,12 @@ return PhpCsFixer\Config::create()
         'ordered_imports' => ['sortAlgorithm' => 'alpha'],
         'phpdoc_order' => true,
         'strict_comparison' => true,
+        'phpdoc_types_order' => true,
+        'ordered_class_elements' => true,
+        'array_indentation' => true,
+        'multiline_whitespace_before_semicolons' => ['strategy' => 'new_line_for_chained_calls'],
+        'no_blank_lines_after_class_opening' => true,
+        'blank_line_before_statement' => true,
     ])
     ->setRiskyAllowed(true)
     ->setFinder($finder);

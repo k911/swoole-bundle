@@ -74,6 +74,14 @@ class TestAppKernel extends Kernel
 
     /**
      * {@inheritdoc}
+     */
+    public function getProjectDir(): string
+    {
+        return __DIR__.'/app';
+    }
+
+    /**
+     * {@inheritdoc}
      *
      * @throws \Symfony\Component\Config\Exception\FileLoaderLoadException
      */
@@ -105,13 +113,5 @@ class TestAppKernel extends Kernel
     private function getVarDir(): string
     {
         return $this->getProjectDir().'/var';
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getProjectDir(): string
-    {
-        return __DIR__.'/app';
     }
 }

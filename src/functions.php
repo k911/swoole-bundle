@@ -14,7 +14,7 @@ use OutOfRangeException;
  * @param object      $obj
  * @param string      $propertyName
  * @param mixed       $newValue
- * @param string|null $scope        class scope useful when property is inherited
+ * @param null|string $scope        class scope useful when property is inherited
  */
 function replace_object_property(object $obj, string $propertyName, $newValue, ?string $scope = null): void
 {
@@ -29,7 +29,7 @@ function replace_object_property(object $obj, string $propertyName, $newValue, ?
  *
  * @param object      $obj
  * @param string      $propertyName
- * @param string|null $scope        class scope useful when property is inherited
+ * @param null|string $scope        class scope useful when property is inherited
  *
  * @return mixed
  */
@@ -61,10 +61,10 @@ function get_max_memory(): int
     $shortHandMemoryLimit = (int) \mb_substr($memoryLimit, 0, -1);
 
     return $shortHandMemoryLimit * [
-            'g' => 1073741824, //1024 * 1024 * 1024
-            'm' => 1048576, //1024 * 1024
-            'k' => 1024,
-        ][\mb_strtolower(\mb_substr($memoryLimit, -1))];
+        'g' => 1073741824, //1024 * 1024 * 1024
+        'm' => 1048576, //1024 * 1024
+        'k' => 1024,
+    ][\mb_strtolower(\mb_substr($memoryLimit, -1))];
 }
 
 function format_bytes(int $bytes): string
@@ -87,7 +87,7 @@ function format_bytes(int $bytes): string
 /**
  * Simple decodes string of values as array.
  *
- * @param string|null $stringSet
+ * @param null|string $stringSet
  * @param string      $separator  set separator
  * @param array       $stripChars characters to be stripped out from string
  *

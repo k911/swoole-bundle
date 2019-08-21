@@ -24,17 +24,17 @@ class HttpKernelHttpDriverTest extends TestCase
     private $httpDriver;
 
     /**
-     * @var ResponseProcessorInterface|ObjectProphecy
+     * @var ObjectProphecy|ResponseProcessorInterface
      */
     private $responseProcessor;
 
     /**
-     * @var RequestFactoryInterface|ObjectProphecy
+     * @var ObjectProphecy|RequestFactoryInterface
      */
     private $requestFactoryProphecy;
 
     /**
-     * @var KernelInterface|TerminableInterface|ObjectProphecy
+     * @var KernelInterface|ObjectProphecy|TerminableInterface
      */
     private $kernelProphecy;
 

@@ -116,9 +116,9 @@ final class Configuration implements ConfigurationInterface
                                 ->ifString()
                                 ->then(function ($v): array {
                                     return [
-                                       'strategy' => $v,
-                                       'public_dir' => 'off' === $v ? null : self::DEFAULT_PUBLIC_DIR,
-                                   ];
+                                        'strategy' => $v,
+                                        'public_dir' => 'off' === $v ? null : self::DEFAULT_PUBLIC_DIR,
+                                    ];
                                 })
                             ->end()
                             ->children()

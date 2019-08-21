@@ -13,7 +13,7 @@ final class Sockets
     private $additionalSockets;
 
     /**
-     * @var Socket|null
+     * @var null|Socket
      */
     private $apiSocket;
 

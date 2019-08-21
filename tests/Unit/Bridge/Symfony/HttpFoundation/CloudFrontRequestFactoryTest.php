@@ -14,7 +14,7 @@ use Symfony\Component\HttpFoundation\Request as HttpFoundationRequest;
 class CloudFrontRequestFactoryTest extends TestCase
 {
     /**
-     * @var RequestFactoryInterface|ObjectProphecy
+     * @var ObjectProphecy|RequestFactoryInterface
      */
     private $decoratedProphecy;
 

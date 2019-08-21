@@ -45,13 +45,15 @@ class CoverageBundle extends Bundle
             ->setPublic(false)
             ->setAutowired(true)
             ->setAutoconfigured(true)
-            ->addTag('kernel.event_listener', ['event' => 'console.command']);
+            ->addTag('kernel.event_listener', ['event' => 'console.command'])
+        ;
 
         $container->register(CoverageFinishOnConsoleTerminate::class)
             ->setPublic(false)
             ->setAutowired(true)
             ->setAutoconfigured(true)
-            ->addTag('kernel.event_listener', ['event' => 'console.terminate']);
+            ->addTag('kernel.event_listener', ['event' => 'console.terminate'])
+        ;
     }
 
     private function registerServerCoverageFlow(ContainerBuilder $container): void
@@ -60,48 +62,56 @@ class CoverageBundle extends Bundle
             ->setPublic(false)
             ->setAutoconfigured(true)
             ->setArgument('$decorated', new Reference(CodeCoverageRequestHandler::class.'.inner'))
-            ->setDecoratedService(RequestHandlerInterface::class, null, -9999);
+            ->setDecoratedService(RequestHandlerInterface::class, null, -9999)
+        ;
 
         $container->autowire('swoole_bundle.server.api_server.coverage_request_handler', CodeCoverageRequestHandler::class)
             ->setPublic(false)
             ->setAutoconfigured(true)
             ->setArgument('$decorated', new Reference('swoole_bundle.server.api_server.coverage_request_handler.inner'))
-            ->setDecoratedService('swoole_bundle.server.api_server.request_handler', null, -9999);
+            ->setDecoratedService('swoole_bundle.server.api_server.request_handler', null, -9999)
+        ;
 
         $container->autowire(CoverageStartOnServerStart::class)
             ->setPublic(false)
             ->setAutoconfigured(true)
             ->setArgument('$decorated', new Reference(CoverageStartOnServerStart::class.'.inner'))
-            ->setDecoratedService(ServerStartHandlerInterface::class);
+            ->setDecoratedService(ServerStartHandlerInterface::class)
+        ;
 
         $container->autowire(CoverageFinishOnServerShutdown::class)
             ->setPublic(false)
             ->setAutoconfigured(true)
             ->setArgument('$decorated', new Reference(CoverageFinishOnServerShutdown::class.'.inner'))
-            ->setDecoratedService(ServerShutdownHandlerInterface::class);
+            ->setDecoratedService(ServerShutdownHandlerInterface::class)
+        ;
 
         $container->autowire(CoverageStartOnServerWorkerStart::class)
             ->setPublic(false)
             ->setAutoconfigured(true)
             ->setArgument('$decorated', new Reference(CoverageStartOnServerWorkerStart::class.'.inner'))
-            ->setDecoratedService(WorkerStartHandlerInterface::class);
+            ->setDecoratedService(WorkerStartHandlerInterface::class)
+        ;
 
         $container->autowire(CoverageStartOnServerManagerStart::class)
             ->setPublic(false)
             ->setAutoconfigured(true)
             ->setArgument('$decorated', new Reference(CoverageStartOnServerManagerStart::class.'.inner'))
-            ->setDecoratedService(ServerManagerStartHandlerInterface::class);
+            ->setDecoratedService(ServerManagerStartHandlerInterface::class)
+        ;
 
         $container->autowire(CoverageStartOnServerManagerStop::class)
             ->setPublic(false)
             ->setAutoconfigured(true)
             ->setArgument('$decorated', new Reference(CoverageStartOnServerManagerStop::class.'.inner'))
-            ->setDecoratedService(ServerManagerStopHandlerInterface::class);
+            ->setDecoratedService(ServerManagerStopHandlerInterface::class)
+        ;
 
         $container->autowire(CodeCoverageTaskHandler::class)
             ->setPublic(false)
             ->setAutoconfigured(true)
             ->setArgument('$decorated', new Reference(CodeCoverageTaskHandler::class.'.inner'))
-            ->setDecoratedService(TaskHandlerInterface::class);
+            ->setDecoratedService(TaskHandlerInterface::class)
+        ;
     }
 }

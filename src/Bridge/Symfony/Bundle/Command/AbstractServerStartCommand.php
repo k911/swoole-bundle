@@ -56,14 +56,9 @@ abstract class AbstractServerStartCommand extends Command
         parent::__construct();
     }
 
-    /**
-     * @throws \Assert\AssertionFailedException
-     *
-     * @return string
-     */
-    private function getDefaultPublicDir(): string
+    public function enableTestMode(): void
     {
-        return $this->serverConfiguration->hasPublicDir() ? $this->serverConfiguration->getPublicDir() : $this->parameterBag->get('kernel.project_dir').'/public';
+        $this->testing = true;
     }
 
     /**
@@ -83,44 +78,8 @@ abstract class AbstractServerStartCommand extends Command
             ->addOption('trusted-hosts', null, InputOption::VALUE_REQUIRED, 'Trusted hosts', $this->parameterBag->get('swoole.http_server.trusted_hosts'))
             ->addOption('trusted-proxies', null, InputOption::VALUE_REQUIRED, 'Trusted proxies', $this->parameterBag->get('swoole.http_server.trusted_proxies'))
             ->addOption('api', null, InputOption::VALUE_NONE, 'Enable API Server')
-            ->addOption('api-port', null, InputOption::VALUE_REQUIRED, 'Listen for API Server on this port', $this->parameterBag->get('swoole.http_server.api.port'));
-    }
-
-    private function ensureXdebugDisabled(SymfonyStyle $io): void
-    {
-        $xdebugHandler = new XdebugHandler();
-        if (!$xdebugHandler->shouldRestart()) {
-            return;
-        }
-
-        if ($xdebugHandler->canBeRestarted()) {
-            $restartedProcess = $xdebugHandler->prepareRestartedProcess();
-            $xdebugHandler->forwardSignals($restartedProcess);
-
-            $io->note('Restarting command without Xdebug..');
-            $io->comment(\sprintf(
-                "%s\n%s",
-                'Swoole is incompatible with Xdebug. Check https://github.com/swoole/swoole-src/issues/1681 for more information.',
-                \sprintf('Set environment variable "%s=1" to use it anyway.', $xdebugHandler->allowXdebugEnvName())
-            ));
-
-            if ($this->testing) {
-                return;
-            }
-
-            $restartedProcess->start();
-
-            foreach ($restartedProcess as $processOutput) {
-                echo $processOutput;
-            }
-
-            exit($restartedProcess->getExitCode());
-        }
-
-        $io->warning(\sprintf(
-            "Xdebug is enabled! Command could not be restarted automatically due to lack of \"pcntl\" extension.\nPlease either disable Xdebug or set environment variable \"%s=1\" to disable this message.",
-            $xdebugHandler->allowXdebugEnvName()
-        ));
+            ->addOption('api-port', null, InputOption::VALUE_REQUIRED, 'Listen for API Server on this port', $this->parameterBag->get('swoole.http_server.api.port'))
+        ;
     }
 
     /**
@@ -170,18 +129,6 @@ abstract class AbstractServerStartCommand extends Command
         return 0;
     }
 
-    private function makeSwooleHttpServer(): Server
-    {
-        $sockets = $this->serverConfiguration->getSockets();
-        $serverSocket = $sockets->getServerSocket();
-
-        return HttpServerFactory::make(
-            $serverSocket,
-            $this->serverConfiguration->getRunningMode(),
-            ...($sockets->hasApiSocket() ? [$sockets->getApiSocket()] : [])
-        );
-    }
-
     /**
      * @param HttpServerConfiguration $serverConfiguration
      * @param InputInterface          $input
@@ -200,7 +147,8 @@ abstract class AbstractServerStartCommand extends Command
 
         $newServerSocket = $sockets->getServerSocket()
             ->withPort((int) $port)
-            ->withHost($host);
+            ->withHost($host)
+        ;
 
         $sockets->changeServerSocket($newServerSocket);
 
@@ -242,28 +190,6 @@ abstract class AbstractServerStartCommand extends Command
         }
 
         return $runtimeConfiguration;
-    }
-
-    /**
-     * @param mixed $set
-     *
-     * @throws \Assert\AssertionFailedException
-     *
-     * @return array
-     */
-    private function decodeSet($set): array
-    {
-        if (\is_string($set)) {
-            return decode_string_as_set($set);
-        }
-
-        Assertion::isArray($set);
-
-        if (1 === \count($set)) {
-            return decode_string_as_set($set[0]);
-        }
-
-        return $set;
     }
 
     /**
@@ -321,8 +247,84 @@ abstract class AbstractServerStartCommand extends Command
         }
     }
 
-    public function enableTestMode(): void
+    /**
+     * @throws \Assert\AssertionFailedException
+     *
+     * @return string
+     */
+    private function getDefaultPublicDir(): string
     {
-        $this->testing = true;
+        return $this->serverConfiguration->hasPublicDir() ? $this->serverConfiguration->getPublicDir() : $this->parameterBag->get('kernel.project_dir').'/public';
+    }
+
+    private function ensureXdebugDisabled(SymfonyStyle $io): void
+    {
+        $xdebugHandler = new XdebugHandler();
+        if (!$xdebugHandler->shouldRestart()) {
+            return;
+        }
+
+        if ($xdebugHandler->canBeRestarted()) {
+            $restartedProcess = $xdebugHandler->prepareRestartedProcess();
+            $xdebugHandler->forwardSignals($restartedProcess);
+
+            $io->note('Restarting command without Xdebug..');
+            $io->comment(\sprintf(
+                "%s\n%s",
+                'Swoole is incompatible with Xdebug. Check https://github.com/swoole/swoole-src/issues/1681 for more information.',
+                \sprintf('Set environment variable "%s=1" to use it anyway.', $xdebugHandler->allowXdebugEnvName())
+            ));
+
+            if ($this->testing) {
+                return;
+            }
+
+            $restartedProcess->start();
+
+            foreach ($restartedProcess as $processOutput) {
+                echo $processOutput;
+            }
+
+            exit($restartedProcess->getExitCode());
+        }
+
+        $io->warning(\sprintf(
+            "Xdebug is enabled! Command could not be restarted automatically due to lack of \"pcntl\" extension.\nPlease either disable Xdebug or set environment variable \"%s=1\" to disable this message.",
+            $xdebugHandler->allowXdebugEnvName()
+        ));
+    }
+
+    private function makeSwooleHttpServer(): Server
+    {
+        $sockets = $this->serverConfiguration->getSockets();
+        $serverSocket = $sockets->getServerSocket();
+
+        return HttpServerFactory::make(
+            $serverSocket,
+            $this->serverConfiguration->getRunningMode(),
+            ...($sockets->hasApiSocket() ? [$sockets->getApiSocket()] : [])
+        );
+    }
+
+    /**
+     * @param mixed $set
+     *
+     * @throws \Assert\AssertionFailedException
+     *
+     * @return array
+     */
+    private function decodeSet($set): array
+    {
+        if (\is_string($set)) {
+            return decode_string_as_set($set);
+        }
+
+        Assertion::isArray($set);
+
+        if (1 === \count($set)) {
+            return decode_string_as_set($set[0]);
+        }
+
+        return $set;
     }
 }

@@ -69,6 +69,7 @@ final class CoroutinePool
     {
         return function () use ($coroutine, $channel): void {
             $result = null;
+
             try {
                 $result = $coroutine() ?? true;
             } catch (\Throwable $exception) {
@@ -102,6 +103,7 @@ final class CoroutinePool
 
             if ($result instanceof Throwable) {
                 $this->exception = $result;
+
                 break;
             }
 

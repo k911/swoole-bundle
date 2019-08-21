@@ -19,7 +19,7 @@ final class HttpServer
     private $running;
     private $configuration;
     /**
-     * @var Server|null
+     * @var null|Server
      */
     private $server;
 
@@ -53,7 +53,8 @@ final class HttpServer
 
         $this->server = $server;
         $defaultSocketPort = $this->configuration->getServerSocket()
-            ->port();
+            ->port()
+        ;
 
         foreach ($server->ports as $listener) {
             if ($listener->port === $defaultSocketPort) {
@@ -116,18 +117,6 @@ final class HttpServer
         return $this->running || $this->isRunningInBackground();
     }
 
-    /**
-     * @return bool
-     */
-    private function isRunningInBackground(): bool
-    {
-        try {
-            return Process::kill($this->configuration->getPid(), 0);
-        } catch (Throwable $ex) {
-            return false;
-        }
-    }
-
     public function getServer(): Server
     {
         if (null === $this->server) {
@@ -148,6 +137,18 @@ final class HttpServer
     public function getListeners(): array
     {
         return $this->listeners;
+    }
+
+    /**
+     * @return bool
+     */
+    private function isRunningInBackground(): bool
+    {
+        try {
+            return Process::kill($this->configuration->getPid(), 0);
+        } catch (Throwable $ex) {
+            return false;
+        }
     }
 
     private function assertNotInitialized(): void

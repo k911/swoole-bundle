@@ -8,9 +8,9 @@ use Swoole\Server;
 
 final class SwooleServerMock extends Server
 {
-    private static $instance;
     public $registeredTick = false;
     public $registeredTickTuple = [];
+    private static $instance;
 
     private function __construct(bool $taskworker)
     {
@@ -24,12 +24,6 @@ final class SwooleServerMock extends Server
         $this->registeredTickTuple = [$interval, $callback, $param];
     }
 
-    private function clean(): void
-    {
-        $this->registeredTick = false;
-        $this->registeredTickTuple = [];
-    }
-
     public static function make(bool $taskworker = false): self
     {
         if (!self::$instance instanceof self) {
@@ -39,5 +33,11 @@ final class SwooleServerMock extends Server
         self::$instance->clean();
 
         return self::$instance;
+    }
+
+    private function clean(): void
+    {
+        $this->registeredTick = false;
+        $this->registeredTickTuple = [];
     }
 }
