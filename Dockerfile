@@ -12,13 +12,17 @@ RUN pecl install inotify && \
 FROM ext-builder as ext-pcntl
 RUN docker-php-ext-install pcntl
 
+FROM ext-builder as ext-intl
+RUN apk add --no-cache icu-dev && \
+    docker-php-ext-install intl
+
 FROM ext-builder as ext-xdebug
 RUN pecl install xdebug && \
     docker-php-ext-enable xdebug
 
 FROM ext-builder as ext-swoole
 RUN apk add --no-cache git
-ARG SWOOLE_VERSION="4.4.4"
+ARG SWOOLE_VERSION="4.4.7"
 RUN git clone https://github.com/swoole/swoole-src.git --branch "v$SWOOLE_VERSION" --depth 1 && \
     cd swoole-src && \
     phpize && \
@@ -33,8 +37,27 @@ RUN pecl install pcov && \
 RUN echo "pcov.enabled=1" >> /usr/local/etc/php/conf.d/docker-php-ext-pcov.ini && \
     echo "pcov.directory=/usr/src/app/src" >> /usr/local/etc/php/conf.d/docker-php-ext-pcov.ini
 
-FROM composer:$COMPOSER_TAG as app-installer
+FROM php:$PHP_TAG as base
 WORKDIR /usr/src/app
+RUN addgroup -g 1000 -S runner && \
+    adduser -u 1000 -S app -G runner && \
+    chown app:runner /usr/src/app
+RUN apk add --no-cache libstdc++ icu
+# php -i | grep 'PHP API' | sed -e 's/PHP API => //'
+ARG PHP_API_VERSION="20180731"
+COPY --from=ext-swoole /usr/local/lib/php/extensions/no-debug-non-zts-${PHP_API_VERSION}/swoole.so /usr/local/lib/php/extensions/no-debug-non-zts-${PHP_API_VERSION}/swoole.so
+COPY --from=ext-swoole /usr/local/etc/php/conf.d/docker-php-ext-swoole.ini /usr/local/etc/php/conf.d/docker-php-ext-swoole.ini
+COPY --from=ext-inotify /usr/local/lib/php/extensions/no-debug-non-zts-${PHP_API_VERSION}/inotify.so /usr/local/lib/php/extensions/no-debug-non-zts-${PHP_API_VERSION}/inotify.so
+COPY --from=ext-inotify /usr/local/etc/php/conf.d/docker-php-ext-inotify.ini /usr/local/etc/php/conf.d/docker-php-ext-inotify.ini
+COPY --from=ext-pcntl /usr/local/lib/php/extensions/no-debug-non-zts-${PHP_API_VERSION}/pcntl.so /usr/local/lib/php/extensions/no-debug-non-zts-${PHP_API_VERSION}/pcntl.so
+COPY --from=ext-pcntl /usr/local/etc/php/conf.d/docker-php-ext-pcntl.ini /usr/local/etc/php/conf.d/docker-php-ext-pcntl.inidebug-non-zts-${PHP_API_VERSION}/pcntl.so
+COPY --from=ext-intl /usr/local/lib/php/extensions/no-debug-non-zts-${PHP_API_VERSION}/intl.so /usr/local/lib/php/extensions/no-debug-non-zts-${PHP_API_VERSION}/intl.so
+COPY --from=ext-intl /usr/local/etc/php/conf.d/docker-php-ext-intl.ini /usr/local/etc/php/conf.d/docker-php-ext-intl.ini
+
+FROM composer:${COMPOSER_TAG} AS composer-bin
+FROM base as app-installer
+ENV COMPOSER_ALLOW_SUPERUSER="1"
+COPY --chown=app:runner --from=composer-bin /usr/bin/composer /usr/local/bin/composer
 RUN composer global require "hirak/prestissimo:^0.3" --prefer-dist --no-progress --no-suggest --classmap-authoritative --ansi
 COPY composer.json composer.lock ./
 RUN composer validate
@@ -43,30 +66,15 @@ RUN composer ${COMPOSER_ARGS} --prefer-dist --no-progress --no-suggest --no-auto
 COPY . ./
 RUN composer dump-autoload --classmap-authoritative --ansi
 
-FROM php:$PHP_TAG as base
-WORKDIR /usr/src/app
-RUN addgroup -g 1000 -S runner && \
-    adduser -u 1000 -S app -G runner && \
-    chown app:runner /usr/src/app
-RUN apk add --no-cache libstdc++
-# php -i | grep 'PHP API' | sed -e 's/PHP API => //'
-ARG PHP_API_VERSION="20180731"
-COPY --from=ext-swoole /usr/local/lib/php/extensions/no-debug-non-zts-${PHP_API_VERSION}/swoole.so /usr/local/lib/php/extensions/no-debug-non-zts-${PHP_API_VERSION}/swoole.so
-COPY --from=ext-swoole /usr/local/etc/php/conf.d/docker-php-ext-swoole.ini /usr/local/etc/php/conf.d/docker-php-ext-swoole.ini
-COPY --from=ext-inotify /usr/local/lib/php/extensions/no-debug-non-zts-${PHP_API_VERSION}/inotify.so /usr/local/lib/php/extensions/no-debug-non-zts-${PHP_API_VERSION}/inotify.so
-COPY --from=ext-inotify /usr/local/etc/php/conf.d/docker-php-ext-inotify.ini /usr/local/etc/php/conf.d/docker-php-ext-inotify.ini
-COPY --from=ext-pcntl /usr/local/lib/php/extensions/no-debug-non-zts-${PHP_API_VERSION}/pcntl.so /usr/local/lib/php/extensions/no-debug-non-zts-${PHP_API_VERSION}/pcntl.so
-COPY --from=ext-pcntl /usr/local/etc/php/conf.d/docker-php-ext-pcntl.ini /usr/local/etc/php/conf.d/docker-php-ext-pcntl.ini
-
 FROM base as base-coverage-xdebug
-RUN apk add --no-cache bash lsof
+RUN apk add --no-cache bash
 ARG PHP_API_VERSION="20180731"
 COPY --from=ext-xdebug /usr/local/lib/php/extensions/no-debug-non-zts-${PHP_API_VERSION}/xdebug.so /usr/local/lib/php/extensions/no-debug-non-zts-${PHP_API_VERSION}/xdebug.so
 COPY --from=ext-xdebug /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini
 USER app:runner
 ENV COVERAGE="1" \
     COMPOSER_ALLOW_SUPERUSER="1"
-COPY --chown=app:runner --from=app-installer /usr/bin/composer /usr/local/bin/composer
+COPY --chown=app:runner --from=composer-bin /usr/bin/composer /usr/local/bin/composer
 COPY --chown=app:runner --from=app-installer /usr/src/app ./
 
 FROM base as base-coverage-pcov
@@ -76,7 +84,7 @@ COPY --from=ext-pcov /usr/local/etc/php/conf.d/docker-php-ext-pcov.ini /usr/loca
 USER app:runner
 ENV COVERAGE="1" \
     COMPOSER_ALLOW_SUPERUSER="1"
-COPY --chown=app:runner --from=app-installer /usr/bin/composer /usr/local/bin/composer
+COPY --chown=app:runner --from=composer-bin /usr/bin/composer /usr/local/bin/composer
 COPY --chown=app:runner --from=app-installer /usr/src/app ./
 
 FROM base as Cli
@@ -87,7 +95,7 @@ CMD ["swoole:server:run"]
 
 FROM Cli as Composer
 ENV COMPOSER_ALLOW_SUPERUSER="1"
-COPY --chown=app:runner --from=app-installer /usr/bin/composer /usr/local/bin/composer
+COPY --chown=app:runner --from=composer-bin /usr/bin/composer /usr/local/bin/composer
 ENTRYPOINT ["composer"]
 CMD ["test"]
 

@@ -7,7 +7,7 @@ namespace K911\Swoole\Tests\Feature;
 use K911\Swoole\Client\HttpClient;
 use K911\Swoole\Tests\Fixtures\Symfony\TestBundle\Test\ServerTestCase;
 
-final class SwooleCustomPidFileTest extends ServerTestCase
+final class SwooleServerCustomPidFileTest extends ServerTestCase
 {
     public function testStartServerOnCustomPidFileLocation(): void
     {

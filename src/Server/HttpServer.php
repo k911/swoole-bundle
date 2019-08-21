@@ -16,6 +16,8 @@ use Throwable;
 
 final class HttpServer
 {
+    public const GRACEFUL_SHUTDOWN_TIMEOUT_SECONDS = 10;
+
     private $running;
     private $configuration;
     /**
@@ -35,7 +37,7 @@ final class HttpServer
     {
         $this->signalTerminate = \defined('SIGTERM') ? (int) \constant('SIGTERM') : 15;
         $this->signalReload = \defined('SIGUSR1') ? (int) \constant('SIGUSR1') : 10;
-        $this->signalKill = \defined('SIGKILL') ? (int) \constant('SIGKILL') : 2;
+        $this->signalKill = \defined('SIGKILL') ? (int) \constant('SIGKILL') : 9;
 
         $this->running = $running;
         $this->configuration = $configuration;
@@ -83,7 +85,7 @@ final class HttpServer
         if ($this->server instanceof Server) {
             $this->server->shutdown();
         } elseif ($this->isRunningInBackground()) {
-            $this->gracefulSignalShutdown($this->configuration->getPid(), 2);
+            $this->gracefulSignalShutdown($this->configuration->getPid(), self::GRACEFUL_SHUTDOWN_TIMEOUT_SECONDS);
         } else {
             throw NotRunningException::make();
         }

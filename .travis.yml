@@ -9,7 +9,7 @@ cache:
 env:
   global:
     - COMPOSER_ARGS=install
-    - SWOOLE_VERSION=4.4.4
+    - SWOOLE_VERSION=4.4.7
 
 matrix:
   include:
@@ -31,15 +31,15 @@ matrix:
       env:
         - COMPOSER_ARGS=update
   fast_finish: true
-  allow_failures:
-    - php: "7.3"
-      env:
-        - SWOOLE_LATEST=1
-        - COMPOSER_ARGS='update --ignore-platform-reqs'
-    - php: "7.3"
-      env:
-        - SWOOLE_LATEST=1
-        - COMPOSER_ARGS='install --ignore-platform-reqs'
+  #allow_failures:
+  #  - php: "7.3"
+  #    env:
+  #      - SWOOLE_LATEST=1
+  #      - COMPOSER_ARGS='update --ignore-platform-reqs'
+  #  - php: "7.3"
+  #    env:
+  #      - SWOOLE_LATEST=1
+  #      - COMPOSER_ARGS='install --ignore-platform-reqs'
 
 before_script:
   - phpenv config-rm xdebug.ini

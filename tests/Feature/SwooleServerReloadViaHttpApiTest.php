@@ -26,9 +26,6 @@ final class SwooleServerReloadViaHttpApiTest extends ServerTestCase
             '--api-port=9998',
         ]);
 
-        if (self::coverageEnabled()) {
-            $serverStart->disableOutput();
-        }
         $serverStart->setTimeout(3);
         $serverStart->run();
 
