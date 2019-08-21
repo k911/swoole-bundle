@@ -92,9 +92,9 @@ Symfony integration with [Swoole](https://www.swoole.co.uk/) to speed up your ap
 
 ## Requirements
 
-- PHP version `>= 7.2.19`
-- Swoole PHP Extension `>= 4.3.6`
-- Symfony `>= 4.2.10`
+- PHP version `>= 7.3.10`
+- Swoole PHP Extension `>= 4.4.7`
+- Symfony `>= 4.3.1`
 
 Additional requirements to enable specific features:
 
@@ -102,28 +102,18 @@ Additional requirements to enable specific features:
 
 ### Swoole
 
-Bundle requires [Swoole PHP Extension](https://github.com/swoole/swoole-src) version 4.3.0 or higher. Active bug fixes are provided only for latest version.
+Bundle requires [Swoole PHP Extension](https://github.com/swoole/swoole-src) version 4.4.7 or higher. Active bug fixes are provided only for the latest version.
 
 #### Version check
 
 To check your installed version you can run following command:
 
-```bash
-php -r "echo swoole_version();"
+```sh
+php -r "echo swoole_version() . \PHP_EOL;"
 
-# 4.3.3
+# 4.4.7
 ```
 
 #### Installation
 
-To install latest version of swoole use `pecl`:
-
-```bash
-pecl install swoole
-```
-
-Or, to skip interactive questions:
-
-```bash
-echo "\n" | pecl install swoole
-```
+Official GitHub repository [swoole/swoole-src](https://github.com/swoole/swoole-src#%EF%B8%8F-installation) contains comprehensive installation guide. The recommended approach is to install it [from source](https://github.com/swoole/swoole-src#3-install-from-source-recommended).

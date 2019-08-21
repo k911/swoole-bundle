@@ -89,13 +89,15 @@ final class SwooleServerStatusCommandTest extends ServerTestCase
             ]);
 
             $this->assertSame(0, $commandTester->getStatusCode());
-            $this->assertStringContainsString('Fetched status', $commandTester->getDisplay());
-            $this->assertStringContainsString('Fetched metrics', $commandTester->getDisplay());
-            $this->assertStringContainsString('Listener[0] Host', $commandTester->getDisplay());
-            $this->assertStringContainsString('Requests', $commandTester->getDisplay());
-
             $this->assertHelloWorldRequestSucceeded($client);
         });
+
+        $output = $commandTester->getDisplay();
+
+        $this->assertStringContainsString('Fetched status', $output);
+        $this->assertStringContainsString('Fetched metrics', $output);
+        $this->assertStringContainsString('Listener[0] Host', $output);
+        $this->assertStringContainsString('Requests', $output);
     }
 
     public function testCheckServerStatusFailWhenServerNotRunning(): void

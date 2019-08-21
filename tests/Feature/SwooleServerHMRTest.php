@@ -25,7 +25,6 @@ final class SwooleServerHMRTest extends ServerTestCase
             '--port=9999',
         ], ['APP_ENV' => 'auto']);
 
-        $serverStart->disableOutput();
         $serverStart->setTimeout(3);
         $serverStart->run();
 
@@ -68,7 +67,6 @@ final class SwooleServerHMRTest extends ServerTestCase
             '--port=9999',
         ], ['APP_ENV' => 'prod']);
 
-        $serverStart->disableOutput();
         $serverStart->setTimeout(3);
         $serverStart->run();
 

@@ -23,9 +23,6 @@ final class SwooleServerReloadCommandTest extends ServerTestCase
             '--port=9999',
         ]);
 
-        if (self::coverageEnabled()) {
-            $serverStart->disableOutput();
-        }
         $serverStart->setTimeout(3);
         $serverStart->run();
 
@@ -66,9 +63,6 @@ final class SwooleServerReloadCommandTest extends ServerTestCase
     {
         $serverReload = $this->createConsoleProcess(['swoole:server:reload']);
 
-        if (self::coverageEnabled()) {
-            $serverReload->disableOutput();
-        }
         $serverReload->setTimeout(3);
         $serverReload->run();
 

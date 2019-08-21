@@ -7,7 +7,7 @@ namespace K911\Swoole\Tests\Feature;
 use K911\Swoole\Client\HttpClient;
 use K911\Swoole\Tests\Fixtures\Symfony\TestBundle\Test\ServerTestCase;
 
-final class StaticFilesServingTest extends ServerTestCase
+final class SwooleServerStaticFilesServingTest extends ServerTestCase
 {
     public function testAdvancedStaticFilesServerWithAutoRegistration(): void
     {

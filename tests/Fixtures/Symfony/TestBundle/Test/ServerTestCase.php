@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace K911\Swoole\Tests\Fixtures\Symfony\TestBundle\Test;
 
 use K911\Swoole\Client\HttpClient;
+use K911\Swoole\Coroutine\CoroutinePool;
 use K911\Swoole\Tests\Fixtures\Symfony\TestAppKernel;
 use Swoole\Coroutine\Scheduler;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
@@ -23,7 +24,8 @@ class ServerTestCase extends KernelTestCase
     protected function tearDown(): void
     {
         // Make sure everything is stopped
-        \sleep(1);
+//        $this->killAllProcessesListeningOnPort(9999);
+        \sleep(self::coverageEnabled() ? 3 : 1);
     }
 
     public static function resolveEnvironment(?string $env = null): string
@@ -46,11 +48,10 @@ class ServerTestCase extends KernelTestCase
 
     public function runAsCoroutineAndWait(callable $callable): void
     {
-        $scheduler = new Scheduler();
+        $coroutinePool = CoroutinePool::fromCoroutines($callable);
 
         try {
-            $scheduler->add($callable);
-            $scheduler->start();
+            $coroutinePool->run();
         } catch (\RuntimeException $runtimeException) {
             if (self::SWOOLE_XDEBUG_CORO_WARNING_MESSAGE !== $runtimeException->getMessage()) {
                 throw $runtimeException;
@@ -60,10 +61,12 @@ class ServerTestCase extends KernelTestCase
 
     public function killAllProcessesListeningOnPort(int $port, int $timeout = 3): void
     {
-        $killAllReactorProcesses = new Process(['/bin/sh', '-c', "kill -9 $(lsof -i :$port | grep php | awk '{print $2}') &> /dev/null"]);
-        $killAllReactorProcesses->setTimeout($timeout);
-        $killAllReactorProcesses->run();
-        $this->assertProcessSucceeded($killAllReactorProcesses);
+        $killProcessesListeningOnPort = Process::fromShellCommandline('kill -9 $(lsof -i ":$PORT" | grep php | awk \'{print $2}\') &> /dev/null || true');
+        $killProcessesListeningOnPort->setTimeout($timeout);
+        $killProcessesListeningOnPort->run(null, [
+            'PORT' => $port,
+        ]);
+        $this->assertProcessSucceeded($killProcessesListeningOnPort);
     }
 
     public function assertProcessSucceeded(Process $process): void
@@ -96,7 +99,7 @@ class ServerTestCase extends KernelTestCase
         $processArgs = \array_merge(['swoole:server:stop'], $args);
         $serverStop = $this->createConsoleProcess($processArgs);
 
-        $serverStop->setTimeout(3);
+        $serverStop->setTimeout(10);
         $serverStop->run();
 
         $this->assertProcessSucceeded($serverStop);
