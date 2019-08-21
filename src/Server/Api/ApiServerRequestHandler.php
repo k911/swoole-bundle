@@ -147,15 +147,6 @@ final class ApiServerRequestHandler implements RequestHandlerInterface
 
         $response->header(Http::HEADER_CONTENT_TYPE, Http::CONTENT_TYPE_APPLICATION_JSON);
         $response->status($statusCode);
-
-        $options = \defined('JSON_THROW_ON_ERROR') ? \JSON_THROW_ON_ERROR : 0;
-        $json = \json_encode($data, $options);
-
-        // TODO: Drop on PHP 7.3 Migration
-        if (!\defined('JSON_THROW_ON_ERROR') && false === $json) {
-            throw new \RuntimeException(\json_last_error_msg(), \json_last_error());
-        }
-
-        $response->end($json);
+        $response->end(\json_encode($data, \JSON_THROW_ON_ERROR));
     }
 }
