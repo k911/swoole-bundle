@@ -47,7 +47,8 @@ class WithTaskFinishedHandlerTest extends TestCase
     {
         $this->configurationProphecy->getTaskWorkerCount()
             ->willReturn(IntMother::randomPositive())
-            ->shouldBeCalled();
+            ->shouldBeCalled()
+        ;
 
         $swooleServerOnEventSpy = SwooleHttpServerMock::make();
 
@@ -61,7 +62,8 @@ class WithTaskFinishedHandlerTest extends TestCase
     {
         $this->configurationProphecy->getTaskWorkerCount()
             ->willReturn(0)
-            ->shouldBeCalled();
+            ->shouldBeCalled()
+        ;
 
         $swooleServerOnEventSpy = SwooleHttpServerMock::make();
 

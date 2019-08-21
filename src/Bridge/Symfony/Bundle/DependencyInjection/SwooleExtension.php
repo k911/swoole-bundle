@@ -57,9 +57,11 @@ final class SwooleExtension extends Extension implements PrependExtensionInterfa
         $loader->load('commands.yaml');
 
         $container->registerForAutoconfiguration(BootableInterface::class)
-            ->addTag('swoole_bundle.bootable_service');
+            ->addTag('swoole_bundle.bootable_service')
+        ;
         $container->registerForAutoconfiguration(ConfiguratorInterface::class)
-            ->addTag('swoole_bundle.server_configurator');
+            ->addTag('swoole_bundle.server_configurator')
+        ;
 
         $config = $this->processConfiguration($configuration, $configs);
 
@@ -68,6 +70,22 @@ final class SwooleExtension extends Extension implements PrependExtensionInterfa
         if (\interface_exists(TransportFactoryInterface::class)) {
             $this->registerSwooleServerTransportConfiguration($container);
         }
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getAlias(): string
+    {
+        return 'swoole';
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getConfiguration(array $config, ContainerBuilder $container): Configuration
+    {
+        return Configuration::fromTreeBuilder();
     }
 
     /**
@@ -92,12 +110,14 @@ final class SwooleExtension extends Extension implements PrependExtensionInterfa
     {
         $container->register(SwooleServerTaskTransportFactory::class)
             ->addTag('messenger.transport_factory')
-            ->addArgument(new Reference(HttpServer::class));
+            ->addArgument(new Reference(HttpServer::class))
+        ;
 
         $container->register(SwooleServerTaskTransportHandler::class)
             ->addArgument(new Reference(MessageBusInterface::class))
             ->addArgument(new Reference(SwooleServerTaskTransportHandler::class.'.inner'))
-            ->setDecoratedService(TaskHandlerInterface::class, null, -10);
+            ->setDecoratedService(TaskHandlerInterface::class, null, -10)
+        ;
     }
 
     private function registerHttpServerConfiguration(array $config, ContainerBuilder $container): void
@@ -123,7 +143,8 @@ final class SwooleExtension extends Extension implements PrependExtensionInterfa
                 ->addArgument(new Reference(AdvancedStaticFilesServer::class.'.inner'))
                 ->addArgument(new Reference(HttpServerConfiguration::class))
                 ->addTag('swoole_bundle.bootable_service')
-                ->setDecoratedService(RequestHandlerInterface::class, null, -60);
+                ->setDecoratedService(RequestHandlerInterface::class, null, -60)
+            ;
         }
 
         $settings['serve_static'] = $static['strategy'];
@@ -138,7 +159,8 @@ final class SwooleExtension extends Extension implements PrependExtensionInterfa
         }
 
         $sockets = $container->getDefinition(Sockets::class)
-            ->addArgument(new Definition(Socket::class, [$host, $port, $socketType, $sslEnabled]));
+            ->addArgument(new Definition(Socket::class, [$host, $port, $socketType, $sslEnabled]))
+        ;
 
         if ($api['enabled']) {
             $sockets->addArgument(new Definition(Socket::class, [$api['host'], $api['port']]));
@@ -147,7 +169,8 @@ final class SwooleExtension extends Extension implements PrependExtensionInterfa
         $container->getDefinition(HttpServerConfiguration::class)
             ->addArgument(new Reference(Sockets::class))
             ->addArgument($runningMode)
-            ->addArgument($settings);
+            ->addArgument($settings)
+        ;
 
         $this->registerHttpServerHMR($hmr, $container);
     }
@@ -160,14 +183,16 @@ final class SwooleExtension extends Extension implements PrependExtensionInterfa
 
         if ('inotify' === $hmr) {
             $container->register(HotModuleReloaderInterface::class, InotifyHMR::class)
-                ->addTag('swoole_bundle.bootable_service');
+                ->addTag('swoole_bundle.bootable_service')
+            ;
         }
 
         $container->autowire(HMRWorkerStartHandler::class)
             ->setPublic(false)
             ->setAutoconfigured(true)
             ->setArgument('$decorated', new Reference(HMRWorkerStartHandler::class.'.inner'))
-            ->setDecoratedService(WorkerStartHandlerInterface::class);
+            ->setDecoratedService(WorkerStartHandlerInterface::class)
+        ;
     }
 
     private function resolveAutoHMR(): string
@@ -195,7 +220,8 @@ final class SwooleExtension extends Extension implements PrependExtensionInterfa
                 ->setAutowired(true)
                 ->setAutoconfigured(true)
                 ->setPublic(false)
-                ->setDecoratedService(RequestFactoryInterface::class, null, -10);
+                ->setDecoratedService(RequestFactoryInterface::class, null, -10)
+            ;
         }
 
         // RequestHandlerInterface
@@ -204,7 +230,8 @@ final class SwooleExtension extends Extension implements PrependExtensionInterfa
             $container->register(TrustAllProxiesRequestHandler::class)
                 ->addArgument(new Reference(TrustAllProxiesRequestHandler::class.'.inner'))
                 ->addTag('swoole_bundle.bootable_service')
-                ->setDecoratedService(RequestHandlerInterface::class, null, -10);
+                ->setDecoratedService(RequestHandlerInterface::class, null, -10)
+            ;
         }
 
         if ($config['entity_manager_handler'] || (null === $config['entity_manager_handler'] && \interface_exists(EntityManagerInterface::class) && $this->isBundleLoaded($container, 'doctrine'))) {
@@ -213,7 +240,8 @@ final class SwooleExtension extends Extension implements PrependExtensionInterfa
                 ->setAutowired(true)
                 ->setAutoconfigured(true)
                 ->setPublic(false)
-                ->setDecoratedService(RequestHandlerInterface::class, null, -20);
+                ->setDecoratedService(RequestHandlerInterface::class, null, -20)
+            ;
         }
 
         if ($config['debug_handler'] || (null === $config['debug_handler'] && $this->isDebug($container))) {
@@ -222,24 +250,9 @@ final class SwooleExtension extends Extension implements PrependExtensionInterfa
                 ->setAutowired(true)
                 ->setAutoconfigured(true)
                 ->setPublic(false)
-                ->setDecoratedService(RequestHandlerInterface::class, null, -50);
+                ->setDecoratedService(RequestHandlerInterface::class, null, -50)
+            ;
         }
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getAlias(): string
-    {
-        return 'swoole';
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getConfiguration(array $config, ContainerBuilder $container): Configuration
-    {
-        return Configuration::fromTreeBuilder();
     }
 
     private function isBundleLoaded(ContainerBuilder $container, string $bundleName): bool

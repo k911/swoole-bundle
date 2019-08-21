@@ -24,7 +24,8 @@ final class SwooleServerReloadViaApiClientTest extends ServerTestCase
         $sockets = static::$container->get(Sockets::class);
         $sockets->changeApiSocket(new Socket('0.0.0.0', 9998));
         $apiClient = static::$container->get(ApiServerClientFactory::class)
-            ->newClient();
+            ->newClient()
+        ;
 
         $serverStart = $this->createConsoleProcess([
             'swoole:server:start',
@@ -77,7 +78,8 @@ final class SwooleServerReloadViaApiClientTest extends ServerTestCase
     {
         static::bootKernel(['environment' => 'api']);
         $apiClient = static::$container->get(ApiServerClientFactory::class)
-            ->newClient();
+            ->newClient()
+        ;
 
         $serverStart = $this->createConsoleProcess([
             'swoole:server:start',

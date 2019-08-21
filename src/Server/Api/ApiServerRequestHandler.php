@@ -12,8 +12,6 @@ use Throwable;
 
 final class ApiServerRequestHandler implements RequestHandlerInterface
 {
-    private $routes;
-
     private const SUPPORTED_HTTP_METHODS = [
         Http::METHOD_HEAD,
         Http::METHOD_GET,
@@ -21,6 +19,7 @@ final class ApiServerRequestHandler implements RequestHandlerInterface
         Http::METHOD_PATCH,
         Http::METHOD_DELETE,
     ];
+    private $routes;
 
     public function __construct(ApiServerInterface $apiServer)
     {
@@ -44,14 +43,6 @@ final class ApiServerRequestHandler implements RequestHandlerInterface
         ];
     }
 
-    private function composeSimpleRouteDefinition(int $code, callable $handler): array
-    {
-        return [
-            'code' => $code,
-            'handler' => $handler,
-        ];
-    }
-
     /**
      * {@inheritdoc}
      *
@@ -65,6 +56,7 @@ final class ApiServerRequestHandler implements RequestHandlerInterface
                 case Http::METHOD_HEAD:
                     $request->server['request_method'] = Http::METHOD_GET;
                     $this->sendResponse($response, $this->handleRequest($request)[0]);
+
                     break;
                 case Http::METHOD_GET:
                 case Http::METHOD_POST:
@@ -84,6 +76,14 @@ final class ApiServerRequestHandler implements RequestHandlerInterface
         } catch (Throwable $exception) {
             $this->sendErrorExceptionResponse($response, $exception);
         }
+    }
+
+    private function composeSimpleRouteDefinition(int $code, callable $handler): array
+    {
+        return [
+            'code' => $code,
+            'handler' => $handler,
+        ];
     }
 
     private function sendErrorExceptionResponse(Response $response, Throwable $exception): void

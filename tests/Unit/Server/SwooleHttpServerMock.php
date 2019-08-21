@@ -8,9 +8,9 @@ use Swoole\Http\Server;
 
 final class SwooleHttpServerMock extends Server
 {
-    private static $instance;
     public $registeredEvent = false;
     public $registeredEventPair = [];
+    private static $instance;
 
     private function __construct()
     {
@@ -23,12 +23,6 @@ final class SwooleHttpServerMock extends Server
         $this->registeredEventPair = [$event, $callback];
     }
 
-    private function clean(): void
-    {
-        $this->registeredEvent = false;
-        $this->registeredEventPair = [];
-    }
-
     public static function make(): self
     {
         if (!self::$instance instanceof self) {
@@ -38,5 +32,11 @@ final class SwooleHttpServerMock extends Server
         self::$instance->clean();
 
         return self::$instance;
+    }
+
+    private function clean(): void
+    {
+        $this->registeredEvent = false;
+        $this->registeredEventPair = [];
     }
 }

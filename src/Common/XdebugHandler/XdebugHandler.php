@@ -39,29 +39,9 @@ final class XdebugHandler
         return \extension_loaded('pcntl');
     }
 
-    private function isAllowed(): bool
-    {
-        return false !== \getenv($this->allowXdebugEnvName);
-    }
-
     public function allowXdebugEnvName(): string
     {
         return $this->allowXdebugEnvName;
-    }
-
-    private function prepareEnvs(): array
-    {
-        $envs = [];
-        $lines = \getenv('LINES');
-        $columns = \getenv('COLUMNS');
-        if (false !== $lines) {
-            $envs['LINES'] = $lines;
-        }
-        if (false !== $columns) {
-            $envs['COLUMNS'] = $columns;
-        }
-
-        return $envs;
     }
 
     public function prepareRestartedProcess(): Process
@@ -88,6 +68,26 @@ final class XdebugHandler
         foreach (\array_keys(self::SIGNALS_MAP) as $signalNo) {
             \pcntl_signal($signalNo, $signalForwarder);
         }
+    }
+
+    private function isAllowed(): bool
+    {
+        return false !== \getenv($this->allowXdebugEnvName);
+    }
+
+    private function prepareEnvs(): array
+    {
+        $envs = [];
+        $lines = \getenv('LINES');
+        $columns = \getenv('COLUMNS');
+        if (false !== $lines) {
+            $envs['LINES'] = $lines;
+        }
+        if (false !== $columns) {
+            $envs['COLUMNS'] = $columns;
+        }
+
+        return $envs;
     }
 
     private function createPreparedTempIniFile(): string

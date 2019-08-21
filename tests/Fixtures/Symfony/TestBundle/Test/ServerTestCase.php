@@ -20,11 +20,10 @@ class ServerTestCase extends KernelTestCase
     private const COMMAND = './console';
     private const WORKING_DIRECTORY = __DIR__.'/../../app';
 
-    protected static function createKernel(array $options = []): KernelInterface
+    protected function tearDown(): void
     {
-        $options['environment'] = self::resolveEnvironment($options['environment'] ?? null);
-
-        return parent::createKernel($options);
+        // Make sure everything is stopped
+        \sleep(1);
     }
 
     public static function resolveEnvironment(?string $env = null): string
@@ -43,11 +42,6 @@ class ServerTestCase extends KernelTestCase
     public static function coverageEnabled(): bool
     {
         return false !== \getenv('COVERAGE');
-    }
-
-    protected static function getKernelClass(): string
-    {
-        return TestAppKernel::class;
     }
 
     public function runAsCoroutineAndWait(callable $callable): void
@@ -141,6 +135,23 @@ class ServerTestCase extends KernelTestCase
         ], $response['body']);
     }
 
+    public function assertProcessFailed(Process $process): void
+    {
+        $this->assertFalse($process->isSuccessful());
+    }
+
+    protected static function createKernel(array $options = []): KernelInterface
+    {
+        $options['environment'] = self::resolveEnvironment($options['environment'] ?? null);
+
+        return parent::createKernel($options);
+    }
+
+    protected static function getKernelClass(): string
+    {
+        return TestAppKernel::class;
+    }
+
     protected function markTestSkippedIfXdebugEnabled(): void
     {
         if (\extension_loaded('xdebug')) {
@@ -153,17 +164,6 @@ class ServerTestCase extends KernelTestCase
         if (!\extension_loaded('inotify')) {
             $this->markTestSkipped('Swoole Bundle HMR requires "inotify" PHP extension present and installed on the system.');
         }
-    }
-
-    public function assertProcessFailed(Process $process): void
-    {
-        $this->assertFalse($process->isSuccessful());
-    }
-
-    protected function tearDown(): void
-    {
-        // Make sure everything is stopped
-        \sleep(1);
     }
 
     protected function generateUniqueHash(int $factor = 8): string

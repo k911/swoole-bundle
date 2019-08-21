@@ -29,10 +29,10 @@ final class StaticFilesServingTest extends ServerTestCase
             $this->assertSame(200, $response['statusCode']);
             $this->assertSame('text/plain', $response['headers']['content-type']);
             $expectedResponseBody = <<< 'EOF'
-User-agent: *
-Disallow: /
+                User-agent: *
+                Disallow: /
 
-EOF;
+                EOF;
             $this->assertSame($expectedResponseBody, $response['body']);
         });
 
@@ -59,10 +59,10 @@ EOF;
             $this->assertSame(200, $response['statusCode']);
             $this->assertSame('text/plain', $response['headers']['content-type']);
             $expectedResponseBody = <<< 'EOF'
-User-agent: *
-Disallow: /
+                User-agent: *
+                Disallow: /
 
-EOF;
+                EOF;
             $this->assertSame($expectedResponseBody, $response['body']);
         });
 

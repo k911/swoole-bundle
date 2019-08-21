@@ -24,7 +24,7 @@ final class SwooleServerTaskSender implements SenderInterface
      */
     public function send(Envelope $envelope): Envelope
     {
-        /** @var SentStamp|null $sentStamp */
+        /** @var null|SentStamp $sentStamp */
         $sentStamp = $envelope->last(SentStamp::class);
         $alias = null === $sentStamp ? 'swoole-task' : $sentStamp->getSenderAlias() ?? $sentStamp->getSenderClass();
 

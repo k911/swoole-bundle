@@ -24,7 +24,8 @@ final class ServerStartCommand extends AbstractServerStartCommand
     protected function configure(): void
     {
         $this->setDescription('Run Swoole HTTP server in the background.')
-            ->addOption('pid-file', null, InputOption::VALUE_REQUIRED, 'Pid file', $this->parameterBag->get('kernel.project_dir').'/var/swoole.pid');
+            ->addOption('pid-file', null, InputOption::VALUE_REQUIRED, 'Pid file', $this->parameterBag->get('kernel.project_dir').'/var/swoole.pid')
+        ;
 
         parent::configure();
     }
@@ -34,7 +35,7 @@ final class ServerStartCommand extends AbstractServerStartCommand
      */
     protected function prepareServerConfiguration(HttpServerConfiguration $serverConfiguration, InputInterface $input): void
     {
-        /** @var string|null $pidFile */
+        /** @var null|string $pidFile */
         $pidFile = $input->getOption('pid-file');
         $serverConfiguration->daemonize($pidFile);
 

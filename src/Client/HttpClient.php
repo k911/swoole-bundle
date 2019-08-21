@@ -187,7 +187,7 @@ final class HttpClient
     /**
      * @param Client $client
      *
-     * @return string|array
+     * @return array|string
      */
     private function resolveResponseBody(Client $client)
     {

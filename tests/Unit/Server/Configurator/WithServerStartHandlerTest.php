@@ -26,7 +26,7 @@ class WithServerStartHandlerTest extends TestCase
     private $configurator;
 
     /**
-     * @var \Prophecy\Prophecy\ObjectProphecy|HttpServerConfiguration
+     * @var HttpServerConfiguration|\Prophecy\Prophecy\ObjectProphecy
      */
     private $httpServerConfigurationMock;
 
@@ -42,7 +42,8 @@ class WithServerStartHandlerTest extends TestCase
     {
         $this->httpServerConfigurationMock->isReactorRunningMode()
             ->willReturn(false)
-            ->shouldBeCalled();
+            ->shouldBeCalled()
+        ;
 
         $swooleServerOnEventSpy = SwooleHttpServerMock::make();
 
@@ -56,7 +57,8 @@ class WithServerStartHandlerTest extends TestCase
     {
         $this->httpServerConfigurationMock->isReactorRunningMode()
             ->willReturn(true)
-            ->shouldBeCalled();
+            ->shouldBeCalled()
+        ;
 
         $swooleServerOnEventSpy = SwooleHttpServerMock::make();
 

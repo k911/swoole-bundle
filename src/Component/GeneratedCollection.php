@@ -34,15 +34,6 @@ final class GeneratedCollection implements IteratorAggregate
         return new self($this->each($func));
     }
 
-    private function filterItems(callable $func): Generator
-    {
-        foreach ($this->getIterator() as $item) {
-            if ($func($item)) {
-                yield $item;
-            }
-        }
-    }
-
     public function filter(callable $func): self
     {
         return new self($this->filterItems($func));
@@ -56,5 +47,14 @@ final class GeneratedCollection implements IteratorAggregate
         yield from $this->itemCollection;
 
         yield from $this->items;
+    }
+
+    private function filterItems(callable $func): Generator
+    {
+        foreach ($this->getIterator() as $item) {
+            if ($func($item)) {
+                yield $item;
+            }
+        }
     }
 }

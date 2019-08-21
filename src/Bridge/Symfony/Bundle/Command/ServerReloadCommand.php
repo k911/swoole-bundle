@@ -38,7 +38,8 @@ final class ServerReloadCommand extends Command
     protected function configure(): void
     {
         $this->setDescription("Reload Swoole HTTP server's workers running in the background. It will reload only classes not loaded before server initialization.")
-            ->addOption('pid-file', null, InputOption::VALUE_REQUIRED, 'Pid file', $this->parameterBag->get('kernel.project_dir').'/var/swoole.pid');
+            ->addOption('pid-file', null, InputOption::VALUE_REQUIRED, 'Pid file', $this->parameterBag->get('kernel.project_dir').'/var/swoole.pid')
+        ;
     }
 
     /**

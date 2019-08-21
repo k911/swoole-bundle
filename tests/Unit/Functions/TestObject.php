@@ -13,10 +13,10 @@ class TestObject
 {
     public const GOOD_VALUE = 'good';
     public const WRONG_VALUE = 'wrong';
+    public $publicProp;
+    protected $protectedProp;
 
     private $privateProp;
-    protected $protectedProp;
-    public $publicProp;
 
     public function __construct(string $value = self::WRONG_VALUE)
     {
