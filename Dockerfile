@@ -1,4 +1,5 @@
 ARG PHP_TAG="7.3-cli-alpine3.10"
+ARG COMPOSER_TAG="1.9.0"
 
 FROM php:$PHP_TAG as ext-builder
 RUN docker-php-source extract && \
@@ -16,8 +17,14 @@ RUN pecl install xdebug && \
     docker-php-ext-enable xdebug
 
 FROM ext-builder as ext-swoole
-ARG SWOOLE_VERSION="4.4.3"
-RUN pecl install swoole-${SWOOLE_VERSION} && \
+RUN apk add --no-cache git
+ARG SWOOLE_VERSION="4.4.4"
+RUN git clone https://github.com/swoole/swoole-src.git --branch "v$SWOOLE_VERSION" --depth 1 && \
+    cd swoole-src && \
+    phpize && \
+    ./configure && \
+    make && \
+    make install && \
     docker-php-ext-enable swoole
 
 FROM ext-builder as ext-pcov
@@ -26,13 +33,13 @@ RUN pecl install pcov && \
 RUN echo "pcov.enabled=1" >> /usr/local/etc/php/conf.d/docker-php-ext-pcov.ini && \
     echo "pcov.directory=/usr/src/app/src" >> /usr/local/etc/php/conf.d/docker-php-ext-pcov.ini
 
-FROM composer:latest as app-installer
+FROM composer:$COMPOSER_TAG as app-installer
 WORKDIR /usr/src/app
 RUN composer global require "hirak/prestissimo:^0.3" --prefer-dist --no-progress --no-suggest --classmap-authoritative --ansi
 COPY composer.json composer.lock ./
 RUN composer validate
 ARG COMPOSER_ARGS="install"
-RUN composer ${COMPOSER_ARGS} --prefer-dist --no-progress --no-suggest --no-scripts --no-autoloader --ansi
+RUN composer ${COMPOSER_ARGS} --prefer-dist --no-progress --no-suggest --no-autoloader --ansi
 COPY . ./
 RUN composer dump-autoload --classmap-authoritative --ansi
 

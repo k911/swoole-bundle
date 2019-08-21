@@ -9,7 +9,7 @@ cache:
 env:
   global:
     - COMPOSER_ARGS=install
-    - SWOOLE_VERSION=4.4.3
+    - SWOOLE_VERSION=4.4.4
 
 matrix:
   include:
@@ -58,7 +58,7 @@ before_install:
   - php -r "echo swoole_version().PHP_EOL;"
 
 install:
-  - export COMPOSER_ARGS="$COMPOSER_ARGS --prefer-dist --no-progress --no-suggest --no-scripts --ansi"
+  - export COMPOSER_ARGS="$COMPOSER_ARGS --prefer-dist --no-progress --no-suggest --ansi"
   - echo "composer $COMPOSER_ARGS"
   - composer $COMPOSER_ARGS
 

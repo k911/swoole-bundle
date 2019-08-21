@@ -8,8 +8,7 @@ aliases:
       name: Export latest swoole version env if SWOOLE_VERSION=latest
       command: |-
         if [ "latest" = "$SWOOLE_VERSION" ]; then
-          LATEST_SWOOLE_VERSION="$(curl http://pecl.php.net/get/swoole/stable -s -I | grep Content-Disposition | sed 's/Content-Disposition: attachment;filename=swoole-\(.*\)\.tgz/\1/')"
-          LATEST_SWOOLE_VERSION="${LATEST_SWOOLE_VERSION//[$'\t\r\n ']}"
+          LATEST_SWOOLE_VERSION="$(curl -s "https://api.github.com/repos/swoole/swoole-src/releases/latest" | grep '"tag_name":' | sed -E 's/.*"v([^"]+)".*/\1/')"
           echo "LATEST_SWOOLE_VERSION=$LATEST_SWOOLE_VERSION"
           echo "export SWOOLE_VERSION='$LATEST_SWOOLE_VERSION'" >> $BASH_ENV
         fi;
