@@ -130,14 +130,7 @@ final class HttpClient
 
     private function serializeRequestData(Client $client, $data): void
     {
-        $options = \defined('JSON_THROW_ON_ERROR') ? \JSON_THROW_ON_ERROR : 0;
-        $json = \json_encode($data, $options);
-
-        // TODO: Drop on PHP 7.3 Migration
-        if (!\defined('JSON_THROW_ON_ERROR') && false === $json) {
-            throw new \RuntimeException(\json_last_error_msg(), \json_last_error());
-        }
-
+        $json = \json_encode($data, \JSON_THROW_ON_ERROR);
         $client->requestHeaders[Http::HEADER_CONTENT_TYPE] = Http::CONTENT_TYPE_APPLICATION_JSON;
         $client->setData($json);
     }
@@ -201,17 +194,7 @@ final class HttpClient
 
         switch ($contentType) {
             case Http::CONTENT_TYPE_APPLICATION_JSON:
-                // TODO: Drop on PHP 7.3 Migration
-                if (!\defined('JSON_THROW_ON_ERROR')) {
-                    $data = \json_decode($client->body, true);
-                    if (null === $data) {
-                        throw new \RuntimeException(\json_last_error_msg(), \json_last_error());
-                    }
-
-                    return $data;
-                }
-
-                return \json_decode($client->body, true, 512, JSON_THROW_ON_ERROR);
+                return \json_decode($client->body, true, 512, \JSON_THROW_ON_ERROR);
             case Http::CONTENT_TYPE_TEXT_PLAIN:
             case Http::CONTENT_TYPE_TEXT_HTML:
                 return $client->body;
