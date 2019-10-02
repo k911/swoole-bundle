@@ -235,11 +235,16 @@ jobs:
     steps:
       - checkout
       - run:
+          name: Install git
+          command: apk add --no-cache git
+      - run:
           name: Install commitlint
-          command: yarn global add @commitlint/cli @commitlint/config-conventional
+          command: |-
+            npm config set unsafe-perm true
+            npm i -g @commitlint/cli @commitlint/config-conventional
       - run:
           name: Validate commit message format
-          command: commitlint --from=HEAD~1
+          command: commitlint --from=HEAD~1 -V
 
 workflows:
   version: 2.1
