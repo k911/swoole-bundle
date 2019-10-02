@@ -214,11 +214,11 @@ jobs:
     environment:
       COMPOSER_ARGS: update --prefer-lowest
 
-  php-74-rc:
-    <<: *docker-env
-    <<: *docker-default
-    environment:
-      PHP_VERSION: 7.4-rc
+  # php-74-rc:
+  #   <<: *docker-env
+  #   <<: *docker-default
+  #   environment:
+  #     PHP_VERSION: 7.4-rc
 
   check-composer-config:
     docker:
@@ -259,6 +259,6 @@ workflows:
       - php-73-lowest:
           requires:
             - check-composer-config
-      - php-74-rc:
-          requires:
-            - check-composer-config
+      # - php-74-rc:
+      #     requires:
+      #       - check-composer-config
