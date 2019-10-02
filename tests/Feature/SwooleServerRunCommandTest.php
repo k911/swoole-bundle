@@ -54,7 +54,5 @@ final class SwooleServerRunCommandTest extends ServerTestCase
         });
 
         $serverRun->stop();
-
-//        $this->killAllProcessesListeningOnPort(9999);
     }
 }

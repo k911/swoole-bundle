@@ -15,6 +15,11 @@ final class SwooleServerReloadCommandTest extends ServerTestCase
     private const CONTROLLER_TEMPLATE_SRC = __DIR__.'/../Fixtures/Symfony/TestBundle/Controller/ReplacedContentTestController.php.tmpl';
     private const CONTROLLER_TEMPLATE_DEST = __DIR__.'/../Fixtures/Symfony/TestBundle/Controller/ReplacedContentTestController.php';
 
+    protected function setUp(): void
+    {
+        $this->markTestSkippedIfXdebugEnabled();
+    }
+
     public function testStartCallReloadCallStop(): void
     {
         $serverStart = $this->createConsoleProcess([

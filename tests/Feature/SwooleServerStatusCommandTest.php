@@ -11,10 +11,13 @@ use Symfony\Component\Console\Tester\CommandTester;
 
 final class SwooleServerStatusCommandTest extends ServerTestCase
 {
-    public function testCheckServerStatusViaProcess(): void
+    protected function setUp(): void
     {
         $this->markTestSkippedIfXdebugEnabled();
+    }
 
+    public function testCheckServerStatusViaProcess(): void
+    {
         $serverStart = $this->createConsoleProcess([
             'swoole:server:start',
             '--host=localhost',
@@ -56,8 +59,6 @@ final class SwooleServerStatusCommandTest extends ServerTestCase
 
     public function testCheckServerStatusViaCommandTester(): void
     {
-        $this->markTestSkippedIfXdebugEnabled();
-
         $serverStart = $this->createConsoleProcess([
             'swoole:server:start',
             '--host=localhost',
@@ -102,8 +103,6 @@ final class SwooleServerStatusCommandTest extends ServerTestCase
 
     public function testCheckServerStatusFailWhenServerNotRunning(): void
     {
-        $this->markTestSkippedIfXdebugEnabled();
-
         $kernel = static::createKernel();
         $application = new Application($kernel);
         $command = $application->find('swoole:server:status');

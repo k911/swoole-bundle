@@ -9,6 +9,11 @@ use K911\Swoole\Tests\Fixtures\Symfony\TestBundle\Test\ServerTestCase;
 
 final class SwooleServerStaticFilesServingTest extends ServerTestCase
 {
+    protected function setUp(): void
+    {
+        $this->markTestSkippedIfXdebugEnabled();
+    }
+
     public function testAdvancedStaticFilesServerWithAutoRegistration(): void
     {
         $serverRun = $this->createConsoleProcess([

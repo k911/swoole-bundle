@@ -15,10 +15,14 @@ final class SwooleServerHMRTest extends ServerTestCase
     private const CONTROLLER_TEMPLATE_SRC = __DIR__.'/../Fixtures/Symfony/TestBundle/Controller/ReplacedContentTestController.php.tmpl';
     private const CONTROLLER_TEMPLATE_DEST = __DIR__.'/../Fixtures/Symfony/TestBundle/Controller/ReplacedContentTestController.php';
 
+    protected function setUp(): void
+    {
+        $this->markTestSkippedIfXdebugEnabled();
+        $this->markTestSkippedIfInotifyDisabled();
+    }
+
     public function testStartCallHMRCallStopWithAutoRegistration(): void
     {
-        $this->markTestSkippedIfInotifyDisabled();
-
         $serverStart = $this->createConsoleProcess([
             'swoole:server:start',
             '--host=localhost',
@@ -59,8 +63,6 @@ final class SwooleServerHMRTest extends ServerTestCase
 
     public function testHMRDisabledByDefaultOnProduction(): void
     {
-        $this->markTestSkippedIfInotifyDisabled();
-
         $serverStart = $this->createConsoleProcess([
             'swoole:server:start',
             '--host=localhost',
