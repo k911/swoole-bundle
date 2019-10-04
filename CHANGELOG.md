@@ -1,3 +1,6 @@
+
+
+
 <a name="0.6.0"></a>
 # [0.6.0](https://github.com/k911/swoole-bundle/compare/v0.5.3...v0.6.0) (2019-08-11)
 
