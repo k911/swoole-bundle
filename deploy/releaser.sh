@@ -50,8 +50,8 @@ NEW_VERSION_SEM="${V[0]}.${V[1]}.${V[2]}"
 NEW_VERSION=${VERSION//${OLD_VERSION_SEM}/${NEW_VERSION_SEM}}
 
 echo "Releasing version: ${NEW_VERSION}"
-RELEASE_TAG="v${NEW_VERSION}"
 
+RELEASE_TAG="v${NEW_VERSION}"
 GH_COMMITER_NAME="${GH_COMMITER_NAME:-k911}"
 GH_COMMITER_EMAIL="${GH_COMMITER_EMAIL:-konradobal@gmail.com}"
 GH_REPOSITORY="${GH_REPOSITORY:-k911/swoole-bundle}"
@@ -81,8 +81,9 @@ if [ "0" = "$DRY_RUN" ]; then
     git tag "${RELEASE_TAG}"
 else
     echo "Commit message:"
-    echo "---------------"
+    echo "⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽"
     echo "${COMMIT_MESSAGE}"
+    echo "⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺"
 fi
 
 # Push commit and tag
@@ -98,6 +99,34 @@ if [ "0" = "$DRY_RUN" ]; then
 fi
 
 # Make github release
+GH_RELEASE_DRAFT="${GH_RELEASE_DRAFT:-false}"
+GH_RELEASE_PRERELEASE="${GH_RELEASE_PRERELEASE:-false}"
+GH_RELEASE_DESCRIPTION="## Changelog
+
+$(conventional-changelog -p angular -r 2 | awk 'NR > 9 { print }')
+
+## Installation
+
+    composer require ${GH_REPOSITORY}@^${NEW_VERSION}
+"
+GH_RELEASE_DESCRIPTION="${GH_RELEASE_DESCRIPTION//\"/\\\"}"
+GH_RELEASE_DESCRIPTION="${GH_RELEASE_DESCRIPTION//$'\n'/\n}"
+GH_RELEASE_REQUEST_BODY="{
+    \"tag_name\": \"${RELEASE_TAG}\",
+    \"target_commitish\": \"master\",
+    \"name\": \"${RELEASE_TAG}\",
+    \"body\": \"${GH_RELEASE_DESCRIPTION}\",
+    \"draft\": ${GH_RELEASE_DRAFT},
+    \"prerelease\": ${GH_RELEASE_PRERELEASE}
+}"
+
 if [ "0" = "$DRY_RUN" ]; then
-    conventional-github-releaser -p angular -t "${GH_TOKEN}" -d
+    curl -u "${GH_COMMITER_NAME}:${GH_TOKEN}" -X POST "https://api.github.com/repos/${GH_REPOSITORY}/releases" \
+        -H "Content-Type: application/json" \
+        --data "${GH_RELEASE_REQUEST_BODY}"
+else
+    echo "Release request body:"
+    echo "⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽"
+    echo "${GH_RELEASE_REQUEST_BODY}"
+    echo "⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺"
 fi

@@ -71,7 +71,7 @@ before_deploy:
   - >-
       export VERSION=$(git tag -l | sort -V -r | head -1 | sed -E 's/v(.*)/\1/')
       && echo "VERSION=${VERSION}"
-  - yarn global add conventional-changelog-cli conventional-recommended-bump conventional-github-releaser
+  - yarn global add conventional-changelog-cli conventional-recommended-bump
 
 deploy:
   - provider: script
