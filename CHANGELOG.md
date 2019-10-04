@@ -1,8 +1,3 @@
-<a name=""></a>
-# [](https://github.com/k911/swoole-bundle/compare/v0.6.0...v) (2019-08-11)
-
-
-
 <a name="0.6.0"></a>
 # [0.6.0](https://github.com/k911/swoole-bundle/compare/v0.5.3...v0.6.0) (2019-08-11)
 
@@ -10,11 +5,6 @@
 ### Features
 
 * **messenger:** Add Symfony Messenger integration ([#56](https://github.com/k911/swoole-bundle/issues/56)) ([d136313](https://github.com/k911/swoole-bundle/commit/d136313)), closes [#4](https://github.com/k911/swoole-bundle/issues/4)
-
-
-
-<a name=""></a>
-# [](https://github.com/k911/swoole-bundle/compare/v0.5.3...v) (2019-06-06)
 
 
 
@@ -28,11 +18,6 @@
 
 
 
-<a name=""></a>
-# [](https://github.com/k911/swoole-bundle/compare/v0.5.2...v) (2019-04-30)
-
-
-
 <a name="0.5.2"></a>
 ## [0.5.2](https://github.com/k911/swoole-bundle/compare/v0.5.1...v0.5.2) (2019-04-30)
 
@@ -43,11 +28,6 @@
 
 
 
-<a name=""></a>
-# [](https://github.com/k911/swoole-bundle/compare/v0.5.1...v) (2019-04-28)
-
-
-
 <a name="0.5.1"></a>
 ## [0.5.1](https://github.com/k911/swoole-bundle/compare/v0.5.0...v0.5.1) (2019-04-28)
 
@@ -55,11 +35,6 @@
 ### Bug Fixes
 
 * **static-server:** Fix unset public dir path in "AdvancedStaticFilesServer" ([#52](https://github.com/k911/swoole-bundle/issues/52)) ([4ef8cb5](https://github.com/k911/swoole-bundle/commit/4ef8cb5))
-
-
-
-<a name=""></a>
-# [](https://github.com/k911/swoole-bundle/compare/v0.5.0...v) (2019-04-26)
 
 
 
@@ -83,11 +58,6 @@
 
 
 
-<a name=""></a>
-# [](https://github.com/k911/swoole-bundle/compare/v0.4.4...v) (2019-01-06)
-
-
-
 <a name="0.4.4"></a>
 ## [0.4.4](https://github.com/k911/swoole-bundle/compare/v0.4.3...v0.4.4) (2019-01-06)
 
@@ -95,11 +65,6 @@
 ### Bug Fixes
 
 * **di:** Fix regression introduced in v0.4.3 ([#29](https://github.com/k911/swoole-bundle/issues/29)) ([c88fcf2](https://github.com/k911/swoole-bundle/commit/c88fcf2))
-
-
-
-<a name=""></a>
-# [](https://github.com/k911/swoole-bundle/compare/v0.4.3...v) (2019-01-06)
 
 
 
@@ -113,11 +78,6 @@
 
 
 
-<a name=""></a>
-# [](https://github.com/k911/swoole-bundle/compare/v0.4.2...v) (2018-11-05)
-
-
-
 <a name="0.4.2"></a>
 ## [0.4.2](https://github.com/k911/swoole-bundle/compare/v0.4.1...v0.4.2) (2018-11-05)
 
@@ -125,11 +85,6 @@
 ### Bug Fixes
 
 * **xdebug-handler:** Remove process timeout ([#23](https://github.com/k911/swoole-bundle/issues/23)) ([29148af](https://github.com/k911/swoole-bundle/commit/29148af))
-
-
-<a name=""></a>
-# [](https://github.com/k911/swoole-bundle/compare/v0.4.1...v) (2018-10-24)
-
 
 
 <a name="0.4.1"></a>
