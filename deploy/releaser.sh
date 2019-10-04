@@ -1,9 +1,19 @@
 #!/usr/bin/env bash
 
+if [[ "" = "$VERSION" ]]; then
+  VERSION="$(git describe --abbrev=0 --tags | sed -E 's/v(.*)/\1/')"
+fi
+
 # Safe check - skips relese commit generation when already tagged commit
 if [[ $(git name-rev --name-only --tags HEAD) = "v$VERSION" ]]; then
-  echo "Already tagged or no new commits introduced. Skipping.."
-  exit
+    echo "Already tagged or no new commits introduced. Skipping.."
+    exit
+fi
+
+DRY_RUN="${DRY_RUN:-0}"
+
+if [[ "1" = "${DRY_RUN}" ]]; then
+    echo "Dry running.."
 fi
 
 # Guess new version number
@@ -40,23 +50,54 @@ NEW_VERSION_SEM="${V[0]}.${V[1]}.${V[2]}"
 NEW_VERSION=${VERSION//${OLD_VERSION_SEM}/${NEW_VERSION_SEM}}
 
 echo "Releasing version: ${NEW_VERSION}"
+RELEASE_TAG="v${NEW_VERSION}"
 
-# Tag to update changelog with new version included
-git tag "v${NEW_VERSION}"
-conventional-changelog -p angular -i CHANGELOG.md -s -r 2
-git tag -d "v${NEW_VERSION}"
+GH_COMMITER_NAME="${GH_COMMITER_NAME:-k911}"
+GH_COMMITER_EMAIL="${GH_COMMITER_EMAIL:-konradobal@gmail.com}"
+GH_REPOSITORY="${GH_REPOSITORY:-k911/swoole-bundle}"
 
-# Create release commit and tag
-git add CHANGELOG.md
-git commit -m "chore(release): v${NEW_VERSION} :tada:
-$(conventional-changelog)
+# Configure git
+git config user.name "${GH_COMMITER_NAME}"
+git config user.email "${GH_COMMITER_EMAIL}"
+
+# Update CHANGELOG.md
+git tag "${RELEASE_TAG}" > /dev/null 2>&1
+conventional-changelog -p angular -i CHANGELOG.md -o CHANGELOG.md.tmp -r 2
+if [ "0" = "$DRY_RUN" ]; then
+    awk 'NR > 5 { print }' < CHANGELOG.md.tmp > CHANGELOG.md
+else
+    awk 'NR > 5 { print }' < CHANGELOG.md.tmp > CHANGELOG_DRY_RUN.md
+fi
+git tag -d "${RELEASE_TAG}" > /dev/null 2>&1
+
+# Create release commit and tag it
+COMMIT_MESSAGE="chore(release): ${RELEASE_TAG} :tada:
+$(conventional-changelog | awk 'NR > 1 { print }')
 "
-git tag "v${NEW_VERSION}"
+
+if [ "0" = "$DRY_RUN" ]; then
+    git add CHANGELOG.md
+    git commit -m "${COMMIT_MESSAGE}"
+    git tag "${RELEASE_TAG}"
+else
+    echo "Commit message:"
+    echo "---------------"
+    echo "${COMMIT_MESSAGE}"
+fi
 
 # Push commit and tag
-git remote add authorized "https://travis:${GH_TOKEN}@github.com/k911/swoole-bundle.git"
-git push authorized HEAD:master --tags
-git push authorized HEAD:develop
+if [ "0" = "$DRY_RUN" ]; then
+    GH_TOKEN="${GH_TOKEN:?"Provide \"GH_TOKEN\" variable with GitHub Personal Access Token"}"
+    git remote add authorized "https://${GH_COMMITER_NAME}:${GH_TOKEN}@github.com/${GH_REPOSITORY}.git"
+    REVS="$RELEASE_TAG HEAD:master HEAD:develop"
+    for REV in $REVS
+    do
+        git push authorized "$REV"
+    done
+    git remote remove authorized
+fi
 
 # Make github release
-conventional-github-releaser -p angular -t "${GH_TOKEN}"
+if [ "0" = "$DRY_RUN" ]; then
+    conventional-github-releaser -p angular -t "${GH_TOKEN}" -d
+fi

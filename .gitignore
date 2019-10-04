@@ -4,3 +4,5 @@ swoole.pid
 .php_cs.cache
 clover.xml
 **/.phpunit.result.cache
+*.tmp
+CHANGELOG_DRY_RUN.md
