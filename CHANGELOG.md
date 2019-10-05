@@ -1,3 +1,7 @@
+## [0.6.2](https://github.com/k911/swoole-bundle/compare/v0.6.1...v0.6.2) (2019-10-05)
+
+
+
 ## [0.6.1](https://github.com/k911/swoole-bundle/compare/v0.6.0...v0.6.1) (2019-10-04)
 
 
