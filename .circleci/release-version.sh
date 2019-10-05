@@ -115,7 +115,9 @@ ${GH_RELEASE_NOTES}
 
 ## Installation
 
-    composer require ${GH_REPOSITORY}@^${NEW_VERSION}
+\`\`\`sh
+composer require ${GH_REPOSITORY} ^${NEW_VERSION}
+\`\`\`
 "
 GH_RELEASE_DESCRIPTION_ESCAPED="${GH_RELEASE_DESCRIPTION//\"/\\\"}"
 GH_RELEASE_DESCRIPTION_ESCAPED="${GH_RELEASE_DESCRIPTION_ESCAPED//$'\n'/\\n}"
