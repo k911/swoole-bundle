@@ -60,6 +60,11 @@ aliases:
       name: Docker-Compose Build
       command: docker-compose build --pull
 
+  - &docker-compose-build-releaser
+    run:
+      name: Docker-Compose Build
+      command: docker-compose build --pull releaser
+
   - &code-style-analysis
     run:
       name: Code style analysis
@@ -107,6 +112,11 @@ aliases:
     run:
       name: Run feature tests with coverage (pcov)
       command: docker-compose run --rm coverage-pcov feature-code-coverage
+
+  - &run-releaser
+    run:
+      name: Release version
+      command: docker-compose run --rm releaser
 
   - &prepare-codeclimate-reporter
     run:
@@ -192,6 +202,34 @@ aliases:
       - *export-docker-cache
       - *save-docker-cache
 
+  - &docker-release
+    steps:
+      - checkout
+      - *docker-compose-build-releaser
+      - *run-releaser
+
+  # Filters
+  - &pull-request-checks-job-filters
+    filters:
+      branches:
+        ignore:
+          - master
+
+  - &release-job-filters
+    filters:
+      tags:
+        ignore: /.*/
+      branches:
+        only:
+          - master
+
+  - &post-release-job-filters
+    filters:
+      tags:
+        only: /^v.*/
+      branches:
+        ignore: /.*/
+
 jobs:
   php-73-cc:
     <<: *docker-env
@@ -246,24 +284,75 @@ jobs:
           name: Validate commit message format
           command: commitlint --from=HEAD~1 -V
 
+  release-version:
+    <<: *docker-env
+    <<: *docker-release
+    environment:
+      DRY_RUN: "0"
+
+  release-version-dry-run:
+    <<: *docker-env
+    <<: *docker-release
+    environment:
+      DRY_RUN: "1"
+
 workflows:
   version: 2.1
   pull-request-checks:
     jobs:
-      - check-composer-config
-      - validate-commit-message
+      - check-composer-config:
+          <<: *pull-request-checks-job-filters
+      - release-version-dry-run:
+          <<: *pull-request-checks-job-filters
+      - validate-commit-message:
+          <<: *pull-request-checks-job-filters
       - php-73:
+          <<: *pull-request-checks-job-filters
           requires:
-            - check-composer-config
+             - check-composer-config
       - php-73-cc:
+          <<: *pull-request-checks-job-filters
           requires:
-            - check-composer-config
+             - check-composer-config
       - php-73-latest:
+          <<: *pull-request-checks-job-filters
           requires:
-            - check-composer-config
+             - check-composer-config
       - php-73-lowest:
+          <<: *pull-request-checks-job-filters
           requires:
-            - check-composer-config
+             - check-composer-config
       # - php-74-rc:
-      #     requires:
+      #    <<: *pull-request-checks-job-filters
+      #    requires:
       #       - check-composer-config
+  release:
+    jobs:
+      - check-composer-config:
+          <<: *release-job-filters
+      - validate-commit-message:
+          <<: *release-job-filters
+      - php-73:
+          <<: *release-job-filters
+          requires:
+             - check-composer-config
+      - php-73-cc:
+          <<: *release-job-filters
+          requires:
+             - check-composer-config
+      - php-73-latest:
+          <<: *release-job-filters
+          requires:
+             - check-composer-config
+      - php-73-lowest:
+          <<: *release-job-filters
+          requires:
+             - check-composer-config
+      - release-version:
+          <<: *release-job-filters
+          requires:
+            - php-73
+            - php-73-cc
+            - php-73-latest
+            - php-73-lowest
+            - validate-commit-message

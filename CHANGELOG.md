@@ -1,7 +1,6 @@
+## [0.6.1](https://github.com/k911/swoole-bundle/compare/v0.6.0...v0.6.1) (2019-10-04)
 
 
-
-<a name="0.6.0"></a>
 # [0.6.0](https://github.com/k911/swoole-bundle/compare/v0.5.3...v0.6.0) (2019-08-11)
 
 
@@ -11,7 +10,6 @@
 
 
 
-<a name="0.5.3"></a>
 ## [0.5.3](https://github.com/k911/swoole-bundle/compare/v0.5.2...v0.5.3) (2019-06-06)
 
 
@@ -21,7 +19,6 @@
 
 
 
-<a name="0.5.2"></a>
 ## [0.5.2](https://github.com/k911/swoole-bundle/compare/v0.5.1...v0.5.2) (2019-04-30)
 
 
@@ -31,7 +28,6 @@
 
 
 
-<a name="0.5.1"></a>
 ## [0.5.1](https://github.com/k911/swoole-bundle/compare/v0.5.0...v0.5.1) (2019-04-28)
 
 
@@ -41,7 +37,6 @@
 
 
 
-<a name="0.5.0"></a>
 # [0.5.0](https://github.com/k911/swoole-bundle/compare/v0.4.4...v0.5.0) (2019-04-26)
 
 
@@ -61,7 +56,6 @@
 
 
 
-<a name="0.4.4"></a>
 ## [0.4.4](https://github.com/k911/swoole-bundle/compare/v0.4.3...v0.4.4) (2019-01-06)
 
 
@@ -71,7 +65,6 @@
 
 
 
-<a name="0.4.3"></a>
 ## [0.4.3](https://github.com/k911/swoole-bundle/compare/v0.4.2...v0.4.3) (2019-01-06)
 
 
@@ -81,7 +74,6 @@
 
 
 
-<a name="0.4.2"></a>
 ## [0.4.2](https://github.com/k911/swoole-bundle/compare/v0.4.1...v0.4.2) (2018-11-05)
 
 
@@ -90,7 +82,6 @@
 * **xdebug-handler:** Remove process timeout ([#23](https://github.com/k911/swoole-bundle/issues/23)) ([29148af](https://github.com/k911/swoole-bundle/commit/29148af))
 
 
-<a name="0.4.1"></a>
 ## [0.4.1](https://github.com/k911/swoole-bundle/compare/v0.4.0...v0.4.1) (2018-10-24)
 
 
@@ -101,7 +92,6 @@
 
 
 
-<a name="0.4.0"></a>
 # [0.4.0](https://github.com/k911/swoole-bundle/compare/v0.3.0...v0.4.0) (2018-10-20)
 
 
@@ -131,7 +121,6 @@ now happens in execute method of AbstractServerStartCommand
 
 
 
-<a name="0.3.0"></a>
 # [0.3.0](https://github.com/k911/swoole-bundle/compare/v0.2.0...v0.3.0) (2018-10-13)
 
 
@@ -146,7 +135,6 @@ now happens in execute method of AbstractServerStartCommand
 
 
 
-<a name="0.2.0"></a>
 # [0.2.0](https://github.com/k911/swoole-bundle/compare/c5a0c27...v0.2.0) (2018-10-07)
 
 

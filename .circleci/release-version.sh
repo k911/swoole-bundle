@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
 
-if [[ "" = "$VERSION" ]]; then
-  VERSION="$(git describe --abbrev=0 --tags | sed -E 's/v(.*)/\1/')"
+if [[ "" = "$CURRENT_VERSION" ]]; then
+  CURRENT_VERSION="$(git describe --abbrev=0 --tags | sed -E 's/v(.*)/\1/')"
 fi
 
 # Safe check - skips relese commit generation when already tagged commit
-if [[ $(git name-rev --name-only --tags HEAD) = "v$VERSION" ]]; then
+if [[ $(git name-rev --name-only --tags HEAD) = "v$CURRENT_VERSION" ]]; then
     echo "Already tagged or no new commits introduced. Skipping.."
     exit
 fi
@@ -20,7 +20,7 @@ fi
 RECOMMENDED_BUMP=$(conventional-recommended-bump -p angular)
 
 # Split version by dots
-IFS='.' read -r -a V <<< "$VERSION"
+IFS='.' read -r -a V <<< "$CURRENT_VERSION"
 
 # Ignore postfix like "-dev"
 ((V[2]++))
@@ -47,7 +47,7 @@ else
 fi
 
 NEW_VERSION_SEM="${V[0]}.${V[1]}.${V[2]}"
-NEW_VERSION=${VERSION//${OLD_VERSION_SEM}/${NEW_VERSION_SEM}}
+NEW_VERSION=${CURRENT_VERSION//${OLD_VERSION_SEM}/${NEW_VERSION_SEM}}
 
 echo "Releasing version: ${NEW_VERSION}"
 
@@ -60,13 +60,21 @@ GH_REPOSITORY="${GH_REPOSITORY:-k911/swoole-bundle}"
 git config user.name "${GH_COMMITER_NAME}"
 git config user.email "${GH_COMMITER_EMAIL}"
 
+# Save release notes
+GH_RELEASE_NOTES="$(conventional-changelog -p angular | awk 'NR > 3 { print }')"
+GH_RELEASE_NOTES_LINES=$(wc -l <<< "$GH_RELEASE_NOTES")
+
 # Update CHANGELOG.md
 git tag "${RELEASE_TAG}" > /dev/null 2>&1
 conventional-changelog -p angular -i CHANGELOG.md -o CHANGELOG.md.tmp -r 2
 if [ "0" = "$DRY_RUN" ]; then
-    awk 'NR > 5 { print }' < CHANGELOG.md.tmp > CHANGELOG.md
+    awk 'NR > 4 { print }' < CHANGELOG.md.tmp > CHANGELOG.md
 else
-    awk 'NR > 5 { print }' < CHANGELOG.md.tmp > CHANGELOG_DRY_RUN.md
+    LINES=$((GH_RELEASE_NOTES_LINES+3+10))
+    echo "Changelog file: (first $LINES lines)"
+    echo "⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽"
+    awk 'NR > 4 { print }' < CHANGELOG.md.tmp | head -n "${LINES}"
+    echo "⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺"
 fi
 git tag -d "${RELEASE_TAG}" > /dev/null 2>&1
 
@@ -103,19 +111,19 @@ GH_RELEASE_DRAFT="${GH_RELEASE_DRAFT:-false}"
 GH_RELEASE_PRERELEASE="${GH_RELEASE_PRERELEASE:-false}"
 GH_RELEASE_DESCRIPTION="## Changelog
 
-$(conventional-changelog -p angular -r 2 | awk 'NR > 9 { print }')
+${GH_RELEASE_NOTES}
 
 ## Installation
 
     composer require ${GH_REPOSITORY}@^${NEW_VERSION}
 "
-GH_RELEASE_DESCRIPTION="${GH_RELEASE_DESCRIPTION//\"/\\\"}"
-GH_RELEASE_DESCRIPTION="${GH_RELEASE_DESCRIPTION//$'\n'/\n}"
+GH_RELEASE_DESCRIPTION_ESCAPED="${GH_RELEASE_DESCRIPTION//\"/\\\"}"
+GH_RELEASE_DESCRIPTION_ESCAPED="${GH_RELEASE_DESCRIPTION_ESCAPED//$'\n'/\\n}"
 GH_RELEASE_REQUEST_BODY="{
     \"tag_name\": \"${RELEASE_TAG}\",
     \"target_commitish\": \"master\",
     \"name\": \"${RELEASE_TAG}\",
-    \"body\": \"${GH_RELEASE_DESCRIPTION}\",
+    \"body\": \"${GH_RELEASE_DESCRIPTION_ESCAPED}\",
     \"draft\": ${GH_RELEASE_DRAFT},
     \"prerelease\": ${GH_RELEASE_PRERELEASE}
 }"
@@ -125,6 +133,10 @@ if [ "0" = "$DRY_RUN" ]; then
         -H "Content-Type: application/json" \
         --data "${GH_RELEASE_REQUEST_BODY}"
 else
+    echo "Release description:"
+    echo "⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽"
+    echo "${GH_RELEASE_DESCRIPTION}"
+    echo "⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺"
     echo "Release request body:"
     echo "⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽"
     echo "${GH_RELEASE_REQUEST_BODY}"
