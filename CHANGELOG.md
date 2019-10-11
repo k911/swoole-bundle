@@ -1,55 +1,65 @@
 ## [0.6.2](https://github.com/k911/swoole-bundle/compare/v0.6.1...v0.6.2) (2019-10-05)
 
+[Full changelog](https://github.com/k911/swoole-bundle/compare/v0.6.1...v0.6.2)
 
+### Miscellaneous
+
+* Minor fixes
 
 ## [0.6.1](https://github.com/k911/swoole-bundle/compare/v0.6.0...v0.6.1) (2019-10-04)
+
+[Full changelog](https://github.com/k911/swoole-bundle/compare/v0.6.0...v0.6.1)
+
+### Miscellaneous
+
+* Minor fixes
 
 
 # [0.6.0](https://github.com/k911/swoole-bundle/compare/v0.5.3...v0.6.0) (2019-08-11)
 
+[Full changelog](https://github.com/k911/swoole-bundle/compare/v0.5.3...v0.6.0)
 
 ### Features
 
 * **messenger:** Add Symfony Messenger integration ([#56](https://github.com/k911/swoole-bundle/issues/56)) ([d136313](https://github.com/k911/swoole-bundle/commit/d136313)), closes [#4](https://github.com/k911/swoole-bundle/issues/4)
 
 
-
 ## [0.5.3](https://github.com/k911/swoole-bundle/compare/v0.5.2...v0.5.3) (2019-06-06)
 
+[Full changelog](https://github.com/k911/swoole-bundle/compare/v0.5.2...v0.5.3)
 
 ### Bug Fixes
 
 * **config:** set default host value to '0.0.0.0' ([#55](https://github.com/k911/swoole-bundle/issues/55)) ([2c9221d](https://github.com/k911/swoole-bundle/commit/2c9221d))
 
 
-
 ## [0.5.2](https://github.com/k911/swoole-bundle/compare/v0.5.1...v0.5.2) (2019-04-30)
 
+[Full changelog](https://github.com/k911/swoole-bundle/compare/v0.5.1...v0.5.2)
 
 ### Bug Fixes
 
 * **server:** Make sure "reactor" running mode works correctly ([#53](https://github.com/k911/swoole-bundle/issues/53)) ([69dfea2](https://github.com/k911/swoole-bundle/commit/69dfea2))
 
 
-
 ## [0.5.1](https://github.com/k911/swoole-bundle/compare/v0.5.0...v0.5.1) (2019-04-28)
 
+[Full changelog](https://github.com/k911/swoole-bundle/compare/v0.5.0...v0.5.1)
 
 ### Bug Fixes
 
 * **static-server:** Fix unset public dir path in "AdvancedStaticFilesServer" ([#52](https://github.com/k911/swoole-bundle/issues/52)) ([4ef8cb5](https://github.com/k911/swoole-bundle/commit/4ef8cb5))
 
 
-
 # [0.5.0](https://github.com/k911/swoole-bundle/compare/v0.4.4...v0.5.0) (2019-04-26)
 
+[Full changelog](https://github.com/k911/swoole-bundle/compare/v0.4.4...v0.5.0)
 
 ### Bug Fixes
 
 * **di:** Do not use integer node for port ([ac6fdcf](https://github.com/k911/swoole-bundle/commit/ac6fdcf))
 * **hmr:** Drop unused reference to SymfonyStyle object in InotifyHMR ([6b22485](https://github.com/k911/swoole-bundle/commit/6b22485))
 * **reload:** Make sure command works on macOS system ([4d99e9c](https://github.com/k911/swoole-bundle/commit/4d99e9c))
-
 
 ### Features
 
@@ -58,28 +68,25 @@
 * **server:** Set-up hooks on lifecycle events ([271a341](https://github.com/k911/swoole-bundle/commit/271a341))
 * Add meaningful exceptions ([#46](https://github.com/k911/swoole-bundle/issues/46)) ([4e2cc6d](https://github.com/k911/swoole-bundle/commit/4e2cc6d))
 
-
-
 ## [0.4.4](https://github.com/k911/swoole-bundle/compare/v0.4.3...v0.4.4) (2019-01-06)
 
+[Full changelog](https://github.com/k911/swoole-bundle/compare/v0.4.3...v0.4.4)
 
 ### Bug Fixes
 
 * **di:** Fix regression introduced in v0.4.3 ([#29](https://github.com/k911/swoole-bundle/issues/29)) ([c88fcf2](https://github.com/k911/swoole-bundle/commit/c88fcf2))
 
-
-
 ## [0.4.3](https://github.com/k911/swoole-bundle/compare/v0.4.2...v0.4.3) (2019-01-06)
 
+[Full changelog](https://github.com/k911/swoole-bundle/compare/v0.4.2...v0.4.3)
 
 ### Bug Fixes
 
 * **di:** Fix detection of doctrine bundle ([ef5920c](https://github.com/k911/swoole-bundle/commit/ef5920c))
 
-
-
 ## [0.4.2](https://github.com/k911/swoole-bundle/compare/v0.4.1...v0.4.2) (2018-11-05)
 
+[Full changelog](https://github.com/k911/swoole-bundle/compare/v0.4.1...v0.4.2)
 
 ### Bug Fixes
 
@@ -88,16 +95,16 @@
 
 ## [0.4.1](https://github.com/k911/swoole-bundle/compare/v0.4.0...v0.4.1) (2018-10-24)
 
+[Full changelog](https://github.com/k911/swoole-bundle/compare/v0.4.0...v0.4.1)
 
 ### Bug Fixes
 
 * **boot-manager:** Don't boot not bootable objects ([8ad97a2](https://github.com/k911/swoole-bundle/commit/8ad97a2)), closes [#19](https://github.com/k911/swoole-bundle/issues/19)
 * **xdebug-handler:** Replace with custom solution ([0dc13f0](https://github.com/k911/swoole-bundle/commit/0dc13f0)), closes [#13](https://github.com/k911/swoole-bundle/issues/13)
 
-
-
 # [0.4.0](https://github.com/k911/swoole-bundle/compare/v0.3.0...v0.4.0) (2018-10-20)
 
+[Full changelog](https://github.com/k911/swoole-bundle/compare/v0.3.0...v0.4.0)
 
 ### Bug Fixes
 
@@ -124,9 +131,9 @@ now happens in execute method of AbstractServerStartCommand
 - `Server\Configurator\ChainConfigurator` is now replaced by `Server\Configurator\GeneratedChainConfigurator`
 
 
-
 # [0.3.0](https://github.com/k911/swoole-bundle/compare/v0.2.0...v0.3.0) (2018-10-13)
 
+[Full changelog](https://github.com/k911/swoole-bundle/compare/v0.2.0...v0.3.0)
 
 ### Bug Fixes
 
@@ -141,6 +148,7 @@ now happens in execute method of AbstractServerStartCommand
 
 # [0.2.0](https://github.com/k911/swoole-bundle/compare/c5a0c27...v0.2.0) (2018-10-07)
 
+[Full changelog](https://github.com/k911/swoole-bundle/compare/c5a0c27...v0.2.0)
 
 ### Bug Fixes
 
@@ -160,6 +168,3 @@ now happens in execute method of AbstractServerStartCommand
 * Env `APP_TRUSTED_PROXIES` is no longer supported
 * Configuration `swoole.http_server.services.debug` is renamed to `swoole.http_server.services.debug_handler`
 * Configuration `swoole.http_server.services.trust_all_proxies` is renamed to `swoole.http_server.services.trust_all_proxies_handler`
-
-
-
