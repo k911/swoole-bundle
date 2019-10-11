@@ -61,22 +61,37 @@ git config user.name "${GH_COMMITER_NAME}"
 git config user.email "${GH_COMMITER_EMAIL}"
 
 # Save release notes
+git tag "${RELEASE_TAG}" > /dev/null 2>&1
+GH_RELEASE_NOTES_HEADER="$(conventional-changelog -p angular -r 2 | awk 'NR > 4 { print }' | head -n 1)"
+git tag -d "${RELEASE_TAG}" > /dev/null 2>&1
 GH_RELEASE_NOTES="$(conventional-changelog -p angular | awk 'NR > 3 { print }')"
-GH_RELEASE_NOTES_LINES=$(wc -l <<< "$GH_RELEASE_NOTES")
+if [ "" = "$(echo -n "$GH_RELEASE_NOTES" | xargs)" ]; then
+    GH_RELEASE_NOTES="### Miscellaneous
+
+* Minor fixes"
+fi
+
+# Save changelog
+CHANGELOG="$GH_RELEASE_NOTES_HEADER
+
+[Full changelog](https://github.com/${GH_REPOSITORY}/compare/v${CURRENT_VERSION}...v${NEW_VERSION})
+
+$GH_RELEASE_NOTES
+"
+NEXT_LINES="10"
+LINES="$(wc -l <<< "$CHANGELOG")"
+LINES=$((LINES+NEXT_LINES))
 
 # Update CHANGELOG.md
-git tag "${RELEASE_TAG}" > /dev/null 2>&1
-conventional-changelog -p angular -i CHANGELOG.md -o CHANGELOG.md.tmp -r 2
 if [ "0" = "$DRY_RUN" ]; then
-    awk 'NR > 4 { print }' < CHANGELOG.md.tmp > CHANGELOG.md
+    echo "$CHANGELOG" >> CHANGELOG.md
 else
-    LINES=$((GH_RELEASE_NOTES_LINES+3+10))
     echo "Changelog file: (first $LINES lines)"
     echo "⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽"
-    awk 'NR > 4 { print }' < CHANGELOG.md.tmp | head -n "${LINES}"
+    echo "$CHANGELOG"
+    head -n "$NEXT_LINES" < CHANGELOG.md
     echo "⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺"
 fi
-git tag -d "${RELEASE_TAG}" > /dev/null 2>&1
 
 # Create release commit and tag it
 COMMIT_MESSAGE="chore(release): ${RELEASE_TAG} :tada:
@@ -110,6 +125,8 @@ fi
 GH_RELEASE_DRAFT="${GH_RELEASE_DRAFT:-false}"
 GH_RELEASE_PRERELEASE="${GH_RELEASE_PRERELEASE:-false}"
 GH_RELEASE_DESCRIPTION="## Changelog
+
+[Full changelog](https://github.com/${GH_REPOSITORY}/compare/v${CURRENT_VERSION}...v${NEW_VERSION})
 
 ${GH_RELEASE_NOTES}
 
