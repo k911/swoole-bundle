@@ -4,3 +4,5 @@ framework:
     php_errors:
         log: true
     test: ~
+    session:
+        enabled: false

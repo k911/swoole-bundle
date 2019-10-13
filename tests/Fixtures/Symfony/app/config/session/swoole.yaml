@@ -1,0 +1,22 @@
+framework:
+    session:
+        enabled: true
+        storage_id: swoole_bundle.session.table_storage
+
+swoole:
+    http_server:
+        services:
+            session_cookie_event_listener: true
+
+parameters:
+    env(COOKIE_LIFETIME): 60
+
+services:
+    _defaults:
+        autowire: true
+        autoconfigure: true
+        public: false
+
+    K911\Swoole\Bridge\Symfony\HttpFoundation\Session\SwooleSessionStorage:
+        arguments:
+            $lifetimeSeconds: '%env(int:COOKIE_LIFETIME)%'

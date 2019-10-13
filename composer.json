@@ -19,6 +19,7 @@
     }],
     "require": {
         "php": "^7.3",
+        "ext-json": "*",
         "ext-swoole": "~4.4.7",
         "beberlei/assert": "^3.0",
         "symfony/config": "^4.3.1",
@@ -114,6 +115,7 @@
         }
     },
     "config": {
+        "process-timeout": 600,
         "sort-packages": true,
         "platform": {
             "php": "7.3.10",
