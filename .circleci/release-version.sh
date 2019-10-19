@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+set -euo pipefail
+
 if [[ "" = "$CURRENT_VERSION" ]]; then
   CURRENT_VERSION="$(git describe --abbrev=0 --tags | sed -E 's/v(.*)/\1/')"
 fi
@@ -20,11 +22,14 @@ fi
 RECOMMENDED_BUMP=$(conventional-recommended-bump -p angular)
 
 # Split version by dots
+V[0]=""
+V[1]=""
+V[2]=""
 IFS='.' read -r -a V <<< "$CURRENT_VERSION"
 
 # Ignore postfix like "-dev"
-((V[2]++))
-((V[2]--))
+V[2]=$(( V[2]+1 ))
+V[2]=$(( V[2]-1 ))
 OLD_VERSION_SEM="${V[0]}.${V[1]}.${V[2]}"
 
 # When version is 0.x.x it is allowed to make braking changes on minor version
@@ -34,13 +39,14 @@ fi;
 
 # Increment semantic version numbers major.minor.patch
 if [[ "${RECOMMENDED_BUMP}" = "major" ]]; then
-    ((V[0]++));
+    V[0]=$(( V[0]+1 ));
     V[1]=0;
     V[2]=0;
 elif [[ "${RECOMMENDED_BUMP}" = "minor" ]]; then
-    ((V[1]++));
+    V[1]=$(( V[1]+1 ));
     V[2]=0;
-elif [[ "${RECOMMENDED_BUMP}" = "patch" ]]; then ((V[2]++));
+elif [[ "${RECOMMENDED_BUMP}" = "patch" ]]; then
+    V[2]=$(( V[2]+1 ));
 else
     echo "Could not bump version"
     exit
@@ -84,7 +90,7 @@ LINES=$((LINES+NEXT_LINES))
 
 # Update CHANGELOG.md
 if [ "0" = "$DRY_RUN" ]; then
-    echo "$CHANGELOG" >> CHANGELOG.md
+    echo -e "$CHANGELOG\n$(cat CHANGELOG.md)" > CHANGELOG.md
 else
     echo "Changelog file: (first $LINES lines)"
     echo "⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽"
