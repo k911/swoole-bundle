@@ -282,7 +282,7 @@ jobs:
             npm i -g @commitlint/cli @commitlint/config-conventional
       - run:
           name: Validate commit message format
-          command: commitlint --from=HEAD~1 -V
+          command: commitlint --from=HEAD~20 -V
 
   release-version:
     <<: *docker-env
