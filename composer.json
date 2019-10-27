@@ -74,7 +74,7 @@
             "php tests/Fixtures/Symfony/app/console --ansi"
         ],
         "static-analyse-src": [
-            "phpstan analyze src -l 7 --ansi"
+            "phpstan analyze src -l 7 -c phpstan.neon.dist --ansi"
         ],
         "static-analyse-tests": [
             "phpstan analyze tests -l 4 -c phpstan.tests.neon --ansi"
@@ -84,9 +84,7 @@
         ],
         "analyse": [
             "@static-analyse-src",
-            "",
             "@static-analyse-tests",
-            "",
             "@cs-analyse"
         ],
         "test": [

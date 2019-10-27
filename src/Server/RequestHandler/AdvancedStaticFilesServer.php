@@ -87,8 +87,12 @@ final class AdvancedStaticFilesServer implements RequestHandlerInterface, Bootab
     ];
 
     private $decorated;
-    private $cachedMimeTypes;
     private $configuration;
+
+    /**
+     * @var array<string,string>
+     */
+    private $cachedMimeTypes;
 
     /**
      * @var string

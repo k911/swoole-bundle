@@ -25,7 +25,9 @@ final class CloudFrontRequestFactory implements RequestFactoryInterface
     {
         $httpFoundationRequest = $this->decorated->make($request);
         if ($httpFoundationRequest->headers->has('cloudfront_forwarded_proto')) {
-            $httpFoundationRequest->headers->set('x_forwarded_proto', $httpFoundationRequest->headers->get('cloudfront_forwarded_proto'));
+            /** @var string|string[] $cloudFrontForwardedProto */
+            $cloudFrontForwardedProto = $httpFoundationRequest->headers->get('cloudfront_forwarded_proto');
+            $httpFoundationRequest->headers->set('x_forwarded_proto', $cloudFrontForwardedProto);
         }
 
         return $httpFoundationRequest;

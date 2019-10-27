@@ -10,6 +10,8 @@ use Swoole\Http\Request;
 use Swoole\Http\Response;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpKernel\KernelInterface;
+use Symfony\Component\HttpKernel\Profiler\Profiler;
+use Symfony\Component\Stopwatch\Stopwatch;
 
 final class DebugHttpKernelRequestHandler implements RequestHandlerInterface
 {
@@ -37,10 +39,13 @@ final class DebugHttpKernelRequestHandler implements RequestHandlerInterface
 
         if ($this->kernel->isDebug()) {
             if ($this->container->has('debug.stopwatch')) {
-                $this->container->get('debug.stopwatch')->reset();
+                /** @var Stopwatch $stopwatch */
+                $stopwatch = $this->container->get('debug.stopwatch');
+                $stopwatch->reset();
             }
 
             if ($this->container->has('profiler')) {
+                /** @var Profiler $profiler */
                 $profiler = $this->container->get('profiler');
                 $profiler->reset();
                 $profiler->enable();

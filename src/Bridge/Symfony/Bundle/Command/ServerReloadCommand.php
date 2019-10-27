@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace K911\Swoole\Bridge\Symfony\Bundle\Command;
 
+use Assert\Assertion;
 use K911\Swoole\Server\HttpServer;
 use K911\Swoole\Server\HttpServerConfiguration;
 use Symfony\Component\Console\Command\Command;
@@ -51,7 +52,10 @@ final class ServerReloadCommand extends Command
     {
         $io = new SymfonyStyle($input, $output);
 
-        $this->serverConfiguration->daemonize($input->getOption('pid-file'));
+        $pidFile = $input->getOption('pid-file');
+        Assertion::nullOrString($pidFile);
+
+        $this->serverConfiguration->daemonize($pidFile);
 
         try {
             $this->server->reload();
