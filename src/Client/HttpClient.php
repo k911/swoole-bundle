@@ -17,7 +17,7 @@ use Swoole\Coroutine\Http\Client;
  *
  * @internal Class API is not stable, nor it is guaranteed to exists in next releases, use at own risk
  */
-final class HttpClient
+final class HttpClient implements \Serializable
 {
     private const SUPPORTED_HTTP_METHODS = [
         Http::METHOD_GET,
@@ -60,15 +60,7 @@ final class HttpClient
 
     public static function fromDomain(string $host, int $port = 443, bool $ssl = true, array $options = []): self
     {
-        $client = new Client(
-            $host, $port, $ssl
-        );
-
-        if (!empty($options)) {
-            $client->set($options);
-        }
-
-        return new self($client);
+        return new self(self::makeSwooleClient($host, $port, $ssl, $options));
     }
 
     /**
@@ -117,6 +109,41 @@ final class HttpClient
         $this->client->execute($path);
 
         return $this->resolveResponse($this->client, $timeout);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function serialize(): string
+    {
+        return \json_encode([
+            'host' => $this->client->host,
+            'port' => $this->client->port,
+            'ssl' => $this->client->ssl,
+            'options' => $this->client->setting,
+        ], \JSON_THROW_ON_ERROR);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function unserialize($serialized): void
+    {
+        $spec = \json_decode($serialized, true, 512, \JSON_THROW_ON_ERROR);
+        $this->client = self::makeSwooleClient($spec['host'], $spec['port'], $spec['ssl'], $spec['options']);
+    }
+
+    private static function makeSwooleClient(string $host, int $port = 443, bool $ssl = true, array $options = []): Client
+    {
+        $client = new Client(
+            $host, $port, $ssl
+        );
+
+        if (!empty($options)) {
+            $client->set($options);
+        }
+
+        return $client;
     }
 
     private function assertHttpMethodSupported(string $method): void
