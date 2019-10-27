@@ -108,7 +108,7 @@ class HttpServerConfiguration
 
     public function hasPublicDir(): bool
     {
-        return isset($this->settings[self::SWOOLE_HTTP_SERVER_CONFIG_PUBLIC_DIR]);
+        return !empty($this->settings[self::SWOOLE_HTTP_SERVER_CONFIG_PUBLIC_DIR]);
     }
 
     /**
@@ -203,11 +203,11 @@ class HttpServerConfiguration
     /**
      * @throws \Assert\AssertionFailedException
      *
-     * @return null|string
+     * @return string
      */
-    public function getPublicDir(): ?string
+    public function getPublicDir(): string
     {
-        Assertion::keyIsset($this->settings, self::SWOOLE_HTTP_SERVER_CONFIG_PUBLIC_DIR, 'Setting "%s" is not set.');
+        Assertion::true($this->hasPublicDir(), \sprintf('Setting "%s" is not set or empty.', self::SWOOLE_HTTP_SERVER_CONFIG_PUBLIC_DIR));
 
         return $this->settings[self::SWOOLE_HTTP_SERVER_CONFIG_PUBLIC_DIR];
     }

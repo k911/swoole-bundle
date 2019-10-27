@@ -29,11 +29,7 @@ final class Configuration implements ConfigurationInterface
      */
     public function getConfigTreeBuilder(): TreeBuilder
     {
-        $rootNode = \method_exists($this->builder, 'getRootNode') ?
-            $this->builder->getRootNode() :
-            $this->builder->root(self::CONFIG_NAME);
-
-        $rootNode
+        $this->builder->getRootNode()
             ->children()
                 ->arrayNode('http_server')
                     ->addDefaultsIfNotSet()

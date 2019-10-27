@@ -1,5 +1,6 @@
 parameters:
+    inferPrivatePropertyTypeFromConstructor: true
     excludes_analyse:
+        - src/Bridge/Symfony/Bundle/DependencyInjection/Configuration.php
     ignoreErrors:
         # Put false positives here
-        - '#Parameter \#2 \$callback of method Swoole\\Server::on\(\) expects callable\(\): mixed, array\(mixed, .{1}handle.{1}\) given#'
