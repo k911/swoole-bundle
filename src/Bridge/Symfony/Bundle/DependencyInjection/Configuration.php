@@ -145,6 +145,10 @@ final class Configuration implements ConfigurationInterface
                                 ->booleanNode('entity_manager_handler')
                                     ->defaultNull()
                                 ->end()
+                                ->booleanNode('session_cookie_event_listener')
+                                    ->defaultFalse()
+                                    ->treatNullLike(false)
+                                ->end()
                             ->end()
                         ->end() // drivers
                         ->arrayNode('settings')
