@@ -130,10 +130,7 @@ final class XdebugHandler
         foreach ($iniFiles as $iniFile) {
             $iniContent = \file_get_contents($iniFile);
             if (false === $iniContent) {
-                throw new RuntimeException(\sprintf(
-                    'Could not get contents of ini file "%s".',
-                    $iniFile
-                ));
+                throw new RuntimeException(\sprintf('Could not get contents of ini file "%s".', $iniFile));
             }
 
             $data = \preg_replace($regex, ';$1', $iniContent);
@@ -157,8 +154,6 @@ final class XdebugHandler
      *
      * @param array $loadedConfig All current ini settings
      * @param array $iniConfig    Settings from user ini files
-     *
-     * @return string
      */
     private function mergeLoadedConfig(array $loadedConfig, array $iniConfig): string
     {

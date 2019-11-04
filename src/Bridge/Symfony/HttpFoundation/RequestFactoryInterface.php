@@ -9,10 +9,5 @@ use Symfony\Component\HttpFoundation\Request as HttpFoundationRequest;
 
 interface RequestFactoryInterface
 {
-    /**
-     * @param \Swoole\Http\Request $request
-     *
-     * @return \Symfony\Component\HttpFoundation\Request
-     */
     public function make(SwooleRequest $request): HttpFoundationRequest;
 }

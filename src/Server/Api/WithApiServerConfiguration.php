@@ -23,9 +23,6 @@ final class WithApiServerConfiguration implements ConfiguratorInterface
         $this->requestHandler = $requestHandler;
     }
 
-    /**
-     * @param Server $server
-     */
     public function configure(Server $server): void
     {
         if (!$this->sockets->hasApiSocket()) {

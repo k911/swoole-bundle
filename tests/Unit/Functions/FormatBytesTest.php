@@ -45,9 +45,6 @@ class FormatBytesTest extends TestCase
 
     /**
      * @dataProvider bytesFormattedProvider
-     *
-     * @param int    $bytes
-     * @param string $formatted
      */
     public function testFormatBytes(int $bytes, string $formatted): void
     {

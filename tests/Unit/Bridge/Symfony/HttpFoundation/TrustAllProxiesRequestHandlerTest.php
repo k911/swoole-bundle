@@ -53,10 +53,6 @@ class TrustAllProxiesRequestHandlerTest extends TestCase
 
     /**
      * @dataProvider trustOrNotProvider
-     *
-     * @param bool  $startWith
-     * @param array $bootWith
-     * @param bool  $expected
      */
     public function testBooting(bool $startWith, array $bootWith, bool $expected): void
     {

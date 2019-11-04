@@ -8,8 +8,5 @@ use Swoole\Http\Server;
 
 interface ConfiguratorInterface
 {
-    /**
-     * @param Server $server
-     */
     public function configure(Server $server): void;
 }

@@ -10,8 +10,6 @@ interface ServerShutdownHandlerInterface
 {
     /**
      * Handle "OnShutdown" event.
-     *
-     * @param Server $server
      */
     public function handle(Server $server): void;
 }

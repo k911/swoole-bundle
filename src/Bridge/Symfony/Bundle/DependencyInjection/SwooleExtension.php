@@ -90,9 +90,6 @@ final class SwooleExtension extends Extension implements PrependExtensionInterfa
     }
 
     /**
-     * @param array            $config
-     * @param ContainerBuilder $container
-     *
      * @throws \Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException
      */
     private function registerHttpServer(array $config, ContainerBuilder $container): void
@@ -207,9 +204,6 @@ final class SwooleExtension extends Extension implements PrependExtensionInterfa
 
     /**
      * Registers optional http server dependencies providing various features.
-     *
-     * @param array            $config
-     * @param ContainerBuilder $container
      */
     private function registerHttpServerServices(array $config, ContainerBuilder $container): void
     {

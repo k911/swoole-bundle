@@ -11,10 +11,8 @@ use OutOfRangeException;
  * Replaces object property with provided value.
  * Property may not be public.
  *
- * @param object      $obj
- * @param string      $propertyName
  * @param mixed       $newValue
- * @param null|string $scope        class scope useful when property is inherited
+ * @param null|string $scope    class scope useful when property is inherited
  */
 function replace_object_property(object $obj, string $propertyName, $newValue, ?string $scope = null): void
 {
@@ -27,9 +25,7 @@ function replace_object_property(object $obj, string $propertyName, $newValue, ?
  * Get object property (even by reference).
  * Property may not be public.
  *
- * @param object      $obj
- * @param string      $propertyName
- * @param null|string $scope        class scope useful when property is inherited
+ * @param null|string $scope class scope useful when property is inherited
  *
  * @return mixed
  */
@@ -87,9 +83,8 @@ function format_bytes(int $bytes): string
 /**
  * Simple decodes string of values as array.
  *
- * @param null|string $stringSet
- * @param string      $separator  set separator
- * @param array       $stripChars characters to be stripped out from string
+ * @param string $separator  set separator
+ * @param array  $stripChars characters to be stripped out from string
  *
  * @return string[]
  */

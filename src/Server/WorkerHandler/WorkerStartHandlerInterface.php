@@ -19,9 +19,6 @@ interface WorkerStartHandlerInterface
      *        echo "Hello from task worker process";
      *      }
      *      ```
-     *
-     * @param Server $worker
-     * @param int    $workerId
      */
     public function handle(Server $worker, int $workerId): void;
 }

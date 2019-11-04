@@ -8,8 +8,6 @@ interface ApiServerInterface
 {
     /**
      * Get Swoole HTTP Server status.
-     *
-     * @return array
      */
     public function status(): array;
 
@@ -25,8 +23,6 @@ interface ApiServerInterface
 
     /**
      * Get Swoole HTTP Server metrics.
-     *
-     * @return array
      */
     public function metrics(): array;
 }

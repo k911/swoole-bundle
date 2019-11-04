@@ -33,13 +33,6 @@ abstract class AbstractServerStartCommand extends Command
     private $serverConfigurator;
     private $testing = false;
 
-    /**
-     * @param HttpServer              $server
-     * @param HttpServerConfiguration $serverConfiguration
-     * @param ConfiguratorInterface   $serverConfigurator
-     * @param ParameterBagInterface   $parameterBag
-     * @param BootableInterface       $bootManager
-     */
     public function __construct(
         HttpServer $server,
         HttpServerConfiguration $serverConfiguration,
@@ -130,9 +123,6 @@ abstract class AbstractServerStartCommand extends Command
     }
 
     /**
-     * @param HttpServerConfiguration $serverConfiguration
-     * @param InputInterface          $input
-     *
      * @throws \Assert\AssertionFailedException
      */
     protected function prepareServerConfiguration(HttpServerConfiguration $serverConfiguration, InputInterface $input): void
@@ -167,12 +157,7 @@ abstract class AbstractServerStartCommand extends Command
     }
 
     /**
-     * @param HttpServerConfiguration $serverConfiguration
-     * @param InputInterface          $input
-     *
      * @throws \Assert\AssertionFailedException
-     *
-     * @return array
      */
     protected function prepareRuntimeConfiguration(HttpServerConfiguration $serverConfiguration, InputInterface $input): array
     {
@@ -196,12 +181,7 @@ abstract class AbstractServerStartCommand extends Command
      * Rows produced by this function will be printed on server startup in table with following form:
      * | Configuration | Value |.
      *
-     * @param HttpServerConfiguration $serverConfiguration
-     * @param array                   $runtimeConfiguration
-     *
      * @throws \Assert\AssertionFailedException
-     *
-     * @return array
      */
     protected function prepareConfigurationRowsToPrint(HttpServerConfiguration $serverConfiguration, array $runtimeConfiguration): array
     {
@@ -229,10 +209,6 @@ abstract class AbstractServerStartCommand extends Command
     }
 
     /**
-     * @param HttpServerConfiguration $serverConfiguration
-     * @param HttpServer              $server
-     * @param SymfonyStyle            $io
-     *
      * @throws \Assert\AssertionFailedException
      */
     protected function startServer(HttpServerConfiguration $serverConfiguration, HttpServer $server, SymfonyStyle $io): void
@@ -249,8 +225,6 @@ abstract class AbstractServerStartCommand extends Command
 
     /**
      * @throws \Assert\AssertionFailedException
-     *
-     * @return string
      */
     private function getDefaultPublicDir(): string
     {
@@ -310,8 +284,6 @@ abstract class AbstractServerStartCommand extends Command
      * @param mixed $set
      *
      * @throws \Assert\AssertionFailedException
-     *
-     * @return array
      */
     private function decodeSet($set): array
     {

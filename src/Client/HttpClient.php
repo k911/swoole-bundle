@@ -205,8 +205,6 @@ final class HttpClient implements \Serializable
     }
 
     /**
-     * @param Client $client
-     *
      * @return array|string
      */
     private function resolveResponseBody(Client $client)
