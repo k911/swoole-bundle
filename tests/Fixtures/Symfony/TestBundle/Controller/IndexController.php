@@ -14,8 +14,6 @@ class IndexController
      *     methods={"GET"},
      *     path="/"
      * )
-     *
-     * @return JsonResponse
      */
     public function index(): JsonResponse
     {

@@ -40,11 +40,6 @@ final class Socket
     private $ssl;
 
     /**
-     * @param string $host
-     * @param int    $port
-     * @param string $type
-     * @param bool   $ssl
-     *
      * @throws \Assert\AssertionFailedException
      */
     public function __construct(string $host = '0.0.0.0', int $port = 9501, string $type = 'tcp', bool $ssl = false)
@@ -61,10 +56,6 @@ final class Socket
     }
 
     /**
-     * @param string $addressPort
-     * @param string $socketType
-     * @param bool   $enableSsl
-     *
      * @throws \Assert\AssertionFailedException
      *
      * @return Socket
@@ -128,8 +119,6 @@ final class Socket
     }
 
     /**
-     * @param string $addressPort
-     *
      * @return array values:
      *               - string host
      *               - int port

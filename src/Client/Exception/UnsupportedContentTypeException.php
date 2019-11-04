@@ -10,7 +10,6 @@ namespace K911\Swoole\Client\Exception;
 final class UnsupportedContentTypeException extends \InvalidArgumentException
 {
     /**
-     * @param string   $contentType
      * @param string[] $allowed
      *
      * @return UnsupportedContentTypeException

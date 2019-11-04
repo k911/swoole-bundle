@@ -61,8 +61,6 @@ final class Sockets
      * - first server socket
      * - next if defined api socket
      * - rest of sockets.
-     *
-     * @return Generator
      */
     public function getAll(): Generator
     {

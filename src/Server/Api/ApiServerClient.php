@@ -18,8 +18,6 @@ final class ApiServerClient implements ApiServerInterface
 
     /**
      * Get Swoole HTTP Server status.
-     *
-     * @return array
      */
     public function status(): array
     {
@@ -44,8 +42,6 @@ final class ApiServerClient implements ApiServerInterface
 
     /**
      * Get Swoole HTTP Server metrics.
-     *
-     * @return array
      */
     public function metrics(): array
     {

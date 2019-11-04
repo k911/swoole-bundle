@@ -12,8 +12,6 @@ interface ServerManagerStartHandlerInterface
      * Handle "OnManagerStart" event.
      *
      * Info: Handler is executed in manager process
-     *
-     * @param Server $server
      */
     public function handle(Server $server): void;
 }

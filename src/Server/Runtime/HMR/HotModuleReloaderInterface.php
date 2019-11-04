@@ -10,8 +10,6 @@ interface HotModuleReloaderInterface
 {
     /**
      * Reload HttpServer if changes in files were detected.
-     *
-     * @param Server $server
      */
     public function tick(Server $server): void;
 }

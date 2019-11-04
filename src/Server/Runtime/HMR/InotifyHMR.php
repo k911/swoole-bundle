@@ -32,8 +32,6 @@ final class InotifyHMR implements HotModuleReloaderInterface, BootableInterface
     private $watchMask;
 
     /**
-     * @param array $nonReloadableFiles
-     *
      * @throws AssertionFailedException
      */
     public function __construct(array $nonReloadableFiles = [])
@@ -53,8 +51,6 @@ final class InotifyHMR implements HotModuleReloaderInterface, BootableInterface
 
     /**
      * {@inheritdoc}
-     *
-     * @param Server $server
      */
     public function tick(Server $server): void
     {
@@ -101,9 +97,6 @@ final class InotifyHMR implements HotModuleReloaderInterface, BootableInterface
         }
     }
 
-    /**
-     * @param array $files
-     */
     private function watchFiles(array $files): void
     {
         foreach ($files as $file) {

@@ -64,15 +64,13 @@ class HttpServerConfiguration
     private $settings;
 
     /**
-     * @param Sockets $sockets
-     * @param string  $runningMode
-     * @param array   $settings    settings available:
-     *                             - reactor_count (default: number of cpu cores)
-     *                             - worker_count (default: 2 * number of cpu cores)
-     *                             - task_worker_count (default: unset; "auto" => number of cpu cores; number of task workers)
-     *                             - serve_static_files (default: false)
-     *                             - public_dir (default: '%kernel.root_dir%/public')
-     *                             - buffer_output_size (default: '2097152' unit in byte (2MB))
+     * @param array $settings settings available:
+     *                        - reactor_count (default: number of cpu cores)
+     *                        - worker_count (default: 2 * number of cpu cores)
+     *                        - task_worker_count (default: unset; "auto" => number of cpu cores; number of task workers)
+     *                        - serve_static_files (default: false)
+     *                        - public_dir (default: '%kernel.root_dir%/public')
+     *                        - buffer_output_size (default: '2097152' unit in byte (2MB))
      *
      * @throws \Assert\AssertionFailedException
      */
@@ -111,9 +109,6 @@ class HttpServerConfiguration
         return !empty($this->settings[self::SWOOLE_HTTP_SERVER_CONFIG_PUBLIC_DIR]);
     }
 
-    /**
-     * @param Socket $socket
-     */
     public function changeServerSocket(Socket $socket): void
     {
         $this->sockets->changeServerSocket($socket);
@@ -125,8 +120,6 @@ class HttpServerConfiguration
     }
 
     /**
-     * @param string $publicDir
-     *
      * @throws \Assert\AssertionFailedException
      */
     public function enableServingStaticFiles(string $publicDir): void
@@ -154,8 +147,6 @@ class HttpServerConfiguration
 
     /**
      * @throws \Assert\AssertionFailedException
-     *
-     * @return int
      */
     public function getPid(): int
     {
@@ -175,8 +166,6 @@ class HttpServerConfiguration
 
     /**
      * @throws \Assert\AssertionFailedException
-     *
-     * @return string
      */
     public function getPidFile(): string
     {
@@ -202,8 +191,6 @@ class HttpServerConfiguration
 
     /**
      * @throws \Assert\AssertionFailedException
-     *
-     * @return string
      */
     public function getPublicDir(): string
     {
@@ -219,8 +206,6 @@ class HttpServerConfiguration
 
     /**
      * Get settings formatted for swoole http server.
-     *
-     * @return array
      *
      * @see \Swoole\Http\Server::set()
      *
@@ -245,8 +230,6 @@ class HttpServerConfiguration
     }
 
     /**
-     * @return int
-     *
      * @see getSwooleSettings()
      */
     public function getSwooleLogLevel(): int
@@ -255,8 +238,6 @@ class HttpServerConfiguration
     }
 
     /**
-     * @return bool
-     *
      * @see getSwooleSettings()
      */
     public function getSwooleEnableStaticHandler(): bool
@@ -270,8 +251,6 @@ class HttpServerConfiguration
     }
 
     /**
-     * @param null|string $pidFile
-     *
      * @throws \Assert\AssertionFailedException
      */
     public function daemonize(?string $pidFile = null): void
@@ -291,8 +270,6 @@ class HttpServerConfiguration
     }
 
     /**
-     * @param array $init
-     *
      * @throws \Assert\AssertionFailedException
      */
     private function initializeSettings(array $init): void
@@ -316,8 +293,6 @@ class HttpServerConfiguration
     }
 
     /**
-     * @param array $settings
-     *
      * @throws \Assert\AssertionFailedException
      */
     private function setSettings(array $settings): void
@@ -334,8 +309,7 @@ class HttpServerConfiguration
     }
 
     /**
-     * @param string $key
-     * @param mixed  $value
+     * @param mixed $value
      *
      * @throws \Assert\AssertionFailedException
      */

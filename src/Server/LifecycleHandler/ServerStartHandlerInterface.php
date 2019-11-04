@@ -10,8 +10,6 @@ interface ServerStartHandlerInterface
 {
     /**
      * Handle "OnStart" event.
-     *
-     * @param Server $server
      */
     public function handle(Server $server): void;
 }

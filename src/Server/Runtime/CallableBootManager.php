@@ -16,7 +16,6 @@ final class CallableBootManager implements BootableInterface
 
     /**
      * @param iterable<callable> $bootables
-     * @param bool               $booted
      */
     public function __construct(iterable $bootables, bool $booted = false)
     {

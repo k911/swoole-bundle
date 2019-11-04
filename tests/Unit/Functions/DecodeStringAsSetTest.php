@@ -43,7 +43,6 @@ class DecodeStringAsSetTest extends TestCase
      * @dataProvider decodedPairsProvider
      *
      * @param string $string
-     * @param array  $set
      */
     public function testDecodeStringAsSet(?string $string, array $set): void
     {

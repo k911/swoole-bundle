@@ -1,5 +1,5 @@
 ARG PHP_TAG="7.3-cli-alpine3.10"
-ARG COMPOSER_TAG="1.9.0"
+ARG COMPOSER_TAG="1.9.1"
 
 FROM php:$PHP_TAG as ext-builder
 RUN docker-php-source extract && \
@@ -22,7 +22,7 @@ RUN pecl install xdebug && \
 
 FROM ext-builder as ext-swoole
 RUN apk add --no-cache git
-ARG SWOOLE_VERSION="4.4.10"
+ARG SWOOLE_VERSION="4.4.12"
 RUN git clone https://github.com/swoole/swoole-src.git --branch "v$SWOOLE_VERSION" --depth 1 && \
     cd swoole-src && \
     phpize && \

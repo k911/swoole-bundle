@@ -15,11 +15,7 @@ class SessionController
      * @Route(methods={"GET"}, path="/session/1")
      * @Route(methods={"GET"}, path="/session/2")
      *
-     * @param SessionInterface $session
-     *
      * @throws \Exception
-     *
-     * @return JsonResponse
      */
     public function index(SessionInterface $session): JsonResponse
     {

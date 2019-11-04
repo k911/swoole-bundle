@@ -17,11 +17,7 @@ final class HttpServerFactory
     ];
 
     /**
-     * @param Socket $main
-     * @param string $runningMode
      * @param Socket ...$additional
-     *
-     * @return Server
      *
      * @see https://github.com/swoole/swoole-docs/blob/master/modules/swoole-server/methods/construct.md#parameter
      * @see https://github.com/swoole/swoole-docs/blob/master/modules/swoole-server/methods/addListener.md#prototype

@@ -10,7 +10,6 @@ namespace K911\Swoole\Client\Exception;
 final class UnsupportedHttpMethodException extends \InvalidArgumentException
 {
     /**
-     * @param string   $method
      * @param string[] $allowed
      *
      * @return UnsupportedHttpMethodException

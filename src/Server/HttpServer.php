@@ -45,8 +45,6 @@ final class HttpServer
 
     /**
      * Attach already configured Swoole HTTP Server instance.
-     *
-     * @param Server $server
      */
     public function attach(Server $server): void
     {
@@ -68,9 +66,6 @@ final class HttpServer
         }
     }
 
-    /**
-     * @return bool
-     */
     public function start(): bool
     {
         return $this->running = $this->getServer()->start();
@@ -111,9 +106,6 @@ final class HttpServer
         return $this->getServer()->stats();
     }
 
-    /**
-     * @return bool
-     */
     public function isRunning(): bool
     {
         return $this->running || $this->isRunningInBackground();
@@ -141,9 +133,6 @@ final class HttpServer
         return $this->listeners;
     }
 
-    /**
-     * @return bool
-     */
     private function isRunningInBackground(): bool
     {
         try {

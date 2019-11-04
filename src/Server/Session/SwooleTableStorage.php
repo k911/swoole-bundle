@@ -32,10 +32,6 @@ final class SwooleTableStorage implements StorageInterface
     }
 
     /**
-     * @param int   $maxActiveSessions
-     * @param int   $maxSessionDataBytes
-     * @param float $tableConflictProportion
-     *
      * @return static
      */
     public static function fromDefaults(int $maxActiveSessions = 1024, int $maxSessionDataBytes = 1024, float $tableConflictProportion = 0.2): self

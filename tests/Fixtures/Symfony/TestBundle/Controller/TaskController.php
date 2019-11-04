@@ -18,12 +18,7 @@ final class TaskController
      *     path="/message/dispatch"
      * )
      *
-     * @param MessageBusInterface $bus
-     * @param Request             $request
-     *
      * @throws \Exception
-     *
-     * @return Response
      */
     public function dispatchMessage(MessageBusInterface $bus, Request $request): Response
     {

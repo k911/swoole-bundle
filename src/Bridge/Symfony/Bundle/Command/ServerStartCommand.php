@@ -74,8 +74,6 @@ final class ServerStartCommand extends AbstractServerStartCommand
 
     /**
      * Prevents usage of php://stdout or php://stderr while running in background.
-     *
-     * @param ConsoleOutput $output
      */
     private function closeConsoleOutput(ConsoleOutput $output): void
     {

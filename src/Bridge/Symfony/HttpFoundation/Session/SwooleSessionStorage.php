@@ -237,11 +237,7 @@ final class SwooleSessionStorage implements SessionStorageInterface
     }
 
     /**
-     * @param string $sessionId
-     *
      * @throws \Assert\AssertionFailedException
-     *
-     * @return array
      */
     private function obtainSessionData(string $sessionId): array
     {
@@ -280,8 +276,6 @@ final class SwooleSessionStorage implements SessionStorageInterface
      * Generates a session ID.
      *
      * @throws \Exception
-     *
-     * @return string
      */
     private function generateId(): string
     {

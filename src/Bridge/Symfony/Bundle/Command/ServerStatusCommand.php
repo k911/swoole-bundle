@@ -84,8 +84,6 @@ final class ServerStatusCommand extends Command
     }
 
     /**
-     * @param InputInterface $input
-     *
      * @throws \Assert\AssertionFailedException
      */
     protected function prepareClientConfiguration(InputInterface $input): void
