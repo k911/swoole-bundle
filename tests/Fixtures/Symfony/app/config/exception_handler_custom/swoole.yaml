@@ -1,0 +1,67 @@
+swoole:
+    http_server:
+        exception_handler:
+            type: custom
+            handler_id: test_bundle.custom.exception_handler
+
+services:
+    _defaults:
+        autowire: true
+        autoconfigure: true
+        public: false
+
+    test_bundle.custom.exception_handler:
+        alias: K911\Swoole\Tests\Fixtures\Symfony\TestBundle\ExceptionHandler\TestCustomExceptionHandler
+
+    K911\Swoole\Tests\Fixtures\Symfony\TestBundle\ExceptionHandler\TestCustomExceptionHandler: {}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

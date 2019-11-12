@@ -7,6 +7,16 @@ services:
     K911\Swoole\Component\AtomicCounter:
         factory: ['K911\Swoole\Component\AtomicCounter', fromZero]
 
+    K911\Swoole\Component\ExceptionArrayTransformer:
+
+    K911\Swoole\Server\RequestHandler\ExceptionHandler\ProductionExceptionHandler:
+
+    K911\Swoole\Server\RequestHandler\ExceptionHandler\JsonExceptionHandler:
+
+    K911\Swoole\Server\RequestHandler\ExceptionRequestHandler:
+        arguments:
+            $decorated: '@K911\Swoole\Bridge\Symfony\HttpKernel\HttpKernelRequestHandler'
+
     K911\Swoole\Bridge\Symfony\HttpFoundation\SetRequestRuntimeConfiguration:
 
     K911\Swoole\Bridge\Symfony\HttpFoundation\RequestFactoryInterface:
@@ -16,7 +26,7 @@ services:
         class: K911\Swoole\Bridge\Symfony\HttpFoundation\ResponseProcessor
 
     K911\Swoole\Server\RequestHandler\RequestHandlerInterface:
-        alias: K911\Swoole\Bridge\Symfony\HttpKernel\HttpKernelRequestHandler
+        alias: K911\Swoole\Server\RequestHandler\ExceptionRequestHandler
 
     K911\Swoole\Bridge\Symfony\HttpKernel\HttpKernelRequestHandler:
 
@@ -105,7 +115,9 @@ services:
     K911\Swoole\Server\Api\ApiServerRequestHandler:
 
     swoole_bundle.server.api_server.request_handler:
-        alias: K911\Swoole\Server\Api\ApiServerRequestHandler
+        class: K911\Swoole\Server\RequestHandler\ExceptionRequestHandler
+        arguments:
+            $decorated: '@K911\Swoole\Server\Api\ApiServerRequestHandler'
 
     swoole_bundle.server.http_server.configurator_collection:
         class: K911\Swoole\Component\GeneratedCollection

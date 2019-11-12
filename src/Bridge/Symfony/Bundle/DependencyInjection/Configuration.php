@@ -128,6 +128,36 @@ final class Configuration implements ConfigurationInterface
                                 ->end()
                             ->end()
                         ->end() // end static
+                        ->arrayNode('exception_handler')
+                            ->addDefaultsIfNotSet()
+                            ->beforeNormalization()
+                                ->ifString()
+                                ->then(function ($v): array {
+                                    return [
+                                        'type' => $v,
+                                        'verbosity' => 'auto',
+                                        'handler_id' => null,
+                                    ];
+                                })
+                            ->end()
+                            ->children()
+                                ->enumNode('type')
+                                    ->cannotBeEmpty()
+                                    ->defaultValue('auto')
+                                    ->treatFalseLike('auto')
+                                    ->values(['json', 'production', 'custom', 'auto'])
+                                ->end()
+                                ->enumNode('verbosity')
+                                    ->cannotBeEmpty()
+                                    ->defaultValue('auto')
+                                    ->treatFalseLike('auto')
+                                    ->values(['trace', 'verbose', 'default', 'auto'])
+                                ->end()
+                                ->scalarNode('handler_id')
+                                    ->defaultNull()
+                                ->end()
+                            ->end()
+                        ->end() // end exception_handler
                         ->arrayNode('services')
                             ->addDefaultsIfNotSet()
                             ->children()

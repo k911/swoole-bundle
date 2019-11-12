@@ -7,7 +7,7 @@ namespace K911\Swoole\Tests\Fixtures\Symfony\TestBundle\Controller;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
-class ReplacedContentTestController
+final class ReplacedContentTestController
 {
     private const BASH_REPLACE_PATTERN = 'Wrong response!';
 

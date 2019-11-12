@@ -7,7 +7,7 @@ namespace K911\Swoole\Tests\Fixtures\Symfony\TestBundle\Controller;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Annotation\Route;
 
-class IndexController
+final class IndexController
 {
     /**
      * @Route(
