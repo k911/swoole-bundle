@@ -19,6 +19,9 @@ use K911\Swoole\Server\Configurator\ConfiguratorInterface;
 use K911\Swoole\Server\HttpServer;
 use K911\Swoole\Server\HttpServerConfiguration;
 use K911\Swoole\Server\RequestHandler\AdvancedStaticFilesServer;
+use K911\Swoole\Server\RequestHandler\ExceptionHandler\ExceptionHandlerInterface;
+use K911\Swoole\Server\RequestHandler\ExceptionHandler\JsonExceptionHandler;
+use K911\Swoole\Server\RequestHandler\ExceptionHandler\ProductionExceptionHandler;
 use K911\Swoole\Server\RequestHandler\RequestHandlerInterface;
 use K911\Swoole\Server\Runtime\BootableInterface;
 use K911\Swoole\Server\Runtime\HMR\HotModuleReloaderInterface;
@@ -95,6 +98,7 @@ final class SwooleExtension extends Extension implements PrependExtensionInterfa
     private function registerHttpServer(array $config, ContainerBuilder $container): void
     {
         $this->registerHttpServerServices($config['services'], $container);
+        $this->registerExceptionHandler($config['exception_handler'], $container);
 
         $container->setParameter('swoole.http_server.trusted_proxies', $config['trusted_proxies']);
         $container->setParameter('swoole.http_server.trusted_hosts', $config['trusted_hosts']);
@@ -102,6 +106,50 @@ final class SwooleExtension extends Extension implements PrependExtensionInterfa
         $container->setParameter('swoole.http_server.api.port', $config['api']['port']);
 
         $this->registerHttpServerConfiguration($config, $container);
+    }
+
+    private function registerExceptionHandler(array $config, ContainerBuilder $container): void
+    {
+        [
+            'handler_id' => $handlerId,
+            'type' => $type,
+            'verbosity' => $verbosity,
+        ] = $config;
+
+        if ('auto' === $type) {
+            $type = $this->isProd($container) ? 'production' : 'json';
+        }
+
+        switch ($type) {
+            case 'json':
+                $class = JsonExceptionHandler::class;
+
+                break;
+            case 'custom':
+                $class = $handlerId;
+
+                break;
+            default: // case 'production'
+                $class = ProductionExceptionHandler::class;
+
+                break;
+        }
+
+        $container->setAlias(ExceptionHandlerInterface::class, $class);
+
+        if ('auto' === $verbosity) {
+            if ($this->isProd($container)) {
+                $verbosity = 'production';
+            } elseif ($this->isDebug($container)) {
+                $verbosity = 'trace';
+            } else {
+                $verbosity = 'verbose';
+            }
+        }
+
+        $container->getDefinition(JsonExceptionHandler::class)
+            ->setArgument('$verbosity', $verbosity)
+        ;
     }
 
     private function registerSwooleServerTransportConfiguration(ContainerBuilder $container): void
@@ -268,6 +316,11 @@ final class SwooleExtension extends Extension implements PrependExtensionInterfa
         return isset($bundles[$fullBundleName]);
     }
 
+    private function isProd(ContainerBuilder $container): bool
+    {
+        return 'prod' === $container->getParameter('kernel.environment');
+    }
+
     private function isDebug(ContainerBuilder $container): bool
     {
         return $container->getParameter('kernel.debug');
@@ -275,6 +328,6 @@ final class SwooleExtension extends Extension implements PrependExtensionInterfa
 
     private function isDebugOrNotProd(ContainerBuilder $container): bool
     {
-        return $this->isDebug($container) || 'prod' !== $container->getParameter('kernel.environment');
+        return $this->isDebug($container) || !$this->isProd($container);
     }
 }

@@ -1,0 +1,57 @@
+swoole:
+    http_server:
+        exception_handler:
+            type: json
+            verbosity: default
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

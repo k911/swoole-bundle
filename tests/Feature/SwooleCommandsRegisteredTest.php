@@ -39,6 +39,60 @@ final class SwooleCommandsRegisteredTest extends ServerTestCase
         $this->assertSwooleCommandsRegistered($commandTester->getDisplay());
     }
 
+    public function testSwooleCommandsRegisteredWithCacheClearAppEnvProdAppDebugOff(): void
+    {
+        $kernel = static::createKernel(['environment' => 'prod', 'debug' => false]);
+        $application = new Application($kernel);
+
+        $cacheClear = $application->find('cache:clear');
+        $commandTester = new CommandTester($cacheClear);
+        $commandTester->execute([]);
+        $this->assertSame(0, $commandTester->getStatusCode());
+
+        $listCommand = $application->find('list');
+        $commandTester = new CommandTester($listCommand);
+        $commandTester->execute(['swoole']);
+
+        $this->assertSame(0, $commandTester->getStatusCode());
+        $this->assertSwooleCommandsRegistered($commandTester->getDisplay());
+    }
+
+    public function testSwooleCommandsRegisteredWithCacheClearAppEnvExceptionHandlerCustom(): void
+    {
+        $kernel = static::createKernel(['environment' => 'exception_handler_custom']);
+        $application = new Application($kernel);
+
+        $cacheClear = $application->find('cache:clear');
+        $commandTester = new CommandTester($cacheClear);
+        $commandTester->execute([]);
+        $this->assertSame(0, $commandTester->getStatusCode());
+
+        $listCommand = $application->find('list');
+        $commandTester = new CommandTester($listCommand);
+        $commandTester->execute(['swoole']);
+
+        $this->assertSame(0, $commandTester->getStatusCode());
+        $this->assertSwooleCommandsRegistered($commandTester->getDisplay());
+    }
+
+    public function testSwooleCommandsRegisteredWithCacheClearAppEnvSession(): void
+    {
+        $kernel = static::createKernel(['environment' => 'session']);
+        $application = new Application($kernel);
+
+        $cacheClear = $application->find('cache:clear');
+        $commandTester = new CommandTester($cacheClear);
+        $commandTester->execute([]);
+        $this->assertSame(0, $commandTester->getStatusCode());
+
+        $listCommand = $application->find('list');
+        $commandTester = new CommandTester($listCommand);
+        $commandTester->execute(['swoole']);
+
+        $this->assertSame(0, $commandTester->getStatusCode());
+        $this->assertSwooleCommandsRegistered($commandTester->getDisplay());
+    }
+
     public function assertSwooleCommandsRegistered(string $output): void
     {
         $this->assertStringContainsString('swoole:server:profile', $output);
