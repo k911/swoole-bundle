@@ -1,3 +1,17 @@
+# [0.7.0](https://github.com/k911/swoole-bundle/compare/v0.6.2...v0.7.0) (2019-11-13)
+
+[Full changelog](https://github.com/k911/swoole-bundle/compare/v0.6.2...v0.7.0)
+
+### Bug Fixes
+
+* **http-client:** Make HttpClient serializable ([0ee8918](https://github.com/k911/swoole-bundle/commit/0ee89182073edfa46cefaea2d58731130d3a7252))
+* **http-server:** Add top-level exception handler to prevent server timeouts ([#79](https://github.com/k911/swoole-bundle/issues/79)) ([08c76c4](https://github.com/k911/swoole-bundle/commit/08c76c4a0fa73c2b846d48f1a8afc0e8aef0b265)), closes [#78](https://github.com/k911/swoole-bundle/issues/78)
+
+
+### Features
+
+* **session:** Add in-memory syfmony session storage ([#73](https://github.com/k911/swoole-bundle/issues/73)) ([4ccdca0](https://github.com/k911/swoole-bundle/commit/4ccdca0f4709d0ab83bba068b6fad0376d53b849))
+
 ## [0.6.2](https://github.com/k911/swoole-bundle/compare/v0.6.1...v0.6.2) (2019-10-05)
 
 [Full changelog](https://github.com/k911/swoole-bundle/compare/v0.6.1...v0.6.2)
