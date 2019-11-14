@@ -234,6 +234,8 @@ jobs:
   php-73-cc:
     <<: *docker-env
     <<: *docker-coverage
+    environment:
+      CC_TEST_REPORTER_ID: 77af0c58a2646fe49fb7df502c38a56560e074fbc8b3086f2d33032b44c885a8
 
   php-73:
     <<: *docker-env
