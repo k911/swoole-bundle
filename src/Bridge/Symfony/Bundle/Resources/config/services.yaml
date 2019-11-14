@@ -46,7 +46,7 @@ services:
 
     K911\Swoole\Server\Runtime\BootableInterface:
         class: K911\Swoole\Server\Runtime\CallableBootManager
-        factory: K911\Swoole\Server\Runtime\CallableBootManagerFactory:make
+        factory: ['@K911\Swoole\Server\Runtime\CallableBootManagerFactory', make]
         arguments: [!tagged 'swoole_bundle.bootable_service']
         autoconfigure: false
 
