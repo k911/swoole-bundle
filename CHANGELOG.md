@@ -1,3 +1,11 @@
+## [0.7.1](https://github.com/k911/swoole-bundle/compare/v0.7.0...v0.7.1) (2019-11-14)
+
+[Full changelog](https://github.com/k911/swoole-bundle/compare/v0.7.0...v0.7.1)
+
+### Miscellaneous
+
+* Minor fixes
+
 # [0.7.0](https://github.com/k911/swoole-bundle/compare/v0.6.2...v0.7.0) (2019-11-13)
 
 [Full changelog](https://github.com/k911/swoole-bundle/compare/v0.6.2...v0.7.0)
