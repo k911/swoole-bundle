@@ -277,6 +277,9 @@ jobs:
       - run:
           name: Shellcheck ".circleci" directory
           command: shellcheck .circleci/*.sh
+      - run:
+          name: Shellcheck "tests" directory
+          command: shellcheck tests/*.sh
 
   validate-commit-message:
     docker:
