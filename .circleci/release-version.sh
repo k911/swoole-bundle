@@ -116,18 +116,15 @@ else
 fi
 
 # Push commit and tag
-GH_TOKEN="${GH_TOKEN:?"Provide \"GH_TOKEN\" variable with GitHub Personal Access Token"}"
-REVS="$RELEASE_TAG HEAD:master HEAD:develop"
 
-git remote add authorized "https://${GH_COMMITER_NAME}:${GH_TOKEN}@github.com/${GH_REPOSITORY}.git"
-for REV in $REVS; do
-    if [ "0" = "$DRY_RUN" ]; then
-        git push authorized "$REV"
-    else
-        echo "Pushing $REV.."
-    fi
-done
-git remote remove authorized
+if [ "0" = "$DRY_RUN" ]; then
+    GH_TOKEN="${GH_TOKEN:?"Provide \"GH_TOKEN\" variable with GitHub Personal Access Token"}"
+    git remote add authorized "https://${GH_COMMITER_NAME}:${GH_TOKEN}@github.com/${GH_REPOSITORY}.git"
+    git push authorized "$RELEASE_TAG"
+    git push authorized HEAD:master
+    git push authorized HEAD:develop
+    git remote remove authorized
+fi
 
 # Make github release
 GH_RELEASE_DRAFT="${GH_RELEASE_DRAFT:-false}"
