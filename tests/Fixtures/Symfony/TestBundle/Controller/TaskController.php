@@ -27,6 +27,6 @@ final class TaskController
         $message = new CreateFileMessage($fileName, $content);
         $bus->dispatch($message);
 
-        return new Response('OK', 200);
+        return new Response('OK', 200, ['Content-Type' => 'text/plain']);
     }
 }

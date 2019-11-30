@@ -83,7 +83,7 @@ class TestAppKernel extends Kernel
     /**
      * {@inheritdoc}
      *
-     * @throws \Symfony\Component\Config\Exception\FileLoaderLoadException
+     * @throws \Symfony\Component\Config\Exception\LoaderLoadException
      */
     protected function configureRoutes(RouteCollectionBuilder $routes): void
     {

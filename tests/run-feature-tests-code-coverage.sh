@@ -12,7 +12,7 @@ for f in ./tests/Feature/*.php; do
     for ((TRY_NO=1; TRY_NO <= MAX_TRIES; TRY_NO++)); do
         echo "[Test $TEST_NO] Try $TRY_NO of $MAX_TRIES";
 
-        vendor/bin/phpunit "$f" --process-isolation --coverage-php "cov/feature-tests-$TEST_NO.cov" --colors=always
+        vendor/bin/phpunit "$f" --coverage-php "cov/feature-tests-$TEST_NO.cov" --colors=always
         TEST_EXIT_CODE=$?
 
         # Make sure server is killed for next test
