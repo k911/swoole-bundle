@@ -1,3 +1,11 @@
+## [0.7.2](https://github.com/k911/swoole-bundle/compare/v0.7.1...v0.7.2) (2019-11-30)
+
+[Full changelog](https://github.com/k911/swoole-bundle/compare/v0.7.1...v0.7.2)
+
+### Bug Fixes
+
+* **composer:** Resolve upgrade issues ([#83](https://github.com/k911/swoole-bundle/issues/83)) ([92285ac](https://github.com/k911/swoole-bundle/commit/92285ac63b62579f5e23e965e5aa020f7e407c02))
+
 ## [0.7.1](https://github.com/k911/swoole-bundle/compare/v0.7.0...v0.7.1) (2019-11-14)
 
 [Full changelog](https://github.com/k911/swoole-bundle/compare/v0.7.0...v0.7.1)
