@@ -309,6 +309,7 @@ jobs:
     <<: *docker-release
     environment:
       DRY_RUN: "1"
+      GH_TOKEN: "xxxx"
 
 workflows:
   version: 2.1
