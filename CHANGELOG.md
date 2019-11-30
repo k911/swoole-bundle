@@ -1,3 +1,11 @@
+## [0.7.3](https://github.com/k911/swoole-bundle/compare/v0.7.2...v0.7.3) (2019-11-30)
+
+[Full changelog](https://github.com/k911/swoole-bundle/compare/v0.7.2...v0.7.3)
+
+### Reverts
+
+* Revert "ci(circle): Remove loop in bash release script" ([a468ef7](https://github.com/k911/swoole-bundle/commit/a468ef7b455aa097ea573aeb35681fc19d753a4c)), closes [#81](https://github.com/k911/swoole-bundle/issues/81)
+
 ## [0.7.2](https://github.com/k911/swoole-bundle/compare/v0.7.1...v0.7.2) (2019-11-30)
 
 [Full changelog](https://github.com/k911/swoole-bundle/compare/v0.7.1...v0.7.2)
