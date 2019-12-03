@@ -1,3 +1,11 @@
+## [0.7.4](https://github.com/k911/swoole-bundle/compare/v0.7.3...v0.7.4) (2019-12-03)
+
+[Full changelog](https://github.com/k911/swoole-bundle/compare/v0.7.3...v0.7.4)
+
+### Bug Fixes
+
+* **server:** Use `SplFile::getRealPath` for `Response::sendfile` Operation for a BinaryFileReponse ([#91](https://github.com/k911/swoole-bundle/issues/91)) ([0278db7](https://github.com/k911/swoole-bundle/commit/0278db725c6b5f52bb513454a59ca16bef67f1da)), closes [#90](https://github.com/k911/swoole-bundle/issues/90)
+
 ## [0.7.3](https://github.com/k911/swoole-bundle/compare/v0.7.2...v0.7.3) (2019-11-30)
 
 [Full changelog](https://github.com/k911/swoole-bundle/compare/v0.7.2...v0.7.3)
