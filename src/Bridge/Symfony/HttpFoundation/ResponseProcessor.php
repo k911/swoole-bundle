@@ -44,7 +44,7 @@ final class ResponseProcessor implements ResponseProcessorInterface
         $swooleResponse->status($httpFoundationResponse->getStatusCode());
 
         if ($httpFoundationResponse instanceof BinaryFileResponse) {
-            $swooleResponse->sendfile($httpFoundationResponse->getFile()->getFilename());
+            $swooleResponse->sendfile($httpFoundationResponse->getFile()->getRealPath());
         } else {
             $swooleResponse->end($httpFoundationResponse->getContent());
         }
