@@ -235,16 +235,23 @@ jobs:
     <<: *docker-env
     <<: *docker-coverage
     environment:
+      PHP_VERSION: 7.3
+      PHP_API_VERSION: "20180731"
       CC_TEST_REPORTER_ID: 77af0c58a2646fe49fb7df502c38a56560e074fbc8b3086f2d33032b44c885a8
 
   php-73:
     <<: *docker-env
     <<: *docker-default
+    environment:
+      PHP_VERSION: 7.3
+      PHP_API_VERSION: "20180731"
 
   php-73-latest:
     <<: *docker-env
     <<: *docker-default
     environment:
+      PHP_VERSION: 7.3
+      PHP_API_VERSION: "20180731"
       COMPOSER_ARGS: update --ignore-platform-reqs
       SWOOLE_VERSION: latest
 
@@ -252,13 +259,16 @@ jobs:
     <<: *docker-env
     <<: *docker-default
     environment:
+      PHP_VERSION: 7.3
+      PHP_API_VERSION: "20180731"
       COMPOSER_ARGS: update --prefer-lowest
 
-  # php-74-rc:
-  #   <<: *docker-env
-  #   <<: *docker-default
-  #   environment:
-  #     PHP_VERSION: 7.4-rc
+  php-74:
+    <<: *docker-env
+    <<: *docker-default
+    environment:
+      PHP_VERSION: 7.4
+      PHP_API_VERSION: "20190902"
 
   check-composer-config:
     docker:
@@ -302,12 +312,16 @@ jobs:
     <<: *docker-env
     <<: *docker-release
     environment:
+      PHP_VERSION: 7.3
+      PHP_API_VERSION: "20180731"
       DRY_RUN: "0"
 
   release-version-dry-run:
     <<: *docker-env
     <<: *docker-release
     environment:
+      PHP_VERSION: 7.3
+      PHP_API_VERSION: "20180731"
       DRY_RUN: "1"
       GH_TOKEN: "xxxx"
 
@@ -341,10 +355,10 @@ workflows:
           <<: *pull-request-checks-job-filters
           requires:
              - check-composer-config
-      # - php-74-rc:
-      #    <<: *pull-request-checks-job-filters
-      #    requires:
-      #       - check-composer-config
+      - php-74:
+         <<: *pull-request-checks-job-filters
+         requires:
+            - check-composer-config
   release:
     jobs:
       - shellcheck:
