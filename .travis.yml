@@ -17,8 +17,6 @@ matrix:
       env:
         - "COMPOSER_ARGS='update --prefer-lowest'"
     - php: "7.3"
-      env:
-        - DEPLOY=1
     - php: "7.3"
       env:
         - SWOOLE_LATEST=1
@@ -30,12 +28,16 @@ matrix:
     - php: "7.3"
       env:
         - COMPOSER_ARGS=update
+    - php: "7.4"
+      env:
+        - SWOOLE_LATEST=1
+        - COMPOSER_ARGS='update --ignore-platform-reqs'
   fast_finish: true
-  #allow_failures:
-  #  - php: "7.3"
-  #    env:
-  #      - SWOOLE_LATEST=1
-  #      - COMPOSER_ARGS='update --ignore-platform-reqs'
+  allow_failures:
+    - php: "7.4"
+      env:
+        - SWOOLE_LATEST=1
+        - COMPOSER_ARGS='update --ignore-platform-reqs'
   #  - php: "7.3"
   #    env:
   #      - SWOOLE_LATEST=1

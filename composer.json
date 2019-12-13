@@ -118,8 +118,8 @@
         "process-timeout": 600,
         "sort-packages": true,
         "platform": {
-            "php": "7.3.10",
-            "ext-swoole": "4.4.7"
+            "php": "7.3.11",
+            "ext-swoole": "4.4.12"
         }
     }
 }
