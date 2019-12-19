@@ -1,3 +1,11 @@
+## [0.7.5](https://github.com/k911/swoole-bundle/compare/v0.7.4...v0.7.5) (2019-12-19)
+
+[Full changelog](https://github.com/k911/swoole-bundle/compare/v0.7.4...v0.7.5)
+
+### Bug Fixes
+
+* **server:** Add missing setting for "package_max_length" ([#96](https://github.com/k911/swoole-bundle/issues/96)) ([37758f2](https://github.com/k911/swoole-bundle/commit/37758f280e853d9c40c5dfe124ff3036e66d5294))
+
 ## [0.7.4](https://github.com/k911/swoole-bundle/compare/v0.7.3...v0.7.4) (2019-12-03)
 
 [Full changelog](https://github.com/k911/swoole-bundle/compare/v0.7.3...v0.7.4)
