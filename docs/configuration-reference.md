@@ -86,4 +86,7 @@ swoole:
 
             buffer_output_size: 2097152
             # in bytes, 2097152b = 2 MiB
+
+            package_max_length: 8388608
+            # in bytes, 8388608b = 8 MiB
 ```

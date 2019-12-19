@@ -24,6 +24,7 @@ class HttpServerConfiguration
     private const SWOOLE_HTTP_SERVER_CONFIG_LOG_LEVEL = 'log_level';
     private const SWOOLE_HTTP_SERVER_CONFIG_PID_FILE = 'pid_file';
     private const SWOOLE_HTTP_SERVER_CONFIG_BUFFER_OUTPUT_SIZE = 'buffer_output_size';
+    private const SWOOLE_HTTP_SERVER_CONFIG_PACKAGE_MAX_LENGTH = 'package_max_length';
 
     /**
      * @todo add more
@@ -41,6 +42,7 @@ class HttpServerConfiguration
         self::SWOOLE_HTTP_SERVER_CONFIG_LOG_LEVEL => 'log_level',
         self::SWOOLE_HTTP_SERVER_CONFIG_PID_FILE => 'pid_file',
         self::SWOOLE_HTTP_SERVER_CONFIG_BUFFER_OUTPUT_SIZE => 'buffer_output_size',
+        self::SWOOLE_HTTP_SERVER_CONFIG_PACKAGE_MAX_LENGTH => 'package_max_length',
         self::SWOOLE_HTTP_SERVER_CONFIG_TASK_WORKER_COUNT => 'task_worker_num',
     ];
 
@@ -71,6 +73,7 @@ class HttpServerConfiguration
      *                        - serve_static_files (default: false)
      *                        - public_dir (default: '%kernel.root_dir%/public')
      *                        - buffer_output_size (default: '2097152' unit in byte (2MB))
+     *                        - package_max_length (default: '8388608b' unit in byte (8MB))
      *
      * @throws \Assert\AssertionFailedException
      */
@@ -332,6 +335,11 @@ class HttpServerConfiguration
                 break;
             case self::SWOOLE_HTTP_SERVER_CONFIG_LOG_LEVEL:
                 Assertion::inArray($value, \array_keys(self::SWOOLE_LOG_LEVELS));
+
+                break;
+            case self::SWOOLE_HTTP_SERVER_CONFIG_PACKAGE_MAX_LENGTH:
+                Assertion::integer($value, \sprintf('Setting "%s" must be an integer.', $key));
+                Assertion::greaterThan($value, 0, 'Package max length value cannot be negative or zero, "%s" provided.');
 
                 break;
             case self::SWOOLE_HTTP_SERVER_CONFIG_BUFFER_OUTPUT_SIZE:
