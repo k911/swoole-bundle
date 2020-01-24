@@ -5146,20 +5146,21 @@
         },
         {
             "name": "swoole/ide-helper",
-            "version": "4.4.12",
+            "version": "4.4.15",
             "source": {
                 "type": "git",
                 "url": "https://github.com/swoole/ide-helper.git",
-                "reference": "915964abd1ff4fe78be3e341ce9008b6d6a7648a"
+                "reference": "db5d83c0158054e9d4037d00e3d4e95c11d87932"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/swoole/ide-helper/zipball/915964abd1ff4fe78be3e341ce9008b6d6a7648a",
-                "reference": "915964abd1ff4fe78be3e341ce9008b6d6a7648a",
+                "url": "https://api.github.com/repos/swoole/ide-helper/zipball/db5d83c0158054e9d4037d00e3d4e95c11d87932",
+                "reference": "db5d83c0158054e9d4037d00e3d4e95c11d87932",
                 "shasum": ""
             },
             "require-dev": {
-                "squizlabs/php_codesniffer": "~3.4.0",
+                "guzzlehttp/guzzle": "~6.5.0",
+                "squizlabs/php_codesniffer": "~3.5.0",
                 "symfony/filesystem": "~4.3.0",
                 "zendframework/zend-code": "~3.3.0"
             },
@@ -5175,7 +5176,7 @@
                 }
             ],
             "description": "IDE help files for Swoole.",
-            "time": "2019-11-04T17:53:06+00:00"
+            "time": "2020-01-15T07:16:10+00:00"
         },
         {
             "name": "symfony/cache",
