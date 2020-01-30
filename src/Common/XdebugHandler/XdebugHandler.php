@@ -113,7 +113,12 @@ final class XdebugHandler
             yield $loadedIniFile;
         }
 
-        foreach (\explode(',', \php_ini_scanned_files()) as $scanned) {
+        $files = \php_ini_scanned_files();
+        if (false === $files) {
+            $files = '';
+        }
+
+        foreach (\explode(',', $files) as $scanned) {
             $preparedScanned = \trim($scanned);
 
             if ('' !== $preparedScanned) {
@@ -140,6 +145,9 @@ final class XdebugHandler
         // Merge loaded settings into our ini content, if it is valid
         if ($config = \parse_ini_string($content)) {
             $loaded = \ini_get_all(null, false);
+            if (false === $loaded) {
+                $loaded = [];
+            }
             $content .= $this->mergeLoadedConfig($loaded, $config);
         }
 

@@ -25,12 +25,19 @@ use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 
 abstract class AbstractServerStartCommand extends Command
 {
+    /**
+     * @var ParameterBagInterface
+     */
     protected $parameterBag;
 
     private $server;
     private $bootManager;
     private $serverConfiguration;
     private $serverConfigurator;
+
+    /**
+     * @var bool
+     */
     private $testing = false;
 
     public function __construct(

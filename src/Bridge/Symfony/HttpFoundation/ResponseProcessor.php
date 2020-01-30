@@ -22,7 +22,6 @@ final class ResponseProcessor implements ResponseProcessorInterface
         }
 
         foreach ($httpFoundationResponse->headers->allPreserveCaseWithoutCookies() as $name => $values) {
-            /** @var array $values */
             foreach ($values as $value) {
                 $swooleResponse->header($name, (string) $value);
             }

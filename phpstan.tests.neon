@@ -1,13 +1,16 @@
 parameters:
     inferPrivatePropertyTypeFromConstructor: true
+    checkMissingIterableValueType: false
     excludes_analyse:
         - tests/Fixtures/Symfony/app/var
         - tests/Fixtures/Symfony/app/TestAppKernel
     ignoreErrors:
         # Put false positives here
 
-        # On purpose
-        - '#K911\\Swoole\\Tests\\Unit\\Server\\Swoole(:?Http)?Server(:?Mock|Dummy)::__construct\(\) does not call parent constructor from Swoole\\#'
-
         # Symfony configuration files
         - '#Undefined variable: \$container#'
+
+        # Swoole/PHPStan internal errors
+        - '#Internal error\: Internal error\: Expected to find an ancestor with class name Swoole\\Timer on Swoole\\Server, but none was found\..*#'
+        - '#Internal error\: Internal error\: Expected to find an ancestor with class name Swoole\\Timer on Swoole\\Http\\Server, but none was found\..*#'
+

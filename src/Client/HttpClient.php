@@ -91,6 +91,11 @@ final class HttpClient implements \Serializable
         return false;
     }
 
+    /**
+     * @param null|mixed $data
+     *
+     * @return array<string, array<string, mixed>>
+     */
     public function send(string $path, string $method = Http::METHOD_GET, array $headers = [], $data = null, int $timeout = 3): array
     {
         $this->assertHttpMethodSupported($method);
@@ -126,6 +131,8 @@ final class HttpClient implements \Serializable
 
     /**
      * {@inheritdoc}
+     *
+     * @param string $serialized
      */
     public function unserialize($serialized): void
     {
@@ -155,6 +162,9 @@ final class HttpClient implements \Serializable
         throw UnsupportedHttpMethodException::forMethod($method, self::SUPPORTED_HTTP_METHODS);
     }
 
+    /**
+     * @param mixed $data
+     */
     private function serializeRequestData(Client $client, $data): void
     {
         $json = \json_encode($data, \JSON_THROW_ON_ERROR);

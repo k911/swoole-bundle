@@ -31,9 +31,6 @@ final class SwooleTableStorage implements StorageInterface
         $this->maxSessionDataBytes = $maxSessionDataBytes;
     }
 
-    /**
-     * @return static
-     */
     public static function fromDefaults(int $maxActiveSessions = 1024, int $maxSessionDataBytes = 1024, float $tableConflictProportion = 0.2): self
     {
         return new self(
@@ -108,12 +105,12 @@ final class SwooleTableStorage implements StorageInterface
         /** @var Table\Row $row */
         $row = $this->sharedMemory->get($key);
 
-        /**
-         * @var int
-         * @var string $data
-         */
+        /** @var int $expiresAt */
         $expiresAt = $row[self::TABLE_COLUMN_EXPIRES_AT];
+
+        /** @var string $data */
         $data = $row[self::TABLE_COLUMN_DATA];
+
         if (\time() >= $expiresAt) {
             if (null !== $expired) {
                 $expired($key, $data);
