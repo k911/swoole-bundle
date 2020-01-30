@@ -163,11 +163,11 @@ final class SwooleSessionStorage implements SessionStorageInterface
     }
 
     /**
-     * {@inheritdoc}
+     * @param string $id
      *
      * @throws \Exception
      */
-    public function setId(string $id): void
+    public function setId($id): void
     {
         if ($this->started) {
             throw new LogicException('Cannot set session ID after the session has started.');
@@ -177,27 +177,27 @@ final class SwooleSessionStorage implements SessionStorageInterface
     }
 
     /**
-     * {@inheritdoc}
+     * @return string
      */
-    public function getName(): string
+    public function getName()
     {
         return $this->name;
     }
 
     /**
-     * {@inheritdoc}
+     * @param string $name
      */
-    public function setName(string $name): void
+    public function setName($name): void
     {
         $this->name = $name;
     }
 
     /**
-     * {@inheritdoc}
+     * @param string $name
      *
      * @throws \Assert\AssertionFailedException
      */
-    public function getBag(string $name): SessionBagInterface
+    public function getBag($name): SessionBagInterface
     {
         if (!isset($this->bags[$name])) {
             throw new \InvalidArgumentException(\sprintf('The SessionBagInterface `%s` is not registered.', $name));
