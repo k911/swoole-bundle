@@ -83,8 +83,8 @@ function format_bytes(int $bytes): string
 /**
  * Simple decodes string of values as array.
  *
- * @param string $separator  set separator
- * @param array  $stripChars characters to be stripped out from string
+ * @param string        $separator  set separator
+ * @param array<string> $stripChars characters to be stripped out from string
  *
  * @return string[]
  */

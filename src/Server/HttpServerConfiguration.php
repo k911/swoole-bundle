@@ -62,7 +62,15 @@ class HttpServerConfiguration
     ];
 
     private $sockets;
+
+    /**
+     * @var string
+     */
     private $runningMode;
+
+    /**
+     * @var array<string, mixed>
+     */
     private $settings;
 
     /**
@@ -296,6 +304,8 @@ class HttpServerConfiguration
     }
 
     /**
+     * @param array<string, mixed> $settings
+     *
      * @throws \Assert\AssertionFailedException
      */
     private function setSettings(array $settings): void

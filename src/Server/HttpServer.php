@@ -120,6 +120,9 @@ final class HttpServer
         return $this->server;
     }
 
+    /**
+     * @param mixed $data
+     */
     public function dispatchTask($data): void
     {
         $this->getServer()->task($data);

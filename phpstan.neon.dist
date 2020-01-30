@@ -1,6 +1,11 @@
 parameters:
     inferPrivatePropertyTypeFromConstructor: true
+    checkMissingIterableValueType: false
     excludes_analyse:
         - src/Bridge/Symfony/Bundle/DependencyInjection/Configuration.php
     ignoreErrors:
         # Put false positives here
+
+        # Swoole/PHPStan internal errors
+        - '#Internal error\: Internal error\: Expected to find an ancestor with class name Swoole\\Timer on Swoole\\Server, but none was found\..*#'
+

@@ -18,6 +18,10 @@ final class LimitedRequestHandler implements RequestHandlerInterface, BootableIn
     private $server;
     private $requestCounter;
     private $decorated;
+
+    /**
+     * @var null|SymfonyStyle
+     */
     private $symfonyStyle;
 
     public function __construct(RequestHandlerInterface $decorated, HttpServer $server, AtomicCounter $counter)
@@ -25,6 +29,7 @@ final class LimitedRequestHandler implements RequestHandlerInterface, BootableIn
         $this->decorated = $decorated;
         $this->server = $server;
         $this->requestCounter = $counter;
+        $this->requestLimit = -1;
     }
 
     /**
@@ -68,12 +73,12 @@ final class LimitedRequestHandler implements RequestHandlerInterface, BootableIn
         }
     }
 
-    private function console(callable $callback)
+    private function console(callable $callback): void
     {
         if (!$this->symfonyStyle instanceof SymfonyStyle) {
             throw new InvalidArgumentException('To interact with console, SymfonyStyle object must be provided as "symfonyStyle" attribute.');
         }
 
-        return $callback($this->symfonyStyle);
+        $callback($this->symfonyStyle);
     }
 }
