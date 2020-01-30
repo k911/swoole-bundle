@@ -145,7 +145,7 @@ final class SymfonySessionSwooleSessionStorageTest extends ServerTestCase
 
     public function testUpdateSession(): void
     {
-        $cookieLifetime = 2;
+        $cookieLifetime = 5;
         $serverStart = $this->createConsoleProcess([
             'swoole:server:start',
             '--host=localhost',
@@ -155,12 +155,12 @@ final class SymfonySessionSwooleSessionStorageTest extends ServerTestCase
             'COOKIE_LIFETIME' => $cookieLifetime,
         ]);
 
-        $serverStart->setTimeout(3);
+        $serverStart->setTimeout(5);
         $serverStart->run();
 
         $this->assertProcessSucceeded($serverStart);
 
-        $this->runAsCoroutineAndWait(function () use ($cookieLifetime): void {
+        $this->runAsCoroutineAndWait(function (): void {
             $this->deferServerStop();
 
             $client = HttpClient::fromDomain('localhost', 9999, false);
@@ -174,7 +174,7 @@ final class SymfonySessionSwooleSessionStorageTest extends ServerTestCase
             $setCookieHeader1 = $response1['headers']['set-cookie'];
             $body1 = $response1['body'];
 
-            Coroutine::sleep($cookieLifetime - 1);
+            Coroutine::sleep(2);
 
             $response2 = $client->send('/session/2')['response'];
             $this->assertSame(200, $response2['statusCode']);
