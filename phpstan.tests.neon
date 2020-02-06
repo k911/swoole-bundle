@@ -4,13 +4,12 @@ parameters:
     excludes_analyse:
         - tests/Fixtures/Symfony/app/var
         - tests/Fixtures/Symfony/app/TestAppKernel
+
+        # Internal error: Expected to find an ancestor with class name Swoole\Timer on Swoole\Server, but none was found.
+        - tests/Unit/Server/SwooleHttpServerDummy.php
+        - tests/Unit/Server/SwooleServerMock.php
     ignoreErrors:
         # Put false positives here
 
         # Symfony configuration files
         - '#Undefined variable: \$container#'
-
-        # Swoole/PHPStan internal errors
-        - '#Internal error\: Internal error\: Expected to find an ancestor with class name Swoole\\Timer on Swoole\\Server, but none was found\..*#'
-        - '#Internal error\: Internal error\: Expected to find an ancestor with class name Swoole\\Timer on Swoole\\Http\\Server, but none was found\..*#'
-

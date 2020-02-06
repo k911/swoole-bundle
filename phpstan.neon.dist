@@ -3,9 +3,8 @@ parameters:
     checkMissingIterableValueType: false
     excludes_analyse:
         - src/Bridge/Symfony/Bundle/DependencyInjection/Configuration.php
+
+        # Internal error: Expected to find an ancestor with class name Swoole\Timer on Swoole\Server, but none was found.
+        - src/Server/WorkerHandler/HMRWorkerStartHandler.php
     ignoreErrors:
         # Put false positives here
-
-        # Swoole/PHPStan internal errors
-        - '#Internal error\: Internal error\: Expected to find an ancestor with class name Swoole\\Timer on Swoole\\Server, but none was found\..*#'
-
