@@ -41,7 +41,7 @@ Symfony integration with [Swoole](https://www.swoole.co.uk/) to speed up your ap
     cd ./project
     ```
 
-3. Install bundle in your symfony application
+3. Install bundle in your Symfony application
 
     ```bash
     composer require k911/swoole-bundle
@@ -70,7 +70,7 @@ Symfony integration with [Swoole](https://www.swoole.co.uk/) to speed up your ap
 
 - Built-in API Server
 
-    Swoole Bundle API Server allows to manage Swoole HTTP Server in real time.
+    Swoole Bundle API Server allows managing Swoole HTTP Server in real-time.
 
     - Reload worker processes
     - Shutdown server
@@ -78,11 +78,11 @@ Symfony integration with [Swoole](https://www.swoole.co.uk/) to speed up your ap
 
 - Improved static files serving
 
-    Swoole HTTP Server provides a default static files handler, but it lacks supporting many `Content-Types`. In order to overcome this issue, there is (not yet configurable) Advanced Static Files Server. Static files serving is enabled by default in development environment. Static files directory defaults to `%kernel.project_dir%/public`.
+    Swoole HTTP Server provides a default static files handler, but it lacks supporting many `Content-Types`. To overcome this issue, there is (not yet configurable) Advanced Static Files Server. Static files serving remains enabled by default in the development environment. Static files directory defaults to `%kernel.project_dir%/public`.
 
 - Hot Module Reload (HMR) - for development
 
-    Since Swoole HTTP Server runs in Event Loop and do not flush memory between requests, to keep DX equal with normal servers, this bundle uses code replacement techinque, using `inotify` PHP Extension to allow contionus development. It is enabled by default (when extension is found), and requires no additional configuration. You can turn it off in bundle configuration.
+    Since Swoole HTTP Server runs in Event Loop and does not flush memory between requests, to keep DX equal with normal servers, this bundle uses code replacement technique, using `inotify` PHP Extension to allow continuous development. It is enabled by default (when the extension is found) and requires no additional configuration. You can turn it off in bundle configuration.
 
 - Symfony Messenger integration
 
