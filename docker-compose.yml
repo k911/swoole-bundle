@@ -4,12 +4,15 @@ x-env-aliases:
     PHP_TAG: "${PHP_VERSION:-7.4}-cli-alpine${ALPINE_VERSION:-3.11}"
     PHP_API_VERSION: "${PHP_API_VERSION:-20190902}"
     COMPOSER_ARGS: "${COMPOSER_ARGS:-install}"
-    SWOOLE_VERSION: "${SWOOLE_VERSION:-4.4.17}"
-    COMPOSER_TAG: "${COMPOSER_TAG:-1.10.1}"
+    SWOOLE_VERSION: "${SWOOLE_VERSION:-4.4.18}"
+    COMPOSER_TAG: "${COMPOSER_TAG:-1.10.5}"
+
+volumes:
+  coverage: {}
 
 services:
   releaser:
-    image: "${REGISTRY:-docker.io}/${NAMESPACE:-k911}/${IMAGE:-swoole-bundle-releaser}:${TAG:-latest}"
+    image: "${REGISTRY:-docker.io}/${NAMESPACE:-k911}/${IMAGE:-swoole-bundle}-releaser:${TAG:-local}"
     build:
       context: ./.circleci
     environment:
@@ -25,7 +28,7 @@ services:
       - "./CHANGELOG.md:/usr/src/app/CHANGELOG.md:rw"
 
   cli:
-    image: "${REGISTRY:-docker.io}/${NAMESPACE:-k911}/${IMAGE:-swoole-bundle-cli}:${TAG:-latest}"
+    image: "${REGISTRY:-docker.io}/${NAMESPACE:-k911}/${IMAGE:-swoole-bundle}-cli:${TAG:-local}"
     build:
       context: .
       target: cli
@@ -35,7 +38,7 @@ services:
       - 9501:9501
 
   composer:
-    image: "${REGISTRY:-docker.io}/${NAMESPACE:-k911}/${IMAGE:-swoole-bundle-composer}:${TAG:-latest}"
+    image: "${REGISTRY:-docker.io}/${NAMESPACE:-k911}/${IMAGE:-swoole-bundle}-composer:${TAG:-local}"
     build:
       context: .
       target: Composer
@@ -43,27 +46,27 @@ services:
         <<: *DEFAULT_BUILD_ARGS
 
   coverage-xdebug:
-    image: "${REGISTRY:-docker.io}/${NAMESPACE:-k911}/${IMAGE:-swoole-bundle-coverage-xdebug}:${TAG:-latest}"
+    image: "${REGISTRY:-docker.io}/${NAMESPACE:-k911}/${IMAGE:-swoole-bundle}-coverage-xdebug:${TAG:-local}"
     build:
       context: .
       target: CoverageXdebug
       args:
         <<: *DEFAULT_BUILD_ARGS
     volumes:
-      - "./cov:/usr/src/app/cov"
+      - coverage:/usr/src/app/cov
 
   coverage-pcov:
-    image: "${REGISTRY:-docker.io}/${NAMESPACE:-k911}/${IMAGE:-swoole-bundle-coverage-pcov}:${TAG:-latest}"
+    image: "${REGISTRY:-docker.io}/${NAMESPACE:-k911}/${IMAGE:-swoole-bundle}-coverage-pcov:${TAG:-local}"
     build:
       context: .
       target: CoveragePcov
       args:
         <<: *DEFAULT_BUILD_ARGS
     volumes:
-      - "./cov:/usr/src/app/cov"
+      - coverage:/usr/src/app/cov
 
   coverage-xdebug-feature-with-retry:
-    image: "${REGISTRY:-docker.io}/${NAMESPACE:-k911}/${IMAGE:-swoole-bundle-coverage-xdebug}:${TAG:-latest}"
+    image: "${REGISTRY:-docker.io}/${NAMESPACE:-k911}/${IMAGE:-swoole-bundle}-coverage-xdebug:${TAG:-local}"
     entrypoint:
       - /bin/bash
     command:
@@ -74,10 +77,10 @@ services:
       args:
         <<: *DEFAULT_BUILD_ARGS
     volumes:
-      - "./cov:/usr/src/app/cov"
+      - coverage:/usr/src/app/cov
 
   merge-code-coverage:
-    image: "${REGISTRY:-docker.io}/${NAMESPACE:-k911}/${IMAGE:-swoole-bundle-composer-pcov}:${TAG:-latest}"
+    image: "${REGISTRY:-docker.io}/${NAMESPACE:-k911}/${IMAGE:-swoole-bundle}-coverage-pcov:${TAG:-local}"
     command: merge-code-coverage
     build:
       context: .
@@ -85,5 +88,12 @@ services:
       args:
         <<: *DEFAULT_BUILD_ARGS
     volumes:
-      - "./cov:/usr/src/app/cov:ro"
-      - "./clover.xml:/usr/src/app/clover.xml"
+      - coverage:/usr/src/app/cov
+
+  coverage-volume-helper:
+    image: alpine:3.11
+    entrypoint: sleep
+    command: infinity
+    working_dir: /usr/src/app
+    volumes:
+      - coverage:/usr/src/app/cov
