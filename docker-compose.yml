@@ -28,7 +28,7 @@ services:
     image: "${REGISTRY:-docker.io}/${NAMESPACE:-k911}/${IMAGE:-swoole-bundle-cli}:${TAG:-latest}"
     build:
       context: .
-      target: Cli
+      target: cli
       args:
         <<: *DEFAULT_BUILD_ARGS
     ports:

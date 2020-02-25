@@ -87,13 +87,13 @@ ENV COVERAGE="1" \
 COPY --chown=app:runner --from=composer-bin /usr/bin/composer /usr/local/bin/composer
 COPY --chown=app:runner --from=app-installer /usr/src/app ./
 
-FROM base as Cli
+FROM base as cli
 USER app:runner
 COPY --chown=app:runner --from=app-installer /usr/src/app ./
 ENTRYPOINT ["./tests/Fixtures/Symfony/app/console"]
 CMD ["swoole:server:run"]
 
-FROM Cli as Composer
+FROM cli as Composer
 ENV COMPOSER_ALLOW_SUPERUSER="1"
 COPY --chown=app:runner --from=composer-bin /usr/bin/composer /usr/local/bin/composer
 ENTRYPOINT ["composer"]

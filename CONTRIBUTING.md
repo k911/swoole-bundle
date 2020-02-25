@@ -1,23 +1,23 @@
 # Contributing guide
 
-- [Contributing guide](#Contributing-guide)
-  - [Local development](#Local-development)
-    - [Environment](#Environment)
-      - [PHP](#PHP)
-      - [Docker](#Docker)
+- [Contributing guide](#contributing-guide)
+  - [Local development](#local-development)
+    - [Environment](#environment)
+      - [PHP](#php)
+      - [Docker](#docker)
       - [docker-compose](#docker-compose)
-  - [Testing](#Testing)
-    - [Composer](#Composer)
-      - [Code style quick fix command](#Code-style-quick-fix-command)
-      - [All-in-one command](#All-in-one-command)
-      - [Unit tests](#Unit-tests)
-      - [Feature tests](#Feature-tests)
-    - [Docker](#Docker-1)
-      - [Building images](#Building-images)
-      - [Running composer commands in docker](#Running-composer-commands-in-docker)
-      - [Generating code coverage](#Generating-code-coverage)
-  - [Creating a Pull Request](#Creating-a-Pull-Request)
-  - [Why docker](#Why-docker)
+  - [Testing](#testing)
+    - [Composer](#composer)
+      - [Code style quick fix command](#code-style-quick-fix-command)
+      - [All-in-one command](#all-in-one-command)
+      - [Unit tests](#unit-tests)
+      - [Feature tests](#feature-tests)
+    - [Docker](#docker-1)
+      - [Building images](#building-images)
+      - [Running composer commands in docker](#running-composer-commands-in-docker)
+      - [Generating code coverage](#generating-code-coverage)
+  - [Creating a Pull Request](#creating-a-pull-request)
+  - [Why docker](#why-docker)
 
 ## Local development
 
@@ -119,6 +119,13 @@ Or to build specific services use
 
 ```sh
 docker-compose build --pull composer
+```
+
+*Info: When your docker installation support BuildKit (docker v18.09+) you can export bellow environment variables to archive faster builds*
+
+```sh
+export COMPOSE_DOCKER_CLI_BUILD="1"
+export DOCKER_BUILDKIT="1"
 ```
 
 #### Running composer commands in docker

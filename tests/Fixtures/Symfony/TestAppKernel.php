@@ -87,7 +87,7 @@ class TestAppKernel extends Kernel
      */
     protected function configureRoutes(RouteCollectionBuilder $routes): void
     {
-        $routes->import('app/routing.yml');
+        $routes->import($this->getProjectDir().'/routing.yml');
     }
 
     /**
@@ -100,6 +100,7 @@ class TestAppKernel extends Kernel
         $c->setParameter('bundle.root_dir', \dirname(__DIR__, 3));
 
         $confDir = $this->getProjectDir().'/config';
+
         $loader->load($confDir.'/*'.self::CONFIG_EXTENSIONS, 'glob');
         if (\is_dir($confDir.'/'.$this->environment)) {
             $loader->load($confDir.'/'.$this->environment.'/**/*'.self::CONFIG_EXTENSIONS, 'glob');
