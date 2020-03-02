@@ -4990,7 +4990,7 @@
         },
         {
             "name": "symfony/monolog-bridge",
-            "version": "v5.0.4",
+            "version": "v5.0.5",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/monolog-bridge.git",
