@@ -4916,16 +4916,16 @@
         },
         {
             "name": "symfony/messenger",
-            "version": "v5.0.4",
+            "version": "v5.0.5",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/messenger.git",
-                "reference": "41f762b385aa72d4f12875944e0ec5a312c93bc7"
+                "reference": "8c812c88d92979a21cdb3990ae572bedb6632c31"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/messenger/zipball/41f762b385aa72d4f12875944e0ec5a312c93bc7",
-                "reference": "41f762b385aa72d4f12875944e0ec5a312c93bc7",
+                "url": "https://api.github.com/repos/symfony/messenger/zipball/8c812c88d92979a21cdb3990ae572bedb6632c31",
+                "reference": "8c812c88d92979a21cdb3990ae572bedb6632c31",
                 "shasum": ""
             },
             "require": {
@@ -4986,7 +4986,7 @@
             ],
             "description": "Symfony Messenger Component",
             "homepage": "https://symfony.com",
-            "time": "2020-01-31T09:13:47+00:00"
+            "time": "2020-02-25T14:24:11+00:00"
         },
         {
             "name": "symfony/monolog-bridge",
