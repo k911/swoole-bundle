@@ -3666,12 +3666,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/sebastianbergmann/phpcov.git",
-                "reference": "1bbc4248dfe0bd3cc707ace22783c2b4e56130f4"
+                "reference": "170d3243508b5258fceb18f46bef3062e39557bc"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sebastianbergmann/phpcov/zipball/1bbc4248dfe0bd3cc707ace22783c2b4e56130f4",
-                "reference": "1bbc4248dfe0bd3cc707ace22783c2b4e56130f4",
+                "url": "https://api.github.com/repos/sebastianbergmann/phpcov/zipball/170d3243508b5258fceb18f46bef3062e39557bc",
+                "reference": "170d3243508b5258fceb18f46bef3062e39557bc",
                 "shasum": ""
             },
             "require": {
@@ -3710,7 +3710,7 @@
             ],
             "description": "CLI frontend for php-code-coverage",
             "homepage": "https://github.com/sebastianbergmann/phpcov",
-            "time": "2020-02-11T05:35:32+00:00"
+            "time": "2020-03-02T12:51:16+00:00"
         },
         {
             "name": "phpunit/phpunit",
@@ -4990,7 +4990,7 @@
         },
         {
             "name": "symfony/monolog-bridge",
-            "version": "v5.0.4",
+            "version": "v5.0.5",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/monolog-bridge.git",
