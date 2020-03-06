@@ -20,14 +20,14 @@ matrix:
     - php: "7.3"
       env:
         - SWOOLE_LATEST=1
-        - COMPOSER_ARGS='update --ignore-platform-reqs'
-    - php: "7.3"
-      env:
-        - SWOOLE_LATEST=1
         - COMPOSER_ARGS='install --ignore-platform-reqs'
     - php: "7.3"
       env:
         - COMPOSER_ARGS=update
+    - php: "7.4"
+    - php: "7.4"
+      env:
+        - SWOOLE_LATEST=1
     - php: "7.4"
       env:
         - SWOOLE_LATEST=1
@@ -38,10 +38,6 @@ matrix:
       env:
         - SWOOLE_LATEST=1
         - COMPOSER_ARGS='update --ignore-platform-reqs'
-  #  - php: "7.3"
-  #    env:
-  #      - SWOOLE_LATEST=1
-  #      - COMPOSER_ARGS='install --ignore-platform-reqs'
 
 before_script:
   - phpenv config-rm xdebug.ini

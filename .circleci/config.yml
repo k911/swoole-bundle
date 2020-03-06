@@ -246,15 +246,6 @@ jobs:
       PHP_VERSION: 7.3
       PHP_API_VERSION: "20180731"
 
-  php-73-latest:
-    <<: *docker-env
-    <<: *docker-default
-    environment:
-      PHP_VERSION: 7.3
-      PHP_API_VERSION: "20180731"
-      COMPOSER_ARGS: update --ignore-platform-reqs
-      SWOOLE_VERSION: latest
-
   php-73-lowest:
     <<: *docker-env
     <<: *docker-default
@@ -269,6 +260,15 @@ jobs:
     environment:
       PHP_VERSION: 7.4
       PHP_API_VERSION: "20190902"
+
+  php-74-latest:
+    <<: *docker-env
+    <<: *docker-default
+    environment:
+      PHP_VERSION: 7.4
+      PHP_API_VERSION: "20190902"
+      COMPOSER_ARGS: update --ignore-platform-reqs
+      SWOOLE_VERSION: latest
 
   check-composer-config:
     docker:
@@ -347,7 +347,7 @@ workflows:
           <<: *pull-request-checks-job-filters
           requires:
              - check-composer-config
-      - php-73-latest:
+      - php-74-latest:
           <<: *pull-request-checks-job-filters
           requires:
              - check-composer-config
@@ -375,7 +375,7 @@ workflows:
           <<: *release-job-filters
           requires:
              - check-composer-config
-      - php-73-latest:
+      - php-74-latest:
           <<: *release-job-filters
           requires:
              - check-composer-config
@@ -388,7 +388,7 @@ workflows:
           requires:
             - php-73
             - php-73-cc
-            - php-73-latest
+            - php-74-latest
             - php-73-lowest
             - shellcheck
             - validate-commit-message

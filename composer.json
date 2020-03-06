@@ -40,7 +40,7 @@
         "phpstan/phpstan-doctrine": "^0.12.9",
         "phpstan/phpstan-phpunit": "^0.12.6",
         "phpunit/php-code-coverage": "^8.0.1",
-        "phpunit/phpcov": "dev-master as 7.0.1",
+        "phpunit/phpcov": "^7.0.2",
         "phpunit/phpunit": "^9.0.1",
         "swoole/ide-helper": "~4.4.7",
         "symfony/debug": "^4.3.1|^5.0",
@@ -118,7 +118,7 @@
         "process-timeout": 1200,
         "sort-packages": true,
         "platform": {
-            "php": "7.4.2",
+            "php": "7.3.13",
             "ext-swoole": "4.4.15"
         }
     }
