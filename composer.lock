@@ -4509,16 +4509,16 @@
         },
         {
             "name": "swoole/ide-helper",
-            "version": "4.4.15",
+            "version": "4.4.16",
             "source": {
                 "type": "git",
                 "url": "https://github.com/swoole/ide-helper.git",
-                "reference": "db5d83c0158054e9d4037d00e3d4e95c11d87932"
+                "reference": "740331c42232e8543c0574024b58c51ea11ea280"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/swoole/ide-helper/zipball/db5d83c0158054e9d4037d00e3d4e95c11d87932",
-                "reference": "db5d83c0158054e9d4037d00e3d4e95c11d87932",
+                "url": "https://api.github.com/repos/swoole/ide-helper/zipball/740331c42232e8543c0574024b58c51ea11ea280",
+                "reference": "740331c42232e8543c0574024b58c51ea11ea280",
                 "shasum": ""
             },
             "require-dev": {
@@ -4539,7 +4539,7 @@
                 }
             ],
             "description": "IDE help files for Swoole.",
-            "time": "2020-01-15T07:16:10+00:00"
+            "time": "2020-03-24T05:11:07+00:00"
         },
         {
             "name": "symfony/cache",
