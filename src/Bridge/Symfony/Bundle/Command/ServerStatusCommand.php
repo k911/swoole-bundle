@@ -88,7 +88,10 @@ final class ServerStatusCommand extends Command
      */
     protected function prepareClientConfiguration(InputInterface $input): void
     {
+        /** @var string $host */
         $host = $input->getOption('api-host');
+
+        /** @var string $port */
         $port = $input->getOption('api-port');
 
         Assertion::numeric($port, 'Port must be a number.');
