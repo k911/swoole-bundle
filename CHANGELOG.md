@@ -1,3 +1,11 @@
+## [0.7.6](https://github.com/k911/swoole-bundle/compare/v0.7.5...v0.7.6) (2020-04-01)
+
+[Full changelog](https://github.com/k911/swoole-bundle/compare/v0.7.5...v0.7.6)
+
+### Bug Fixes
+
+* **http-server:** return all headers with the same name joined by comma ([#175](https://github.com/k911/swoole-bundle/issues/175)) ([1e51639](https://github.com/k911/swoole-bundle/commit/1e51639306bb8f8b4d4f636c1ef1db80a6ab9b7f))
+
 ## [0.7.5](https://github.com/k911/swoole-bundle/compare/v0.7.4...v0.7.5) (2019-12-19)
 
 [Full changelog](https://github.com/k911/swoole-bundle/compare/v0.7.4...v0.7.5)
