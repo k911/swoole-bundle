@@ -4,8 +4,8 @@ x-env-aliases:
     PHP_TAG: "${PHP_VERSION:-7.4}-cli-alpine${ALPINE_VERSION:-3.11}"
     PHP_API_VERSION: "${PHP_API_VERSION:-20190902}"
     COMPOSER_ARGS: "${COMPOSER_ARGS:-install}"
-    SWOOLE_VERSION: "${SWOOLE_VERSION:-4.4.15}"
-    COMPOSER_TAG: "${COMPOSER_TAG:-1.9.2}"
+    SWOOLE_VERSION: "${SWOOLE_VERSION:-4.4.17}"
+    COMPOSER_TAG: "${COMPOSER_TAG:-1.10.1}"
 
 services:
   releaser:
