@@ -136,7 +136,10 @@ abstract class AbstractServerStartCommand extends Command
     {
         $sockets = $serverConfiguration->getSockets();
 
+        /** @var string $port */
         $port = $input->getOption('port');
+
+        /** @var string $host */
         $host = $input->getOption('host');
 
         Assertion::numeric($port, 'Port must be a number.');
@@ -150,6 +153,7 @@ abstract class AbstractServerStartCommand extends Command
         $sockets->changeServerSocket($newServerSocket);
 
         if ((bool) $input->getOption('api') || $sockets->hasApiSocket()) {
+            /** @var string $apiPort */
             $apiPort = $input->getOption('api-port');
             Assertion::numeric($apiPort, 'Port must be a number.');
 
