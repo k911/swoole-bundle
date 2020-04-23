@@ -18,6 +18,7 @@ use Symfony\Component\HttpKernel\TerminableInterface;
 
 class HttpKernelHttpDriverTest extends TestCase
 {
+    use \Prophecy\PhpUnit\ProphecyTrait;
     /**
      * @var HttpKernelRequestHandler
      */

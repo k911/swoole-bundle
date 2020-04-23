@@ -17,6 +17,8 @@ use Symfony\Component\Messenger\Envelope;
 
 class SwooleServerTaskTransportTest extends TestCase
 {
+    use \Prophecy\PhpUnit\ProphecyTrait;
+
     public function testThatItThrowsExceptionOnAck(): void
     {
         $transport = new SwooleServerTaskTransport(new SwooleServerTaskReceiver(), new SwooleServerTaskSender($this->makeHttpServerDummy()));

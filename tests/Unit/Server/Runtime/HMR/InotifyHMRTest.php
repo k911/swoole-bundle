@@ -32,7 +32,7 @@ class InotifyHMRTest extends TestCase
 
     public function testConstructSetNotExistingNonReloadableFiles(): void
     {
-        $this->assertFileNotExists(self::NON_EXISTING_FILE);
+        $this->assertFileDoesNotExist(self::NON_EXISTING_FILE);
 
         $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessage(\sprintf('File "%s" was expected to exist.', self::NON_EXISTING_FILE));
@@ -57,7 +57,7 @@ class InotifyHMRTest extends TestCase
 
     public function testBootSetNotExistingNonReloadableFiles(): void
     {
-        $this->assertFileNotExists(self::NON_EXISTING_FILE);
+        $this->assertFileDoesNotExist(self::NON_EXISTING_FILE);
 
         $hmr = new InotifyHMR();
 

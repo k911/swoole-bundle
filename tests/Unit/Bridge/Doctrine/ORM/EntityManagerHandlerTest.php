@@ -15,6 +15,7 @@ use Swoole\Http\Response;
 
 class EntityManagerHandlerTest extends TestCase
 {
+    use \Prophecy\PhpUnit\ProphecyTrait;
     /**
      * @var EntityManagerHandler
      */

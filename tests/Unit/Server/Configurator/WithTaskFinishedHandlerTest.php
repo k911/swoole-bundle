@@ -17,6 +17,7 @@ use Prophecy\Prophecy\ObjectProphecy;
  */
 class WithTaskFinishedHandlerTest extends TestCase
 {
+    use \Prophecy\PhpUnit\ProphecyTrait;
     /**
      * @var NoOpTaskFinishedHandler
      */

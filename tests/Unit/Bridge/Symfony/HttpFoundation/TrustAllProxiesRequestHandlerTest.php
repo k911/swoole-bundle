@@ -14,6 +14,7 @@ use Symfony\Component\HttpFoundation\Request as SymfonyRequest;
 
 class TrustAllProxiesRequestHandlerTest extends TestCase
 {
+    use \Prophecy\PhpUnit\ProphecyTrait;
     /**
      * @var ObjectProphecy|RequestHandlerInterface
      */
