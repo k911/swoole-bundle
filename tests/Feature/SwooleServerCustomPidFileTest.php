@@ -22,7 +22,7 @@ final class SwooleServerCustomPidFileTest extends ServerTestCase
             \sprintf('--pid-file=%s', $pidFile),
         ]);
 
-        $this->assertFileNotExists($pidFile);
+        $this->assertFileDoesNotExist($pidFile);
 
         $serverStart->setTimeout(3);
         $serverStart->run();
@@ -54,7 +54,7 @@ final class SwooleServerCustomPidFileTest extends ServerTestCase
         ]);
 
         $this->assertFileExists($pidFile);
-        $this->assertFileNotIsWritable($pidFile);
+        $this->assertFileIsNotWritable($pidFile);
 
         $serverStart->setTimeout(3);
         $serverStart->run();

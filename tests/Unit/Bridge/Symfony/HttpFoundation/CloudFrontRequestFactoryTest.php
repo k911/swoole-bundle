@@ -13,6 +13,7 @@ use Symfony\Component\HttpFoundation\Request as HttpFoundationRequest;
 
 class CloudFrontRequestFactoryTest extends TestCase
 {
+    use \Prophecy\PhpUnit\ProphecyTrait;
     /**
      * @var ObjectProphecy|RequestFactoryInterface
      */

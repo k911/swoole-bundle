@@ -15,6 +15,7 @@ use PHPUnit\Framework\TestCase;
  */
 class WithServerStartHandlerTest extends TestCase
 {
+    use \Prophecy\PhpUnit\ProphecyTrait;
     /**
      * @var NoOpServerStartHandler
      */

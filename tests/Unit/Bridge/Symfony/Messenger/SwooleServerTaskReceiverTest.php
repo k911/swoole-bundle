@@ -11,6 +11,8 @@ use Symfony\Component\Messenger\Envelope;
 
 class SwooleServerTaskReceiverTest extends TestCase
 {
+    use \Prophecy\PhpUnit\ProphecyTrait;
+
     public function testThatItThrowsExceptionOnGet(): void
     {
         $receiver = new SwooleServerTaskReceiver();

@@ -12,6 +12,7 @@ use Symfony\Component\HttpFoundation\Response as HttpFoundationResponse;
 
 class ResponseProcessorTest extends TestCase
 {
+    use \Prophecy\PhpUnit\ProphecyTrait;
     /**
      * @var ResponseProcessor
      */
