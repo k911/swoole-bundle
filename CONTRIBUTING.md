@@ -157,10 +157,15 @@ Therefore the full flow of gathering code coverage can be done securely only in 
 ```sh
 docker-compose build --pull coverage-pcov coverage-xdebug-feature-with-retry merge-code-coverage
 
+docker-compose up -d coverage-volume-helper
 docker-compose run --rm coverage-pcov
 docker-compose run --rm coverage-xdebug-feature-with-retry
 docker-compose run --rm coverage-pcov feature-code-coverage
 docker-compose run --rm merge-code-coverage
+docker cp $(docker-compose ps -q coverage-volume-helper):/usr/src/app/cov/clover.xml clover.xml
+docker-compose down -v
+
+cat clover.xml
 ```
 
 ## Creating a Pull Request

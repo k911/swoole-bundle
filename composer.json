@@ -96,6 +96,9 @@
         "feature-tests": [
             "phpunit tests/Feature --process-isolation --colors=always"
         ],
+        "feature-tests-junit": [
+            "phpunit tests/Feature --process-isolation --colors=always --log-junit phpunit/junit.xml"
+        ],
         "unit-code-coverage": [
             "phpunit tests/Unit --coverage-php cov/unit-tests.cov --colors=always"
         ],
@@ -103,11 +106,14 @@
             "COVERAGE=1 phpunit tests/Feature --coverage-php cov/feature-tests.cov --colors=always --process-isolation"
         ],
         "merge-code-coverage": [
-            "phpcov merge cov --clover=clover.xml"
+            "phpcov merge cov --clover=cov/clover.xml"
         ],
         "fix": "php-cs-fixer fix -v --ansi",
         "unit-tests": [
             "phpunit tests/Unit --colors=always"
+        ],
+        "unit-tests-junit": [
+            "phpunit tests/Unit --colors=always --log-junit phpunit/junit.xml"
         ]
     },
     "extra": {

@@ -2,211 +2,51 @@ version: 2.1
 orbs:
   codecov: codecov/codecov@1.0.5
 aliases:
-  # Steps
-  - &prepare-swoole-version-env
-    run:
-      name: Export latest swoole version env if SWOOLE_VERSION=latest
-      command: |-
-        if [ "latest" = "$SWOOLE_VERSION" ]; then
-          LATEST_SWOOLE_VERSION="$(curl -s "https://api.github.com/repos/swoole/swoole-src/releases/latest" | grep '"tag_name":' | sed -E 's/.*"v([^"]+)".*/\1/')"
-          echo "LATEST_SWOOLE_VERSION=$LATEST_SWOOLE_VERSION"
-          echo "export SWOOLE_VERSION='$LATEST_SWOOLE_VERSION'" >> $BASH_ENV
-        fi;
 
-  - &dump-coverage-env
-    run:
-      name: Dump coverage env for hash
-      command: |-
-        echo "COVERAGE=1" >> dumped.env;
-
-  - &dump-env-vars
-    run:
-      name: Dump env for hash
-      command: |-
-        echo "PHP_VERSION=$PHP_VERSION" >> dumped.env;
-        echo "ALPINE_VERSION=$ALPINE_VERSION" >> dumped.env;
-        echo "PHP_API_VERSION=$PHP_API_VERSION" >> dumped.env;
-        echo "COMPOSER_ARGS=$COMPOSER_ARGS" >> dumped.env;
-        echo "SWOOLE_VERSION=$SWOOLE_VERSION" >> dumped.env;
-        cat dumped.env;
-
-  - &restore-docker-cache
-    restore_cache:
-      keys:
-        - docker-{{ checksum "dumped.env" }}-{{ checksum "Dockerfile" }}-{{ checksum "docker-compose.yml" }}-{{ checksum "composer.lock" }}
-        - docker-{{ checksum "dumped.env" }}-{{ checksum "Dockerfile" }}-{{ checksum "docker-compose.yml" }}
-        - docker-{{ checksum "dumped.env" }}-{{ checksum "Dockerfile" }}
-        - docker-{{ checksum "dumped.env" }}
-        - docker
-
-  - &load-docker-cache
-    run:
-      name: Load Docker layer cache
-      command: |-
-        # credits to: https://blog.jondh.me.uk/2018/04/strategies-for-docker-layer-caching-in-circleci/
-        set +o pipefail
-        if [ -f /home/circleci/caches/${CIRCLE_PROJECT_REPONAME}.tar.gz ]; then
-          gunzip -c /home/circleci/caches/${CIRCLE_PROJECT_REPONAME}.tar.gz | docker load;
-          docker images;
-        fi
-
-  - &docker-compose-build-basic
-    run:
-      name: Docker-Compose Build
-      command: docker-compose build --pull composer
-
-  - &docker-compose-build-all
-    run:
-      name: Docker-Compose Build
-      command: docker-compose build --pull
-
-  - &docker-compose-build-releaser
-    run:
-      name: Docker-Compose Build
-      command: docker-compose build --pull releaser
-
-  - &code-style-analysis
-    run:
-      name: Code style analysis
-      command: docker-compose run --rm composer cs-analyse
-
-  - &static-src-analysis
-    run:
-      name: Sources static analysis
-      command: docker-compose run --rm composer static-analyse-src
-
-  - &static-tests-analysis
-    run:
-      name: Test sources static analysis
-      command: docker-compose run --rm composer static-analyse-tests
-
-  - &prepare-cov-permissions
-    run:
-      name: Prepare files and dirs permissions for code coverage containers
-      command: |-
-        mkdir -p cov;
-        touch clover.xml;
-        sudo chown 1000:1000 cov clover.xml;
-
-  - &run-unit-tests
-    run:
-      name: Run unit tests
-      command: docker-compose run --rm composer unit-tests
-
-  - &run-unit-tests-with-coverage
-    run:
-      name: Run unit tests with coverage (pcov)
-      command: docker-compose run --rm coverage-pcov
-
-  - &run-feature-tests
-    run:
-      name: Run feature tests
-      command: docker-compose run --rm composer feature-tests
-
-  - &run-feature-tests-with-coverage-xdebug
-    run:
-      name: Run feature tests with coverage (xdebug) and retry
-      command: docker-compose run --rm coverage-xdebug-feature-with-retry
-
-  - &run-feature-tests-with-coverage-pcov
-    run:
-      name: Run feature tests with coverage (pcov)
-      command: docker-compose run --rm coverage-pcov feature-code-coverage
-
-  - &run-releaser
-    run:
-      name: Release version
-      command: docker-compose run --rm releaser
-
-  - &prepare-codeclimate-reporter
-    run:
-      name: Prepare CodeClimate Code Coverage reporter
-      command: |-
-        curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter;
-        chmod +x ./cc-test-reporter;
-        ./cc-test-reporter before-build;
-
-  - &upload-codeclimate-report
-    run:
-      name: Send Code Coverage report to CodeClimate
-      command: ./cc-test-reporter after-build -t clover --exit-code 0 --prefix /usr/src/app
-
-  - &upload-codecov-report
-    codecov/upload:
-      file: clover.xml
-
-  - &merge-code-coverage
-    run:
-      name: Merge code coverage files generated across test suites
-      command: docker-compose run --rm merge-code-coverage
-
-  - &export-docker-cache
-    run:
-      name: Export Docker image layer cache
-      command: |-
-        mkdir -p /home/circleci/caches
-        docker-compose build composer | grep '\-\-\->' | grep -v 'Using cache' | sed -e 's/[ >-]//g' > /tmp/layers.txt
-        docker save $(cat /tmp/layers.txt) | gzip > /home/circleci/caches/${CIRCLE_PROJECT_REPONAME}.tar.gz
-
-  - &save-docker-cache
-    save_cache:
-      key: docker-{{ checksum "dumped.env" }}-{{ checksum "Dockerfile" }}-{{ checksum "docker-compose.yml" }}-{{ checksum "composer.lock" }}
-      paths:
-        - /home/circleci/caches
-
-  # Build environments
   - &docker-env
+    docker:
+      - image: k911/docker-client:19.03.8-compose
     working_directory: ~/workdir
-    machine:
-      enabled: true
-      # Ubuntu 16.04, docker 18.09.3, docker-compose 1.23.1
-      image: ubuntu-1604:201903-01
 
-  # Steps
-  - &docker-default
+  - &docker-bake
+    <<: *docker-env
     steps:
       - checkout
-      - *prepare-swoole-version-env
-      - *dump-env-vars
-      - *restore-docker-cache
-      - *load-docker-cache
-      - *docker-compose-build-basic
-      - *code-style-analysis
-      - *static-src-analysis
-      - *static-tests-analysis
-      - *run-unit-tests
-      - *run-feature-tests
-      - *export-docker-cache
-      - *save-docker-cache
+      - setup_remote_docker:
+          version: 18.09.3
+      - run:
+          name: Export required dynamic env variables
+          command: |-
+            TAG="$PHP_VERSION-${BUILD_TYPE:-std}-$CIRCLE_SHA1"
+            echo "export TAG='$TAG'" >> $BASH_ENV
 
-  - &docker-coverage
-    steps:
-      - checkout
-      - *prepare-swoole-version-env
-      - *dump-coverage-env
-      - *dump-env-vars
-      - *restore-docker-cache
-      - *load-docker-cache
-      - *prepare-codeclimate-reporter
-      - *prepare-cov-permissions
-      - *docker-compose-build-all
-      - *code-style-analysis
-      - *static-src-analysis
-      - *static-tests-analysis
-      - *run-unit-tests-with-coverage
-      - *run-feature-tests-with-coverage-pcov
-      - *run-feature-tests-with-coverage-xdebug
-      - *merge-code-coverage
-      - *upload-codecov-report
-      - *upload-codeclimate-report
-      - *export-docker-cache
-      - *save-docker-cache
-
-  - &docker-release
-    steps:
-      - checkout
-      - *docker-compose-build-releaser
-      - *run-releaser
+            if [ "latest" = "$SWOOLE_VERSION" ]; then
+              LATEST_SWOOLE_VERSION="$(wget -q -O /dev/stdout https://api.github.com/repos/swoole/swoole-src/releases/latest | grep '"tag_name":' | sed -E 's/.*"v([^"]+)".*/\1/')"
+              echo "LATEST_SWOOLE_VERSION=$LATEST_SWOOLE_VERSION"
+              echo "export SWOOLE_VERSION='$LATEST_SWOOLE_VERSION'" >> $BASH_ENV
+            fi;
+      - run:
+          name: Print env
+          command: env
+      - run:
+          name: Print docker info
+          command: docker info
+      - run:
+          name: Login to Docker Hub
+          command: >-
+            DOCKER_REGISTRY="docker.io"
+            DOCKER_USERNAME="$DOCKER_HUB_USERNAME"
+            DOCKER_PASSWORD="$DOCKER_HUB_TOKEN"
+            docker-registry-login
+      - run:
+          name: Enable Docker Buidx
+          environment:
+            DOCKER_BUILDX_CONTEXT_CREATE: "1"
+            DOCKER_BUILDX_BUILDER_CREATE: "1"
+          command: docker-use-buildx
+      - run:
+          name: Docker Buildx Bake all required images
+          command: docker buildx bake --progress=plain $SERVICES
 
   # Filters
   - &pull-request-checks-job-filters
@@ -223,52 +63,243 @@ aliases:
         only:
           - master
 
-  - &post-release-job-filters
-    filters:
-      tags:
-        only: /^v.*/
-      branches:
-        ignore: /.*/
+  # Job templates
+  - &job-composer-code-style
+    working_directory: /usr/src/app
+    steps:
+      - run:
+          name: Run code style checks
+          command: composer cs-analyse
+      - run:
+          name: Run static anlaysis
+          command: composer static-analyse-src
+      - run:
+          name: Run static anlaysis
+          command: composer static-analyse-tests
+
+  - &job-composer-unit-tests
+    working_directory: /usr/src/app
+    steps:
+      - run:
+          name: Prepare dir for test results
+          command: mkdir -p phpunit
+      - run:
+          name: Run unit tests
+          command: composer unit-tests-junit
+      - store_test_results:
+          path: phpunit
+      - store_artifacts:
+          path: phpunit
+
+  - &job-composer-feature-tests
+    working_directory: /usr/src/app
+    steps:
+      - run:
+          name: Prepare dir for test results
+          command: mkdir -p phpunit
+      - run:
+          name: Run feature tests
+          command: composer feature-tests-junit
+      - store_test_results:
+          path: phpunit
+      - store_artifacts:
+          path: phpunit
 
 jobs:
-  php-73-cc:
+  swoole-bundle-composer-73-code-style:
+    <<: *job-composer-code-style
+    docker:
+      - image: docker.io/k911/swoole-bundle-composer:7.3-std-$CIRCLE_SHA1
+
+  swoole-bundle-composer-74-code-style:
+    <<: *job-composer-code-style
+    docker:
+      - image: docker.io/k911/swoole-bundle-composer:7.4-std-$CIRCLE_SHA1
+
+  swoole-bundle-composer-73-lowest-code-style:
+    <<: *job-composer-code-style
+    docker:
+      - image: docker.io/k911/swoole-bundle-composer:7.3-lowest-$CIRCLE_SHA1
+
+  swoole-bundle-composer-74-latest-code-style:
+    <<: *job-composer-code-style
+    docker:
+      - image: docker.io/k911/swoole-bundle-composer:7.4-latest-$CIRCLE_SHA1
+
+  swoole-bundle-composer-73-unit-tests:
+    <<: *job-composer-unit-tests
+    docker:
+      - image: docker.io/k911/swoole-bundle-composer:7.3-std-$CIRCLE_SHA1
+
+  swoole-bundle-composer-74-unit-tests:
+    <<: *job-composer-unit-tests
+    docker:
+      - image: docker.io/k911/swoole-bundle-composer:7.4-std-$CIRCLE_SHA1
+
+  swoole-bundle-composer-73-lowest-unit-tests:
+    <<: *job-composer-unit-tests
+    docker:
+      - image: docker.io/k911/swoole-bundle-composer:7.3-lowest-$CIRCLE_SHA1
+
+  swoole-bundle-composer-74-latest-unit-tests:
+    <<: *job-composer-unit-tests
+    docker:
+      - image: docker.io/k911/swoole-bundle-composer:7.4-latest-$CIRCLE_SHA1
+
+  swoole-bundle-composer-73-feature-tests:
+    <<: *job-composer-feature-tests
+    docker:
+      - image: docker.io/k911/swoole-bundle-composer:7.3-std-$CIRCLE_SHA1
+
+  swoole-bundle-composer-74-feature-tests:
+    <<: *job-composer-feature-tests
+    docker:
+      - image: docker.io/k911/swoole-bundle-composer:7.4-std-$CIRCLE_SHA1
+
+  swoole-bundle-composer-74-latest-feature-tests:
+    <<: *job-composer-feature-tests
+    docker:
+      - image: docker.io/k911/swoole-bundle-composer:7.4-latest-$CIRCLE_SHA1
+
+  swoole-bundle-composer-73-lowest-feature-tests:
+    <<: *job-composer-feature-tests
+    docker:
+      - image: docker.io/k911/swoole-bundle-composer:7.3-lowest-$CIRCLE_SHA1
+
+  swoole-bundle-73-code-coverage:
     <<: *docker-env
-    <<: *docker-coverage
     environment:
+      REGISTRY: docker.io
+      NAMESPACE: k911
+      IMAGE: swoole-bundle
       PHP_VERSION: 7.3
-      PHP_API_VERSION: "20180731"
       CC_TEST_REPORTER_ID: 77af0c58a2646fe49fb7df502c38a56560e074fbc8b3086f2d33032b44c885a8
+    steps:
+      - checkout
+      - setup_remote_docker:
+          version: 18.09.3
+      - run:
+          name: Export required dynamic env variables
+          command: |-
+            TAG="$PHP_VERSION-${BUILD_TYPE:-std}-$CIRCLE_SHA1"
+            echo "export TAG='$TAG'" >> $BASH_ENV
+      - run:
+          name: Print env
+          command: env
+      - run:
+          name: Print docker info
+          command: docker info
+      - run:
+          name: Login to Docker Hub
+          command: >-
+            DOCKER_REGISTRY="docker.io"
+            DOCKER_USERNAME="$DOCKER_HUB_USERNAME"
+            DOCKER_PASSWORD="$DOCKER_HUB_TOKEN"
+            docker-registry-login
+      - run:
+          name: Pull required docker images
+          command: docker-compose pull composer coverage-pcov coverage-xdebug
+      - run:
+          name: Prepare CodeClimate Code Coverage reporter
+          command: |-
+            wget -O cc-test-reporter https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64
+            chmod +x ./cc-test-reporter
+            ./cc-test-reporter before-build
+      - run:
+          name: Prepare coverage results volume
+          command: |-
+            docker-compose up -d coverage-volume-helper
+            docker-compose exec coverage-volume-helper chown 1000:1000 cov
+      - run:
+          name: Run unit tests with coverage (pcov)
+          command: docker-compose run --rm coverage-pcov
+      - run:
+          name: Run feature tests with coverage (xdebug) and retry
+          command: docker-compose run --rm coverage-xdebug-feature-with-retry
+      - run:
+          name: Run feature tests with coverage (pcov)
+          command: docker-compose run --rm coverage-pcov feature-code-coverage
+      - run:
+          name: Merge code coverage files generated across test suites
+          command: docker-compose run --rm merge-code-coverage
+      - run:
+          name: Extract code coverage from container volume
+          command: docker cp $(docker-compose ps -q coverage-volume-helper):/usr/src/app/cov/clover.xml clover.xml
+      - run:
+          name: Send Code Coverage report to CodeClimate
+          command: ./cc-test-reporter after-build -t clover --exit-code 0 --prefix /usr/src/app
+      - codecov/upload:
+          file: clover.xml
 
-  php-73:
-    <<: *docker-env
-    <<: *docker-default
+  releaser-dry-run:
+    docker:
+      - image: docker.io/k911/swoole-bundle-releaser:7.4-std-$CIRCLE_SHA1
+    working_directory: /usr/src/app
+    environment:
+      DRY_RUN: "1"
+      GH_TOKEN: "xxx"
+    steps:
+      - checkout
+      - run:
+          name: Dry run release-version script
+          command: release-version
+
+  releaser:
+    docker:
+      - image: docker.io/k911/swoole-bundle-releaser:7.4-std-$CIRCLE_SHA1
+    working_directory: /usr/src/app
+    environment:
+      DRY_RUN: "0"
+    steps:
+      - checkout
+      - run:
+          name: Dry run release-version script
+          command: release-version
+
+  docker-buildx-bake-74:
+    <<: *docker-bake
+    environment:
+      PHP_VERSION: 7.4
+      PHP_API_VERSION: "20190902"
+      REGISTRY: docker.io
+      NAMESPACE: k911
+      IMAGE: swoole-bundle
+      SERVICES: releaser composer
+
+  docker-buildx-bake-73:
+    <<: *docker-bake
     environment:
       PHP_VERSION: 7.3
       PHP_API_VERSION: "20180731"
+      REGISTRY: docker.io
+      NAMESPACE: k911
+      IMAGE: swoole-bundle
+      SERVICES: composer coverage-xdebug coverage-pcov
 
-  php-73-lowest:
-    <<: *docker-env
-    <<: *docker-default
+  docker-buildx-bake-73-lowest:
+    <<: *docker-bake
     environment:
       PHP_VERSION: 7.3
       PHP_API_VERSION: "20180731"
       COMPOSER_ARGS: update --prefer-lowest
+      REGISTRY: docker.io
+      NAMESPACE: k911
+      IMAGE: swoole-bundle
+      SERVICES: composer
+      BUILD_TYPE: lowest
 
-  php-74:
-    <<: *docker-env
-    <<: *docker-default
-    environment:
-      PHP_VERSION: 7.4
-      PHP_API_VERSION: "20190902"
-
-  php-74-latest:
-    <<: *docker-env
-    <<: *docker-default
+  docker-buildx-bake-74-latest:
+    <<: *docker-bake
     environment:
       PHP_VERSION: 7.4
       PHP_API_VERSION: "20190902"
       COMPOSER_ARGS: update --ignore-platform-reqs
       SWOOLE_VERSION: latest
+      REGISTRY: docker.io
+      NAMESPACE: k911
+      IMAGE: swoole-bundle
+      SERVICES: composer
+      BUILD_TYPE: latest
 
   check-composer-config:
     docker:
@@ -308,57 +339,91 @@ jobs:
           name: Validate commit message format
           command: commitlint --from=HEAD~20 -V
 
-  release-version:
-    <<: *docker-env
-    <<: *docker-release
-    environment:
-      PHP_VERSION: 7.3
-      PHP_API_VERSION: "20180731"
-      DRY_RUN: "0"
-
-  release-version-dry-run:
-    <<: *docker-env
-    <<: *docker-release
-    environment:
-      PHP_VERSION: 7.3
-      PHP_API_VERSION: "20180731"
-      DRY_RUN: "1"
-      GH_TOKEN: "xxxx"
-
 workflows:
   version: 2.1
   pull-request-checks:
     jobs:
+      - validate-commit-message:
+          <<: *pull-request-checks-job-filters
       - shellcheck:
           <<: *pull-request-checks-job-filters
       - check-composer-config:
           <<: *pull-request-checks-job-filters
-      - release-version-dry-run:
+      - releaser-dry-run:
           <<: *pull-request-checks-job-filters
           requires:
-             - shellcheck
-      - validate-commit-message:
-          <<: *pull-request-checks-job-filters
-      - php-73:
-          <<: *pull-request-checks-job-filters
-          requires:
-             - check-composer-config
-      - php-73-cc:
+            - shellcheck
+            - docker-buildx-bake-74
+      - docker-buildx-bake-74:
           <<: *pull-request-checks-job-filters
           requires:
-             - check-composer-config
-      - php-74-latest:
-          <<: *pull-request-checks-job-filters
-          requires:
-             - check-composer-config
-      - php-73-lowest:
-          <<: *pull-request-checks-job-filters
-          requires:
-             - check-composer-config
-      - php-74:
-         <<: *pull-request-checks-job-filters
-         requires:
             - check-composer-config
+            - validate-commit-message
+      - swoole-bundle-composer-74-code-style:
+          <<: *pull-request-checks-job-filters
+          requires:
+            - docker-buildx-bake-74
+      - swoole-bundle-composer-74-unit-tests:
+          <<: *pull-request-checks-job-filters
+          requires:
+            - docker-buildx-bake-74
+      - swoole-bundle-composer-74-feature-tests:
+          <<: *pull-request-checks-job-filters
+          requires:
+            - docker-buildx-bake-74
+      - docker-buildx-bake-73:
+          <<: *pull-request-checks-job-filters
+          requires:
+            - docker-buildx-bake-74
+      - swoole-bundle-composer-73-code-style:
+          <<: *pull-request-checks-job-filters
+          requires:
+            - docker-buildx-bake-73
+      - swoole-bundle-composer-73-unit-tests:
+          <<: *pull-request-checks-job-filters
+          requires:
+            - docker-buildx-bake-73
+      - swoole-bundle-composer-73-feature-tests:
+          <<: *pull-request-checks-job-filters
+          requires:
+            - docker-buildx-bake-73
+      - docker-buildx-bake-73-lowest:
+          <<: *pull-request-checks-job-filters
+          requires:
+            - docker-buildx-bake-74
+      - swoole-bundle-composer-73-lowest-code-style:
+          <<: *pull-request-checks-job-filters
+          requires:
+            - docker-buildx-bake-73-lowest
+      - swoole-bundle-composer-73-lowest-unit-tests:
+          <<: *pull-request-checks-job-filters
+          requires:
+            - docker-buildx-bake-73-lowest
+      - swoole-bundle-composer-73-lowest-feature-tests:
+          <<: *pull-request-checks-job-filters
+          requires:
+            - docker-buildx-bake-73-lowest
+      - docker-buildx-bake-74-latest:
+          <<: *pull-request-checks-job-filters
+          requires:
+            - docker-buildx-bake-74
+      - swoole-bundle-composer-74-latest-code-style:
+          <<: *pull-request-checks-job-filters
+          requires:
+            - docker-buildx-bake-74-latest
+      - swoole-bundle-composer-74-latest-unit-tests:
+          <<: *pull-request-checks-job-filters
+          requires:
+            - docker-buildx-bake-74-latest
+      - swoole-bundle-composer-74-latest-feature-tests:
+          <<: *pull-request-checks-job-filters
+          requires:
+            - docker-buildx-bake-74-latest
+      - swoole-bundle-73-code-coverage:
+          <<: *pull-request-checks-job-filters
+          requires:
+            - docker-buildx-bake-73
+
   release:
     jobs:
       - shellcheck:
@@ -367,28 +432,94 @@ workflows:
           <<: *release-job-filters
       - validate-commit-message:
           <<: *release-job-filters
-      - php-73:
+      - releaser-dry-run:
           <<: *release-job-filters
           requires:
-             - check-composer-config
-      - php-73-cc:
-          <<: *release-job-filters
-          requires:
-             - check-composer-config
-      - php-74-latest:
-          <<: *release-job-filters
-          requires:
-             - check-composer-config
-      - php-73-lowest:
-          <<: *release-job-filters
-          requires:
-             - check-composer-config
-      - release-version:
-          <<: *release-job-filters
-          requires:
-            - php-73
-            - php-73-cc
-            - php-74-latest
-            - php-73-lowest
             - shellcheck
+            - docker-buildx-bake-74
+      - docker-buildx-bake-74:
+          <<: *release-job-filters
+          requires:
+            - check-composer-config
             - validate-commit-message
+      - swoole-bundle-composer-74-code-style:
+          <<: *release-job-filters
+          requires:
+            - docker-buildx-bake-74
+      - swoole-bundle-composer-74-unit-tests:
+          <<: *release-job-filters
+          requires:
+            - docker-buildx-bake-74
+      - swoole-bundle-composer-74-feature-tests:
+          <<: *release-job-filters
+          requires:
+            - docker-buildx-bake-74
+      - docker-buildx-bake-73:
+          <<: *release-job-filters
+          requires:
+            - docker-buildx-bake-74
+      - swoole-bundle-composer-73-code-style:
+          <<: *release-job-filters
+          requires:
+            - docker-buildx-bake-73
+      - swoole-bundle-composer-73-unit-tests:
+          <<: *release-job-filters
+          requires:
+            - docker-buildx-bake-73
+      - swoole-bundle-composer-73-feature-tests:
+          <<: *release-job-filters
+          requires:
+            - docker-buildx-bake-73
+      - docker-buildx-bake-73-lowest:
+          <<: *release-job-filters
+          requires:
+            - docker-buildx-bake-74
+      - swoole-bundle-composer-73-lowest-code-style:
+          <<: *release-job-filters
+          requires:
+            - docker-buildx-bake-73-lowest
+      - swoole-bundle-composer-73-lowest-unit-tests:
+          <<: *release-job-filters
+          requires:
+            - docker-buildx-bake-73-lowest
+      - swoole-bundle-composer-73-lowest-feature-tests:
+          <<: *release-job-filters
+          requires:
+            - docker-buildx-bake-73-lowest
+      - docker-buildx-bake-74-latest:
+          <<: *release-job-filters
+          requires:
+            - docker-buildx-bake-74
+      - swoole-bundle-composer-74-latest-code-style:
+          <<: *release-job-filters
+          requires:
+            - docker-buildx-bake-74-latest
+      - swoole-bundle-composer-74-latest-unit-tests:
+          <<: *release-job-filters
+          requires:
+            - docker-buildx-bake-74-latest
+      - swoole-bundle-composer-74-latest-feature-tests:
+          <<: *release-job-filters
+          requires:
+            - docker-buildx-bake-74-latest
+      - swoole-bundle-73-code-coverage:
+          <<: *release-job-filters
+          requires:
+            - docker-buildx-bake-73
+      - releaser:
+          <<: *release-job-filters
+          requires:
+            - releaser-dry-run
+            - swoole-bundle-73-code-coverage
+            - swoole-bundle-composer-74-latest-feature-tests
+            - swoole-bundle-composer-74-latest-unit-tests
+            - swoole-bundle-composer-74-latest-code-style
+            - swoole-bundle-composer-73-lowest-feature-tests
+            - swoole-bundle-composer-73-lowest-unit-tests
+            - swoole-bundle-composer-73-lowest-code-style
+            - swoole-bundle-composer-74-feature-tests
+            - swoole-bundle-composer-74-unit-tests
+            - swoole-bundle-composer-74-code-style
+            - swoole-bundle-composer-73-feature-tests
+            - swoole-bundle-composer-73-unit-tests
+            - swoole-bundle-composer-73-code-style
