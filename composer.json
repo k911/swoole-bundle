@@ -33,7 +33,7 @@
         "doctrine/annotations": "^1.6",
         "doctrine/orm": "^2.6.3",
         "friendsofphp/php-cs-fixer": "^2.15",
-        "jangregor/phpstan-prophecy": "^0.6.0",
+        "jangregor/phpstan-prophecy": "^0.6.0 || ^0.7.0",
         "phpspec/prophecy-phpunit": "^2.0",
         "phpstan/extension-installer": "^1.0.2",
         "phpstan/phpstan": "^0.12.8",
