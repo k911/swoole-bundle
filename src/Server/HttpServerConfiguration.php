@@ -25,6 +25,8 @@ class HttpServerConfiguration
     private const SWOOLE_HTTP_SERVER_CONFIG_PID_FILE = 'pid_file';
     private const SWOOLE_HTTP_SERVER_CONFIG_BUFFER_OUTPUT_SIZE = 'buffer_output_size';
     private const SWOOLE_HTTP_SERVER_CONFIG_PACKAGE_MAX_LENGTH = 'package_max_length';
+    private const SWOOLE_HTTP_SERVER_CONFIG_WORKER_MAX_REQUEST = 'worker_max_request';
+    private const SWOOLE_HTTP_SERVER_CONFIG_WORKER_MAX_REQUEST_GRACE = 'worker_max_request_grace';
 
     /**
      * @todo add more
@@ -44,6 +46,8 @@ class HttpServerConfiguration
         self::SWOOLE_HTTP_SERVER_CONFIG_BUFFER_OUTPUT_SIZE => 'buffer_output_size',
         self::SWOOLE_HTTP_SERVER_CONFIG_PACKAGE_MAX_LENGTH => 'package_max_length',
         self::SWOOLE_HTTP_SERVER_CONFIG_TASK_WORKER_COUNT => 'task_worker_num',
+        self::SWOOLE_HTTP_SERVER_CONFIG_WORKER_MAX_REQUEST => 'max_request',
+        self::SWOOLE_HTTP_SERVER_CONFIG_WORKER_MAX_REQUEST_GRACE => 'max_request_grace',
     ];
 
     private const SWOOLE_SERVE_STATIC = [
@@ -82,6 +86,8 @@ class HttpServerConfiguration
      *                        - public_dir (default: '%kernel.root_dir%/public')
      *                        - buffer_output_size (default: '2097152' unit in byte (2MB))
      *                        - package_max_length (default: '8388608b' unit in byte (8MB))
+     *                        - worker_max_requests: Number of requests after which the worker reloads
+     *                        - worker_max_requests_grace: Max random number of requests for worker reloading
      *
      * @throws \Assert\AssertionFailedException
      */
@@ -200,6 +206,16 @@ class HttpServerConfiguration
         return $this->sockets->getServerSocket();
     }
 
+    public function getMaxRequest(): int
+    {
+        return $this->settings[self::SWOOLE_HTTP_SERVER_CONFIG_WORKER_MAX_REQUEST];
+    }
+
+    public function getMaxRequestGrace(): ?int
+    {
+        return $this->settings[self::SWOOLE_HTTP_SERVER_CONFIG_WORKER_MAX_REQUEST_GRACE] ?? null;
+    }
+
     /**
      * @throws \Assert\AssertionFailedException
      */
@@ -256,9 +272,28 @@ class HttpServerConfiguration
         return self::SWOOLE_SERVE_STATIC[$this->settings[self::SWOOLE_HTTP_SERVER_CONFIG_SERVE_STATIC]];
     }
 
+    /**
+     * @see getSwooleSettings()
+     */
     public function getSwooleDocumentRoot(): ?string
     {
         return 'default' === $this->settings[self::SWOOLE_HTTP_SERVER_CONFIG_SERVE_STATIC] ? $this->settings[self::SWOOLE_HTTP_SERVER_CONFIG_PUBLIC_DIR] : null;
+    }
+
+    /**
+     * @see getSwooleSettings()
+     */
+    public function getSwooleMaxRequest(): int
+    {
+        return $this->settings[self::SWOOLE_HTTP_SERVER_CONFIG_WORKER_MAX_REQUEST] ?? 0;
+    }
+
+    /**
+     * @see getSwooleSettings()
+     */
+    public function getSwooleMaxRequestGrace(): ?int
+    {
+        return $this->settings[self::SWOOLE_HTTP_SERVER_CONFIG_WORKER_MAX_REQUEST_GRACE] ?? null;
     }
 
     /**
@@ -362,6 +397,16 @@ class HttpServerConfiguration
             case self::SWOOLE_HTTP_SERVER_CONFIG_WORKER_COUNT:
                 Assertion::integer($value, \sprintf('Setting "%s" must be an integer.', $key));
                 Assertion::greaterThan($value, 0, 'Count value cannot be negative, "%s" provided.');
+
+                break;
+            case self::SWOOLE_HTTP_SERVER_CONFIG_WORKER_MAX_REQUEST:
+                Assertion::integer($value, \sprintf('Setting "%s" must be an integer.', $key));
+                Assertion::greaterOrEqualThan($value, 0, 'Value cannot be negative, "%s" provided.');
+
+                break;
+            case self::SWOOLE_HTTP_SERVER_CONFIG_WORKER_MAX_REQUEST_GRACE:
+                Assertion::nullOrInteger($value, \sprintf('Setting "%s" must be an integer or null.', $key));
+                Assertion::nullOrGreaterOrEqualThan($value, 0, 'Value cannot be negative, "%s" provided.');
 
                 break;
             default:
