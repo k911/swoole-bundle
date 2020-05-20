@@ -211,6 +211,13 @@ final class Configuration implements ConfigurationInterface
                                 ->scalarNode('task_worker_count')
                                     ->defaultNull()
                                 ->end()
+                                ->integerNode('worker_max_request')
+                                    ->min(0)
+                                    ->defaultValue(0)
+                                ->end()
+                                ->scalarNode('worker_max_request_grace')
+                                    ->defaultNull()
+                                ->end()
                             ->end()
                         ->end() // settings
                     ->end()

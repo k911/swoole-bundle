@@ -202,6 +202,8 @@ abstract class AbstractServerStartCommand extends Command
             ['running_mode', $serverConfiguration->getRunningMode()],
             ['worker_count', $serverConfiguration->getWorkerCount()],
             ['reactor_count', $serverConfiguration->getReactorCount()],
+            ['worker_max_request', $serverConfiguration->getMaxRequest()],
+            ['worker_max_request_grace', $serverConfiguration->getMaxRequestGrace()],
             ['memory_limit', format_bytes(get_max_memory())],
             ['trusted_hosts', \implode(', ', $runtimeConfiguration['trustedHosts'])],
         ];
