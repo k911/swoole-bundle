@@ -1,3 +1,11 @@
+## [0.7.9](https://github.com/k911/swoole-bundle/compare/v0.7.8...v0.7.9) (2020-05-20)
+
+[Full changelog](https://github.com/k911/swoole-bundle/compare/v0.7.8...v0.7.9)
+
+### Bug Fixes
+
+* **server:** add worker_max_request and worker_max_request_grace configuration options ([#220](https://github.com/k911/swoole-bundle/issues/220)) ([69fd435](https://github.com/k911/swoole-bundle/commit/69fd435717833d224ee6087c46fd96155e362d02))
+
 ## [0.7.8](https://github.com/k911/swoole-bundle/compare/v0.7.7...v0.7.8) (2020-05-03)
 
 [Full changelog](https://github.com/k911/swoole-bundle/compare/v0.7.7...v0.7.8)
