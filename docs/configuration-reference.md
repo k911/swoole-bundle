@@ -67,6 +67,10 @@ swoole:
 
             # see: \K911\Swoole\Bridge\Doctrine\ORM\EntityManagerHandler
             entity_manager_handler: true
+            
+            # see: \K911\Swoole\Bridge\Upscale\Blackfire\WithProfiler
+            blackfire_profiler: false
+
 
         # swoole http server settings
         # see https://www.swoole.co.uk/docs/modules/swoole-server/configuration

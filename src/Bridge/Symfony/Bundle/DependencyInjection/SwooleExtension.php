@@ -13,6 +13,7 @@ use K911\Swoole\Bridge\Symfony\HttpFoundation\TrustAllProxiesRequestHandler;
 use K911\Swoole\Bridge\Symfony\HttpKernel\DebugHttpKernelRequestHandler;
 use K911\Swoole\Bridge\Symfony\Messenger\SwooleServerTaskTransportFactory;
 use K911\Swoole\Bridge\Symfony\Messenger\SwooleServerTaskTransportHandler;
+use K911\Swoole\Bridge\Upscale\Blackfire\WithProfiler;
 use K911\Swoole\Server\Config\Socket;
 use K911\Swoole\Server\Config\Sockets;
 use K911\Swoole\Server\Configurator\ConfiguratorInterface;
@@ -38,6 +39,7 @@ use Symfony\Component\DependencyInjection\Reference;
 use Symfony\Component\HttpKernel\DependencyInjection\Extension;
 use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Messenger\Transport\TransportFactoryInterface;
+use Upscale\Swoole\Blackfire\Profiler;
 
 final class SwooleExtension extends Extension implements PrependExtensionInterface
 {
@@ -303,6 +305,19 @@ final class SwooleExtension extends Extension implements PrependExtensionInterfa
                 ->setAutoconfigured(true)
                 ->setPublic(false)
             ;
+        }
+
+        if ($config['blackfire_profiler'] || (null === $config['blackfire_profiler'] && \class_exists(Profiler::class))) {
+            $container->register(WithProfiler::class)
+                ->setClass(WithProfiler::class)
+                ->setAutowired(false)
+                ->setAutoconfigured(false)
+                ->setPublic(false)
+            ;
+            $def = $container->getDefinition('swoole_bundle.server.http_server.configurator.for_server_run_command');
+            $def->addArgument(new Reference(WithProfiler::class));
+            $def = $container->getDefinition('swoole_bundle.server.http_server.configurator.for_server_start_command');
+            $def->addArgument(new Reference(WithProfiler::class));
         }
     }
 
