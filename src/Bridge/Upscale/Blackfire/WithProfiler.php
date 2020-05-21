@@ -15,9 +15,9 @@ final class WithProfiler implements ConfiguratorInterface
      */
     private $profiler;
 
-    public function __construct()
+    public function __construct(Profiler $profiler)
     {
-        $this->profiler = new Profiler();
+        $this->profiler = $profiler;
     }
 
     /**

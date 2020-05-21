@@ -57,7 +57,8 @@
     "suggest": {
         "ext-inotify": "To enable HMR.",
         "doctrine/orm": "To use the EntityManager handler.",
-        "symfony/messenger": "To use Symfony Messenger Swoole Task Transport."
+        "symfony/messenger": "To use Symfony Messenger Swoole Task Transport.",
+        "upscale/swoole-blackfire": "To enable Blackfire profiling"
     },
     "autoload": {
         "files": [

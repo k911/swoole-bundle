@@ -308,11 +308,16 @@ final class SwooleExtension extends Extension implements PrependExtensionInterfa
         }
 
         if ($config['blackfire_profiler'] || (null === $config['blackfire_profiler'] && \class_exists(Profiler::class))) {
+            $container->register(Profiler::class)
+                ->setClass(Profiler::class)
+            ;
+
             $container->register(WithProfiler::class)
                 ->setClass(WithProfiler::class)
                 ->setAutowired(false)
                 ->setAutoconfigured(false)
                 ->setPublic(false)
+                ->addArgument(new Reference(Profiler::class))
             ;
             $def = $container->getDefinition('swoole_bundle.server.http_server.configurator.for_server_run_command');
             $def->addArgument(new Reference(WithProfiler::class));

@@ -14,6 +14,7 @@ use Symfony\Bundle\FrameworkBundle\Kernel\MicroKernelTrait;
 use Symfony\Bundle\MonologBundle\MonologBundle;
 use Symfony\Bundle\TwigBundle\TwigBundle;
 use Symfony\Component\Config\Loader\LoaderInterface;
+use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\HttpKernel\Kernel;
 use Symfony\Component\Routing\RouteCollectionBuilder;
@@ -109,6 +110,21 @@ class TestAppKernel extends Kernel
         if ($this->coverageEnabled && 'cov' !== $this->environment) {
             $loader->load($confDir.'/cov/**/*'.self::CONFIG_EXTENSIONS, 'glob');
         }
+
+        $c->addCompilerPass(
+            new class() implements CompilerPassInterface {
+                public function process(ContainerBuilder $container): void
+                {
+                    // Mark some services public for testing
+                    $container->getDefinition('swoole_bundle.server.http_server.configurator.for_server_run_command')
+                        ->setPublic(true)
+                    ;
+                    $container->getDefinition('swoole_bundle.server.http_server.configurator.for_server_start_command')
+                        ->setPublic(true)
+                    ;
+                }
+            }
+        );
     }
 
     private function getVarDir(): string
