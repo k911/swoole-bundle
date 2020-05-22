@@ -9,6 +9,7 @@ use K911\Swoole\Server\Configurator\CallableChainConfigurator;
 use K911\Swoole\Server\Configurator\WithRequestHandler;
 use K911\Swoole\Tests\Fixtures\Symfony\TestBundle\Test\ServerTestCase;
 use ReflectionClass;
+use Upscale\Swoole\Blackfire\Profiler;
 
 final class SwooleProfilerRegisteredTest extends ServerTestCase
 {
@@ -21,6 +22,7 @@ final class SwooleProfilerRegisteredTest extends ServerTestCase
         $kernel->boot();
 
         $container = $kernel->getContainer();
+        $testContainer = $container->get('test.service_container');
 
         $inspectionFn = function (CallableChainConfigurator $c): void {
             $rClass = new ReflectionClass($c);
@@ -41,7 +43,9 @@ final class SwooleProfilerRegisteredTest extends ServerTestCase
             ], $configuratorClasses);
         };
 
-        $inspectionFn($container->get('swoole_bundle.server.http_server.configurator.for_server_run_command'));
-        $inspectionFn($container->get('swoole_bundle.server.http_server.configurator.for_server_start_command'));
+        $this->assertInstanceOf(Profiler::class, $testContainer->get(Profiler::class));
+
+        $inspectionFn($testContainer->get('swoole_bundle.server.http_server.configurator.for_server_run_command'));
+        $inspectionFn($testContainer->get('swoole_bundle.server.http_server.configurator.for_server_start_command'));
     }
 }
