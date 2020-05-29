@@ -58,7 +58,8 @@
         "ext-inotify": "To enable HMR.",
         "doctrine/orm": "To use the EntityManager handler.",
         "symfony/messenger": "To use Symfony Messenger Swoole Task Transport.",
-        "upscale/swoole-blackfire": "To enable Blackfire profiling"
+        "upscale/swoole-blackfire": "To enable Blackfire profiling",
+        "pixelfederation/doctrine-resettable-em-bundle": "To be able to recover Doctrine entity managers from errors."
     },
     "autoload": {
         "files": [
