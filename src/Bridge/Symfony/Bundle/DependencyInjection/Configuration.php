@@ -145,7 +145,7 @@ final class Configuration implements ConfigurationInterface
                                     ->cannotBeEmpty()
                                     ->defaultValue('auto')
                                     ->treatFalseLike('auto')
-                                    ->values(['json', 'production', 'custom', 'auto'])
+                                    ->values(['json', 'production', 'symfony', 'custom', 'auto'])
                                 ->end()
                                 ->enumNode('verbosity')
                                     ->cannotBeEmpty()

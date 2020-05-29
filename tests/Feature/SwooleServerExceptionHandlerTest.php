@@ -191,6 +191,70 @@ final class SwooleServerExceptionHandlerTest extends ServerTestCase
         });
     }
 
+    public function testCatchExceptionViaSymfonyExceptionHandler(): void
+    {
+        $serverStart = $this->createConsoleProcess([
+            'swoole:server:start',
+            '--host=localhost',
+            '--port=9999',
+        ], ['APP_ENV' => 'exception_handler_symfony', 'APP_DEBUG' => '0']);
+
+        $serverStart->setTimeout(3);
+        $serverStart->run();
+
+        $this->assertProcessSucceeded($serverStart);
+
+        $this->runAsCoroutineAndWait(function (): void {
+            $this->deferServerStop();
+
+            $client1 = HttpClient::fromDomain('localhost', 9999, false);
+            $this->assertTrue($client1->connect());
+            $response1 = $client1->send('/throwable/exception')['response'];
+            $this->assertSame(500, $response1['statusCode']);
+            $this->assertStringContainsString('text/html', $response1['headers']['content-type']);
+            $this->assertStringContainsString('Oops! An Error Occurred', $response1['body']);
+
+            $client2 = HttpClient::fromDomain('localhost', 9999, false);
+            $this->assertTrue($client2->connect());
+            $response2 = $client2->send('/throwable/error')['response'];
+            $this->assertSame(500, $response2['statusCode']);
+            $this->assertStringContainsString('text/html', $response2['headers']['content-type']);
+            $this->assertStringContainsString('Oops! An Error Occurred', $response2['body']);
+        });
+    }
+
+    public function testCatchExceptionViaSymfonyExceptionHandlerWithDebug(): void
+    {
+        $serverStart = $this->createConsoleProcess([
+            'swoole:server:start',
+            '--host=localhost',
+            '--port=9999',
+        ], ['APP_ENV' => 'exception_handler_symfony', 'APP_DEBUG' => '1']);
+
+        $serverStart->setTimeout(3);
+        $serverStart->run();
+
+        $this->assertProcessSucceeded($serverStart);
+
+        $this->runAsCoroutineAndWait(function (): void {
+            $this->deferServerStop();
+
+            $client1 = HttpClient::fromDomain('localhost', 9999, false);
+            $this->assertTrue($client1->connect());
+            $response1 = $client1->send('/throwable/exception')['response'];
+            $this->assertSame(500, $response1['statusCode']);
+            $this->assertStringContainsString('text/html', $response1['headers']['content-type']);
+            $this->assertStringContainsString('An exception has occurred', $response1['body']);
+
+            $client2 = HttpClient::fromDomain('localhost', 9999, false);
+            $this->assertTrue($client2->connect());
+            $response2 = $client2->send('/throwable/error')['response'];
+            $this->assertSame(500, $response2['statusCode']);
+            $this->assertStringContainsString('text/html', $response2['headers']['content-type']);
+            $this->assertStringContainsString('Critical failure', $response2['body']);
+        });
+    }
+
     public function testCustomExceptionHandler(): void
     {
         $serverStart = $this->createConsoleProcess([
