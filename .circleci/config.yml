@@ -3,17 +3,21 @@ orbs:
   codecov: codecov/codecov@1.0.5
 aliases:
 
+  - &docker-remote-version
+    setup_remote_docker:
+      # https://circleci.com/docs/2.0/building-docker-images/#docker-version
+      version: 19.03.8
+
   - &docker-env
     docker:
-      - image: k911/docker-client:19.03.8-compose
+      - image: k911/docker-client:19.03.11-compose
     working_directory: ~/workdir
 
   - &docker-bake
     <<: *docker-env
     steps:
       - checkout
-      - setup_remote_docker:
-          version: 18.09.3
+      - *docker-remote-version
       - run:
           name: Export required dynamic env variables
           command: |-
@@ -176,8 +180,7 @@ jobs:
       CC_TEST_REPORTER_ID: 77af0c58a2646fe49fb7df502c38a56560e074fbc8b3086f2d33032b44c885a8
     steps:
       - checkout
-      - setup_remote_docker:
-          version: 18.09.3
+      - *docker-remote-version
       - run:
           name: Export required dynamic env variables
           command: |-
