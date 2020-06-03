@@ -5,7 +5,7 @@ aliases:
 
   - &docker-env
     docker:
-      - image: k911/docker-client:19.03.8-compose
+      - image: k911/docker-client:19.03.11-compose
     working_directory: ~/workdir
 
   - &docker-bake
