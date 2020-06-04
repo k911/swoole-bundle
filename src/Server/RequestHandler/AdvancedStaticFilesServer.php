@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace K911\Swoole\Server\RequestHandler;
 
+use Assert\AssertionFailedException;
 use K911\Swoole\Server\HttpServerConfiguration;
 use K911\Swoole\Server\Runtime\BootableInterface;
 use RuntimeException;
@@ -24,7 +25,8 @@ final class AdvancedStaticFilesServer implements RequestHandlerInterface, Bootab
      *
      * @see https://developer.mozilla.org/en-US/docs/Web/HTTP/Basics_of_HTTP/MIME_types/Complete_list_of_MIME_types
      */
-    private const FILE_EXTENSION_MIME_TYPE_MAP = [
+    private $FILE_EXTENSION_MIME_TYPE_MAP = [
+        '*' => 'application/octet-stream', // fallback for other file types
         '7z' => 'application/x-7z-compressed',
         'aac' => 'audio/aac',
         'arc' => 'application/octet-stream',
@@ -99,17 +101,21 @@ final class AdvancedStaticFilesServer implements RequestHandlerInterface, Bootab
      */
     private $publicDir;
 
-    public function __construct(RequestHandlerInterface $decorated, HttpServerConfiguration $configuration)
-    {
+    public function __construct(
+        RequestHandlerInterface $decorated,
+        HttpServerConfiguration $configuration,
+        array $customMimeTypes = []
+    ) {
         $this->decorated = $decorated;
-        $this->cachedMimeTypes = [];
         $this->configuration = $configuration;
+        $this->FILE_EXTENSION_MIME_TYPE_MAP = \array_merge($this->FILE_EXTENSION_MIME_TYPE_MAP, $customMimeTypes);
+        $this->cachedMimeTypes = [];
     }
 
     /**
      * {@inheritdoc}
      *
-     * @throws \Assert\AssertionFailedException
+     * @throws AssertionFailedException
      */
     public function boot(array $runtimeConfiguration = []): void
     {
@@ -147,15 +153,15 @@ final class AdvancedStaticFilesServer implements RequestHandlerInterface, Bootab
             $extension = \pathinfo(\pathinfo($path, PATHINFO_FILENAME), PATHINFO_EXTENSION);
         }
 
-        if (!isset(self::FILE_EXTENSION_MIME_TYPE_MAP[$extension])) {
+        if (!\file_exists($path) || \is_dir($path)) {
             return false;
         }
 
-        if (!\file_exists($path)) {
-            return false;
+        if (!isset($this->FILE_EXTENSION_MIME_TYPE_MAP[$extension])) {
+            $extension = '*';
         }
 
-        $this->cachedMimeTypes[$path] = self::FILE_EXTENSION_MIME_TYPE_MAP[$extension];
+        $this->cachedMimeTypes[$path] = $this->FILE_EXTENSION_MIME_TYPE_MAP[$extension];
 
         return true;
     }
