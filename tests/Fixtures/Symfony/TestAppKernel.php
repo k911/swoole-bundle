@@ -13,6 +13,7 @@ use Symfony\Bundle\FrameworkBundle\FrameworkBundle;
 use Symfony\Bundle\FrameworkBundle\Kernel\MicroKernelTrait;
 use Symfony\Bundle\MonologBundle\MonologBundle;
 use Symfony\Bundle\TwigBundle\TwigBundle;
+use Symfony\Bundle\WebProfilerBundle\WebProfilerBundle;
 use Symfony\Component\Config\Loader\LoaderInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\HttpKernel\Kernel;
@@ -26,6 +27,8 @@ class TestAppKernel extends Kernel
 
     private $coverageEnabled;
 
+    private $profilerEnabled = false;
+
     public function __construct(string $environment, bool $debug)
     {
         if ('_cov' === \mb_substr($environment, -4, 4)) {
@@ -35,6 +38,10 @@ class TestAppKernel extends Kernel
             $this->coverageEnabled = true;
         } else {
             $this->coverageEnabled = false;
+        }
+
+        if ('profiler' === $environment) {
+            $this->profilerEnabled = true;
         }
 
         parent::__construct($environment, $debug);
@@ -70,6 +77,10 @@ class TestAppKernel extends Kernel
         if ($this->coverageEnabled) {
             yield new CoverageBundle();
         }
+
+        if ($this->profilerEnabled) {
+            yield new WebProfilerBundle();
+        }
     }
 
     /**
@@ -88,6 +99,12 @@ class TestAppKernel extends Kernel
     protected function configureRoutes(RouteCollectionBuilder $routes): void
     {
         $routes->import($this->getProjectDir().'/routing.yml');
+
+        $envRoutingFile = $this->getProjectDir().'/config/'.$this->environment.'/routing/routing.yaml';
+
+        if (\file_exists($envRoutingFile)) {
+            $routes->import($envRoutingFile);
+        }
     }
 
     /**
@@ -103,7 +120,7 @@ class TestAppKernel extends Kernel
 
         $loader->load($confDir.'/*'.self::CONFIG_EXTENSIONS, 'glob');
         if (\is_dir($confDir.'/'.$this->environment)) {
-            $loader->load($confDir.'/'.$this->environment.'/**/*'.self::CONFIG_EXTENSIONS, 'glob');
+            $loader->load($confDir.'/'.$this->environment.'/*'.self::CONFIG_EXTENSIONS, 'glob');
         }
 
         if ($this->coverageEnabled && 'cov' !== $this->environment) {

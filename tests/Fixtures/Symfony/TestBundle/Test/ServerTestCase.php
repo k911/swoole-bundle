@@ -10,6 +10,7 @@ use K911\Swoole\Tests\Fixtures\Symfony\TestAppKernel;
 use Swoole\Coroutine\Scheduler;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\Console\Tester\CommandTester;
+use Symfony\Component\HttpKernel\Kernel;
 use Symfony\Component\HttpKernel\KernelInterface;
 use Symfony\Component\Process\Exception\ProcessFailedException;
 use Symfony\Component\Process\Process;
@@ -166,6 +167,13 @@ class ServerTestCase extends KernelTestCase
     {
         if (!\extension_loaded('inotify')) {
             $this->markTestSkipped('Swoole Bundle HMR requires "inotify" PHP extension present and installed on the system.');
+        }
+    }
+
+    protected function markTestSkippedIfSymfonyVersionIsLoverThan(string $version): void
+    {
+        if (\version_compare(Kernel::VERSION, $version, 'lt')) {
+            $this->markTestSkipped(\sprintf('This test needs Symfony in version : %s.', $version));
         }
     }
 
