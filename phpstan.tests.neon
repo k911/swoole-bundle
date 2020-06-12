@@ -12,4 +12,4 @@ parameters:
         # Put false positives here
 
         # Symfony configuration files
-        - '#Undefined variable: \$container#'
+        - '#Variable \$container might not be defined#'
