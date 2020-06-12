@@ -187,9 +187,11 @@ final class SwooleExtension extends Extension implements PrependExtensionInterfa
         }
 
         if ('advanced' === $static['strategy']) {
+            $mimeTypes = $static['mime_types'];
             $container->register(AdvancedStaticFilesServer::class)
                 ->addArgument(new Reference(AdvancedStaticFilesServer::class.'.inner'))
                 ->addArgument(new Reference(HttpServerConfiguration::class))
+                ->addArgument($mimeTypes)
                 ->addTag('swoole_bundle.bootable_service')
                 ->setDecoratedService(RequestHandlerInterface::class, null, -60)
             ;

@@ -7,6 +7,7 @@ namespace K911\Swoole\Bridge\Symfony\Bundle\DependencyInjection;
 use function K911\Swoole\decode_string_as_set;
 use Symfony\Component\Config\Definition\Builder\TreeBuilder;
 use Symfony\Component\Config\Definition\ConfigurationInterface;
+use Symfony\Component\Config\Definition\Exception\InvalidTypeException;
 
 final class Configuration implements ConfigurationInterface
 {
@@ -114,6 +115,7 @@ final class Configuration implements ConfigurationInterface
                                     return [
                                         'strategy' => $v,
                                         'public_dir' => 'off' === $v ? null : self::DEFAULT_PUBLIC_DIR,
+                                        'mime_types' => [],
                                     ];
                                 })
                             ->end()
@@ -126,6 +128,28 @@ final class Configuration implements ConfigurationInterface
                                 ->scalarNode('public_dir')
                                     ->defaultValue(self::DEFAULT_PUBLIC_DIR)
                                 ->end()
+                                ->variableNode('mime_types')
+                                    ->info('File extensions to mime types map.')
+                                    ->defaultValue([])
+                                    ->validate()
+                                        ->always(function ($mimeTypes) {
+                                            $validValues = [];
+
+                                            foreach ((array) $mimeTypes as $extension => $mimeType) {
+                                                $extension = \trim((string) $extension);
+                                                $mimeType = \trim((string) $mimeType);
+
+                                                if ('' === $extension || '' === $mimeType) {
+                                                    throw new InvalidTypeException(\sprintf('Invalid mime type %s for file extension %s.', $mimeType, $extension));
+                                                }
+
+                                                $validValues[$extension] = $mimeType;
+                                            }
+
+                                            return $validValues;
+                                        })
+                                    ->end()
+                                ->end() // end mime types
                             ->end()
                         ->end() // end static
                         ->arrayNode('exception_handler')
