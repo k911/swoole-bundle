@@ -6,6 +6,10 @@ namespace K911\Swoole\Bridge\Symfony\Bundle\DependencyInjection;
 
 use Doctrine\ORM\EntityManagerInterface;
 use K911\Swoole\Bridge\Doctrine\ORM\EntityManagerHandler;
+use K911\Swoole\Bridge\Symfony\Bundle\ErrorHandler\ErrorResponder;
+use K911\Swoole\Bridge\Symfony\Bundle\ErrorHandler\ExceptionHandlerFactory;
+use K911\Swoole\Bridge\Symfony\Bundle\ErrorHandler\SymfonyExceptionHandler;
+use K911\Swoole\Bridge\Symfony\Bundle\ErrorHandler\ThrowableHandlerFactory;
 use K911\Swoole\Bridge\Symfony\HttpFoundation\CloudFrontRequestFactory;
 use K911\Swoole\Bridge\Symfony\HttpFoundation\RequestFactoryInterface;
 use K911\Swoole\Bridge\Symfony\HttpFoundation\Session\SetSessionCookieEventListener;
@@ -30,12 +34,15 @@ use K911\Swoole\Server\Runtime\HMR\InotifyHMR;
 use K911\Swoole\Server\TaskHandler\TaskHandlerInterface;
 use K911\Swoole\Server\WorkerHandler\HMRWorkerStartHandler;
 use K911\Swoole\Server\WorkerHandler\WorkerStartHandlerInterface;
+use ReflectionMethod;
+use RuntimeException;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Definition;
 use Symfony\Component\DependencyInjection\Extension\PrependExtensionInterface;
 use Symfony\Component\DependencyInjection\Loader\YamlFileLoader;
 use Symfony\Component\DependencyInjection\Reference;
+use Symfony\Component\ErrorHandler\ErrorHandler;
 use Symfony\Component\HttpKernel\DependencyInjection\Extension;
 use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Messenger\Transport\TransportFactoryInterface;
@@ -125,6 +132,11 @@ final class SwooleExtension extends Extension implements PrependExtensionInterfa
         switch ($type) {
             case 'json':
                 $class = JsonExceptionHandler::class;
+
+                break;
+            case 'symfony':
+                $this->registerSymfonyExceptionHandler($container);
+                $class = SymfonyExceptionHandler::class;
 
                 break;
             case 'custom':
@@ -326,6 +338,41 @@ final class SwooleExtension extends Extension implements PrependExtensionInterfa
             $def = $container->getDefinition('swoole_bundle.server.http_server.configurator.for_server_start_command');
             $def->addArgument(new Reference(WithProfiler::class));
         }
+    }
+
+    private function registerSymfonyExceptionHandler(ContainerBuilder $container): void
+    {
+        if (!\class_exists(ErrorHandler::class)) {
+            throw new RuntimeException('To be able to use Symfony exception handler, the "symfony/error-handler" package needs to be installed.');
+        }
+
+        $container->register('swoole_bundle.error_handler.symfony_error_handler', ErrorHandler::class)
+            ->setPublic(false)
+        ;
+        $container->register(ThrowableHandlerFactory::class)
+            ->setPublic(false)
+        ;
+        $container->register('swoole_bundle.error_handler.symfony_kernel_throwable_handler', ReflectionMethod::class)
+            ->setFactory([ThrowableHandlerFactory::class, 'newThrowableHandler'])
+            ->setPublic(false)
+        ;
+        $container->register(ExceptionHandlerFactory::class)
+            ->setArgument('$throwableHandler', new Reference('swoole_bundle.error_handler.symfony_kernel_throwable_handler'))
+            ->setAutowired(true)
+            ->setAutoconfigured(true)
+            ->setPublic(false)
+        ;
+        $container->register(ErrorResponder::class)
+            ->setArgument('$errorHandler', new Reference('swoole_bundle.error_handler.symfony_error_handler'))
+            ->setAutowired(true)
+            ->setAutoconfigured(true)
+            ->setPublic(false)
+        ;
+        $container->register(SymfonyExceptionHandler::class)
+            ->setAutowired(true)
+            ->setAutoconfigured(true)
+            ->setPublic(false)
+        ;
     }
 
     private function isBundleLoaded(ContainerBuilder $container, string $bundleName): bool
