@@ -1,0 +1,26 @@
+services:
+  # default configuration for services in *this* file
+  _defaults:
+    # automatically injects dependencies in your services
+    autowire: true
+    # automatically registers your services as commands, event subscribers, etc.
+    autoconfigure: true
+    # this means you cannot fetch services directly from the container via $container->get()
+    # if you need to do this, you can override this setting on individual services
+    public: false
+
+  # makes classes in src/ available to be used as services
+  # this creates a service per class whose id is the fully-qualified class name
+  K911\Swoole\Tests\Fixtures\Symfony\TestBundle\:
+    resource: '../../TestBundle/*'
+    # you can exclude directories or files
+    # but if a service is unused, it's removed anyway
+    exclude: '../../TestBundle/{Message,Test,Controller}'
+
+  # controllers are imported separately to make sure they
+  # have the tag that allows actions to type-hint services
+  K911\Swoole\Tests\Fixtures\Symfony\TestBundle\Controller\:
+    resource: '../../TestBundle/Controller'
+    # without this the HMR tests break, might be a bug in HMR
+    exclude: '../../TestBundle/Controller/ReplacedContentTestController.php'
+    tags: ['controller.service_arguments']
