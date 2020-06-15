@@ -20,19 +20,23 @@ use Swoole\Http\Response;
  */
 final class AdvancedStaticFilesServer implements RequestHandlerInterface, BootableInterface
 {
+    private const MIME_TYPE_APPLICATION_OCTET_STREAM = 'application/octet-stream';
+
     /**
      * Default static file extensions supported.
      *
      * @see https://developer.mozilla.org/en-US/docs/Web/HTTP/Basics_of_HTTP/MIME_types/Complete_list_of_MIME_types
      */
-    private $FILE_EXTENSION_MIME_TYPE_MAP = [
-        '*' => 'application/octet-stream', // fallback for other file types
+    private const FILE_EXTENSION_MIME_TYPE_DEFAULT_MAP = [
+        // fallback for other file types
+        '*' => self::MIME_TYPE_APPLICATION_OCTET_STREAM,
+        // default list
         '7z' => 'application/x-7z-compressed',
         'aac' => 'audio/aac',
-        'arc' => 'application/octet-stream',
+        'arc' => self::MIME_TYPE_APPLICATION_OCTET_STREAM,
         'avi' => 'video/x-msvideo',
         'azw' => 'application/vnd.amazon.ebook',
-        'bin' => 'application/octet-stream',
+        'bin' => self::MIME_TYPE_APPLICATION_OCTET_STREAM,
         'bmp' => 'image/bmp',
         'bz' => 'application/x-bzip',
         'bz2' => 'application/x-bzip2',
@@ -101,6 +105,11 @@ final class AdvancedStaticFilesServer implements RequestHandlerInterface, Bootab
      */
     private $publicDir;
 
+    /**
+     * @var array
+     */
+    private $fileExtensionMimeTypeMap;
+
     public function __construct(
         RequestHandlerInterface $decorated,
         HttpServerConfiguration $configuration,
@@ -108,7 +117,7 @@ final class AdvancedStaticFilesServer implements RequestHandlerInterface, Bootab
     ) {
         $this->decorated = $decorated;
         $this->configuration = $configuration;
-        $this->FILE_EXTENSION_MIME_TYPE_MAP = \array_merge($this->FILE_EXTENSION_MIME_TYPE_MAP, $customMimeTypes);
+        $this->fileExtensionMimeTypeMap = \array_merge(self::FILE_EXTENSION_MIME_TYPE_DEFAULT_MAP, $customMimeTypes);
         $this->cachedMimeTypes = [];
     }
 
@@ -157,11 +166,11 @@ final class AdvancedStaticFilesServer implements RequestHandlerInterface, Bootab
             return false;
         }
 
-        if (!isset($this->FILE_EXTENSION_MIME_TYPE_MAP[$extension])) {
+        if (!isset($this->fileExtensionMimeTypeMap[$extension])) {
             $extension = '*';
         }
 
-        $this->cachedMimeTypes[$path] = $this->FILE_EXTENSION_MIME_TYPE_MAP[$extension];
+        $this->cachedMimeTypes[$path] = $this->fileExtensionMimeTypeMap[$extension];
 
         return true;
     }

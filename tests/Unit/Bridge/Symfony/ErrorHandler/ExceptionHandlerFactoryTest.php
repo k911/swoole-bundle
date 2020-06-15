@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace K911\Swoole\Tests\Unit\Bridge\Symfony\Bundle\ErrorHandler;
+namespace K911\Swoole\Tests\Unit\Bridge\Symfony\ErrorHandler;
 
 use Error;
 use ErrorException;
-use K911\Swoole\Bridge\Symfony\Bundle\ErrorHandler\ExceptionHandlerFactory;
+use K911\Swoole\Bridge\Symfony\ErrorHandler\ExceptionHandlerFactory;
 use PHPUnit\Framework\TestCase;
 use Prophecy\Argument;
 use Prophecy\PhpUnit\ProphecyTrait;

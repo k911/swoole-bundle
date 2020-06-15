@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace K911\Swoole\Bridge\Symfony\Bundle\ErrorHandler;
+namespace K911\Swoole\Bridge\Symfony\ErrorHandler;
 
 use Symfony\Component\ErrorHandler\ErrorHandler;
 use Symfony\Component\HttpFoundation\Request;
