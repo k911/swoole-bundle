@@ -6,10 +6,10 @@ namespace K911\Swoole\Bridge\Symfony\Bundle\DependencyInjection;
 
 use Doctrine\ORM\EntityManagerInterface;
 use K911\Swoole\Bridge\Doctrine\ORM\EntityManagerHandler;
-use K911\Swoole\Bridge\Symfony\Bundle\ErrorHandler\ErrorResponder;
-use K911\Swoole\Bridge\Symfony\Bundle\ErrorHandler\ExceptionHandlerFactory;
-use K911\Swoole\Bridge\Symfony\Bundle\ErrorHandler\SymfonyExceptionHandler;
-use K911\Swoole\Bridge\Symfony\Bundle\ErrorHandler\ThrowableHandlerFactory;
+use K911\Swoole\Bridge\Symfony\ErrorHandler\ErrorResponder;
+use K911\Swoole\Bridge\Symfony\ErrorHandler\ExceptionHandlerFactory;
+use K911\Swoole\Bridge\Symfony\ErrorHandler\SymfonyExceptionHandler;
+use K911\Swoole\Bridge\Symfony\ErrorHandler\ThrowableHandlerFactory;
 use K911\Swoole\Bridge\Symfony\HttpFoundation\CloudFrontRequestFactory;
 use K911\Swoole\Bridge\Symfony\HttpFoundation\RequestFactoryInterface;
 use K911\Swoole\Bridge\Symfony\HttpFoundation\Session\SetSessionCookieEventListener;
