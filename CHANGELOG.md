@@ -1,3 +1,19 @@
+# [0.8.0](https://github.com/k911/swoole-bundle/compare/v0.7.9...v0.8.0) (2020-06-23)
+
+[Full changelog](https://github.com/k911/swoole-bundle/compare/v0.7.9...v0.8.0)
+
+### Bug Fixes
+
+* **config:** allow configuring worker and reactor counts using ENV variables ([#244](https://github.com/k911/swoole-bundle/issues/244)) ([d6b270a](https://github.com/k911/swoole-bundle/commit/d6b270a3d3f2895d6cef55b3272f57ae30d48657))
+* **profiler:** make log collection in symfony profiler to work ([#242](https://github.com/k911/swoole-bundle/issues/242)) ([50fdd6f](https://github.com/k911/swoole-bundle/commit/50fdd6fa0ab98b83c30a456405e203f6296cf2fd))
+
+
+### Features
+
+* **blackfire:** Add bridge for upscale/swoole-blackfire ([#221](https://github.com/k911/swoole-bundle/issues/221)) ([960ddb8](https://github.com/k911/swoole-bundle/commit/960ddb84004bf3b146cdddd81cc60a48c60efa0b))
+* **exception-handler:** Add Symfony error/exception handler ([#228](https://github.com/k911/swoole-bundle/issues/228)) ([180d5e5](https://github.com/k911/swoole-bundle/commit/180d5e5a11b67097c66a0a2fecaf292bfa14cc4c))
+* **http-server:** configurable mime types for advanced static files server ([#240](https://github.com/k911/swoole-bundle/issues/240)) ([07896a4](https://github.com/k911/swoole-bundle/commit/07896a45dccf22320cb26e0988fa4988d18cd782))
+
 ## [0.7.9](https://github.com/k911/swoole-bundle/compare/v0.7.8...v0.7.9) (2020-05-20)
 
 [Full changelog](https://github.com/k911/swoole-bundle/compare/v0.7.8...v0.7.9)
