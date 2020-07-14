@@ -46,7 +46,7 @@ php -v
 # Zend Engine v3.3.7, Copyright (c) 1998-2018 Zend Technologies
 ```
 
-Currently, the minimum supported version is `7.2.19` but it is highly recommended to develop using the latest PHP version.
+Currently, the minimum supported version is `7.3.10` but it is highly recommended to develop using the latest PHP version.
 
 #### [Docker](https://docs.docker.com/install/)
 
