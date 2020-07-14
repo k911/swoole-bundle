@@ -293,7 +293,9 @@ final class SwooleExtension extends Extension implements PrependExtensionInterfa
             ;
         }
 
-        if ($config['entity_manager_handler'] || (null === $config['entity_manager_handler'] && \interface_exists(EntityManagerInterface::class) && $this->isBundleLoaded($container, 'doctrine'))) {
+        if ($config['entity_manager_handler'] || (
+            null === $config['entity_manager_handler'] && $this->isDoctrineEntityManagerConfigured($container)
+        )) {
             $container->register(EntityManagerHandler::class)
                 ->addArgument(new Reference(EntityManagerHandler::class.'.inner'))
                 ->setAutowired(true)
@@ -383,6 +385,13 @@ final class SwooleExtension extends Extension implements PrependExtensionInterfa
         $fullBundleName = \ucfirst($bundleNameOnly).'Bundle';
 
         return isset($bundles[$fullBundleName]);
+    }
+
+    private function isDoctrineEntityManagerConfigured(ContainerBuilder $container): bool
+    {
+        return \interface_exists(EntityManagerInterface::class) &&
+            $this->isBundleLoaded($container, 'doctrine') &&
+            $container->has(EntityManagerInterface::class);
     }
 
     private function isProd(ContainerBuilder $container): bool
