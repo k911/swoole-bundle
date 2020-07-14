@@ -58,7 +58,7 @@ Features:
 
 - Multi-stage builds (fast rebuilds)
 - Secure (run as custom user)
-- Portable (add as many php extensions as you want)
+- Portable (add as many PHP extensions as you want)
 
 ```dockerfile
 ARG PHP_TAG="7.3-cli-alpine3.9"

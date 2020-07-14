@@ -25,6 +25,8 @@ Symfony integration with [Swoole](https://www.swoole.co.uk/) to speed up your ap
   - [Quick start guide](#quick-start-guide)
   - [Features](#features)
   - [Requirements](#requirements)
+    - [Current (`0.8.x`)](#current-08x)
+    - [Future](#future)
     - [Swoole](#swoole)
       - [Version check](#version-check)
       - [Installation](#installation)
@@ -78,11 +80,7 @@ Symfony integration with [Swoole](https://www.swoole.co.uk/) to speed up your ap
 
 - Improved static files serving
 
-    Swoole HTTP Server provides a default static files handler, but it lacks supporting many `Content-Types`. To overcome this issue, there is (not yet configurable) Advanced Static Files Server. Static files serving remains enabled by default in the development environment. Static files directory defaults to `%kernel.project_dir%/public`.
-
-- Hot Module Reload (HMR) - for development
-
-    Since Swoole HTTP Server runs in Event Loop and does not flush memory between requests, to keep DX equal with normal servers, this bundle uses code replacement technique, using `inotify` PHP Extension to allow continuous development. It is enabled by default (when the extension is found) and requires no additional configuration. You can turn it off in bundle configuration.
+    Swoole HTTP Server provides a default static files handler, but it lacks supporting many `Content-Types`. To overcome this issue, there is a configurable Advanced Static Files Server. Static files serving remains enabled by default in the development environment. Static files directory defaults to `%kernel.project_dir%/public`. To configure your custom mime types check [configuration reference](docs/configuration-reference.md) (key `swoole.http_server.static.mime_types`).
 
 - Symfony Messenger integration
 
@@ -90,11 +88,25 @@ Symfony integration with [Swoole](https://www.swoole.co.uk/) to speed up your ap
 
     Swoole Server Task Transport has been integrated into this bundle to allow easy execution of asynchronous actions. Documentation of this feature is available [here](docs/swoole-task-symfony-messenger-transport.md).
 
+- Hot Module Reload (HMR) for development **ALPHA**
+
+    Since Swoole HTTP Server runs in Event Loop and does not flush memory between requests, to keep DX equal with normal servers, this bundle uses code replacement technique, using `inotify` PHP Extension to allow continuous development. It is enabled by default (when the extension is found) and requires no additional configuration. You can turn it off in bundle configuration.
+
+    *Remarks: This feature currently works only on a Linux host machine. It probably won't work with Docker, and it is possible that it works only with configuration: `swoole.http_server.running_mode: process` (default).*
+
 ## Requirements
+
+### Current (`0.8.x`)
 
 - PHP version `>= 7.3.10`
 - Swoole PHP Extension `>= 4.4.7`
 - Symfony `>= 4.3.1`
+
+### Future
+
+- PHP version `>= 7.4`
+- Swoole PHP Extension `>= 4.5`
+- Symfony `>= 5.0`
 
 Additional requirements to enable specific features:
 
@@ -106,7 +118,7 @@ Bundle requires [Swoole PHP Extension](https://github.com/swoole/swoole-src) ver
 
 #### Version check
 
-To check your installed version you can run following command:
+To check your installed version you can run the following command:
 
 ```sh
 php -r "echo swoole_version() . \PHP_EOL;"

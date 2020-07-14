@@ -30,18 +30,21 @@ swoole:
         # static:
         #     public_dir: '%kernel.project_dir%/public'
         #     strategy: advanced
-        #     mime_types: []
+        #     mime_types: ~
         # ---
         # strategy can be one of: (default) auto, off, advanced, default
         #   - off: turn off feature
         #   - auto: use 'advanced' when debug enabled or not production environment
         #   - advanced: use request handler class \K911\Swoole\Server\RequestHandler\AdvancedStaticFilesServer
         #   - default: use default swoole static serving (faster than advanced, but supports less content types)
-            # mime types registration by file extension for static files serving (file extension: mime type)
-            # this only works when 'static' strategy is set to 'advanced'
-            mime_types:
-                '*': 'text/plain' # fallback override
-                sqlite: 'application/x-sqlite3'
+        # ---
+        # mime types registration by file extension for static files serving in format: 'file extension': 'mime type'
+        # this only works when 'static' strategy is set to 'advanced'
+        #
+        #   mime_types:
+        #       '*': 'text/plain' # fallback override
+        #       customFileExtension: 'custom-mime/type-name'
+        #       sqlite: 'application/x-sqlite3'
 
         # enables hot module reload using inotify
         hmr: auto

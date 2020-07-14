@@ -57,12 +57,12 @@
         "upscale/swoole-blackfire": "^3.0"
     },
     "suggest": {
-        "ext-inotify": "To enable HMR.",
-        "doctrine/orm": "To use the EntityManager handler.",
-        "symfony/messenger": "To use Symfony Messenger Swoole Task Transport.",
+        "ext-inotify": "To enable HMR",
+        "doctrine/orm": "For using Entity Manager Handler",
+        "symfony/messenger": "For using Symfony Messenger Swoole Task Transport.",
         "upscale/swoole-blackfire": "To enable Blackfire profiling",
-        "pixelfederation/doctrine-resettable-em-bundle": "To be able to recover Doctrine entity managers from errors.",
-        "symfony/error-handler": "To use Symfony exception handler."
+        "pixelfederation/doctrine-resettable-em-bundle": "To be able to recover Doctrine Entity Managers from errors",
+        "symfony/error-handler": "To use Symfony Error Handler"
     },
     "autoload": {
         "files": [
@@ -124,7 +124,7 @@
     },
     "extra": {
         "branch-alias": {
-            "dev-develop": "v0.7.x-dev"
+            "dev-develop": "v0.8.x-dev"
         }
     },
     "config": {
