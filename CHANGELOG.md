@@ -2,9 +2,10 @@
 
 [Full changelog](https://github.com/k911/swoole-bundle/compare/v0.8.0...v0.8.1)
 
-### Miscellaneous
+### Bug Fixes
 
-* Minor fixes
+* **doctrine:** autoconfigure EntityManagerHandler only when orm is available in symfony's container ([#274](https://github.com/k911/swoole-bundle/issues/274)) ([87ede15](https://github.com/k911/swoole-bundle/commit/87ede156bc25f3b774a9913cff9db3d78d39b129))
+* **http:** proper creation of $_SERVER['REQUEST_URI'] ([#269](https://github.com/k911/swoole-bundle/issues/269)) ([78bb42b](https://github.com/k911/swoole-bundle/commit/78bb42b559faae94f7eeac3aebb8886992714214))
 
 # [0.8.0](https://github.com/k911/swoole-bundle/compare/v0.7.9...v0.8.0) (2020-06-23)
 
