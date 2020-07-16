@@ -2,6 +2,11 @@
 
 set -euo pipefail
 
+DEBUG="${DEBUG:-0}"
+if [[ "1" = "${DEBUG}" ]]; then
+    set -x
+fi
+
 if [[ "" = "$CURRENT_VERSION" ]]; then
   CURRENT_VERSION="$(git describe --abbrev=0 --tags | sed -E 's/v(.*)/\1/')"
 fi
