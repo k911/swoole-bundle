@@ -9,7 +9,7 @@ cache:
 env:
   global:
     - COMPOSER_ARGS=install
-    - SWOOLE_VERSION=4.4.18
+    - SWOOLE_VERSION=4.5.2
 
 matrix:
   include:

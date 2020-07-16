@@ -1,11 +1,11 @@
 version: "3.6"
 x-env-aliases:
   - &DEFAULT_BUILD_ARGS
-    PHP_TAG: "${PHP_VERSION:-7.4}-cli-alpine${ALPINE_VERSION:-3.11}"
+    PHP_TAG: "${PHP_VERSION:-7.4}-cli-alpine${ALPINE_VERSION:-3.12}"
     PHP_API_VERSION: "${PHP_API_VERSION:-20190902}"
     COMPOSER_ARGS: "${COMPOSER_ARGS:-install}"
-    SWOOLE_VERSION: "${SWOOLE_VERSION:-4.4.18}"
-    COMPOSER_TAG: "${COMPOSER_TAG:-1.10.5}"
+    SWOOLE_VERSION: "${SWOOLE_VERSION:-4.5.2}"
+    COMPOSER_TAG: "${COMPOSER_TAG:-1.10.8}"
 
 volumes:
   coverage: {}
@@ -15,7 +15,10 @@ services:
     image: "${REGISTRY:-docker.io}/${NAMESPACE:-k911}/${IMAGE:-swoole-bundle}-releaser:${TAG:-local}"
     build:
       context: ./.circleci
+      args:
+        NODE_TAG: "${NODE_VERSION:-14}-alpine${ALPINE_VERSION:-3.12}"
     environment:
+      DEBUG: "${DEBUG:-1}"
       DRY_RUN: "${DRY_RUN:-1}"
       GH_REPOSITORY: "${GH_REPOSITORY:-k911/swoole-bundle}"
       GH_COMMITER_NAME: "${GH_COMMITER_NAME:-k911}"
@@ -26,6 +29,7 @@ services:
     volumes:
       - "./.git:/usr/src/app/.git:rw"
       - "./CHANGELOG.md:/usr/src/app/CHANGELOG.md:rw"
+      - "./.circleci/release-version.sh:/usr/local/bin/release-version:rw"
 
   cli:
     image: "${REGISTRY:-docker.io}/${NAMESPACE:-k911}/${IMAGE:-swoole-bundle}-cli:${TAG:-local}"
@@ -91,7 +95,7 @@ services:
       - coverage:/usr/src/app/cov
 
   coverage-volume-helper:
-    image: alpine:3.11
+    image: alpine:${ALPINE_VERSION:-3.12}
     entrypoint: sleep
     command: infinity
     working_dir: /usr/src/app

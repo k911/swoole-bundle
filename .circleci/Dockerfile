@@ -1,4 +1,4 @@
-ARG NODE_TAG="12-alpine"
+ARG NODE_TAG="14-alpine3.12"
 FROM node:${NODE_TAG} as Runner
 WORKDIR /usr/src/app
 RUN apk add --no-cache bash git curl
