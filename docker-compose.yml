@@ -12,13 +12,9 @@ volumes:
 
 services:
   releaser:
-    image: "${REGISTRY:-docker.io}/${NAMESPACE:-k911}/${IMAGE:-swoole-bundle}-releaser:${TAG:-local}"
-    build:
-      context: ./.circleci
-      args:
-        NODE_TAG: "${NODE_VERSION:-14}-alpine${ALPINE_VERSION:-3.12}"
+    image: docker.io/k911/release-version-script:latest
     environment:
-      DEBUG: "${DEBUG:-1}"
+      DEBUG: "${DEBUG:-0}"
       DRY_RUN: "${DRY_RUN:-1}"
       GH_REPOSITORY: "${GH_REPOSITORY:-k911/swoole-bundle}"
       GH_COMMITER_NAME: "${GH_COMMITER_NAME:-k911}"
@@ -29,7 +25,6 @@ services:
     volumes:
       - "./.git:/usr/src/app/.git:rw"
       - "./CHANGELOG.md:/usr/src/app/CHANGELOG.md:rw"
-      - "./.circleci/release-version.sh:/usr/local/bin/release-version:rw"
 
   cli:
     image: "${REGISTRY:-docker.io}/${NAMESPACE:-k911}/${IMAGE:-swoole-bundle}-cli:${TAG:-local}"

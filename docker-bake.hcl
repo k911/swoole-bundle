@@ -6,12 +6,6 @@ variable "BUILD_TYPE" {
 	default = "std"
 }
 
-target "releaser" {
-  cache-from = ["type=registry,ref=k911/swoole-bundle-cache:${PHP_VERSION}-${BUILD_TYPE}-releaser"]
-  cache-to   = ["type=registry,ref=k911/swoole-bundle-cache:${PHP_VERSION}-${BUILD_TYPE}-releaser,mode=max"]
-  output     = ["type=registry"]
-}
-
 target "cli" {
   cache-from = ["type=registry,ref=k911/swoole-bundle-cache:${PHP_VERSION}-${BUILD_TYPE}-cli"]
   cache-to   = ["type=registry,ref=k911/swoole-bundle-cache:${PHP_VERSION}-${BUILD_TYPE}-cli,mode=max"]
