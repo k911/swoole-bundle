@@ -1,20 +1,26 @@
 version: 2.1
 orbs:
   codecov: codecov/codecov@1.1.0
-aliases:
+executors:
+  k911-docker-client:
+    docker:
+      - image: k911/docker-client:19.03.12-compose
+    working_directory: ~/workdir
 
+  k911-release-version:
+    docker:
+      - image: docker.io/k911/release-version-script:0.3.1
+    working_directory: /usr/src/app
+
+aliases:
+    # Remote Docker config
   - &docker-remote-version
     setup_remote_docker:
       # https://circleci.com/docs/2.0/building-docker-images/#docker-version
       version: 19.03.12
 
-  - &docker-env
-    docker:
-      - image: k911/docker-client:19.03.12-compose
-    working_directory: ~/workdir
-
   - &docker-bake
-    <<: *docker-env
+    executor: k911-docker-client
     steps:
       - checkout
       - *docker-remote-version
@@ -53,19 +59,17 @@ aliases:
           command: docker buildx bake --progress=plain $SERVICES
 
   # Filters
-  - &pull-request-checks-job-filters
+  - &filter-run-on-local-branches
     filters:
       branches:
-        ignore:
-          - master
+        # Forked pull requests have CIRCLE_BRANCH set to pull/XXX
+        ignore: /pull\/[0-9]+/
 
-  - &release-job-filters
+  - &filter-run-on-forked-pull-requests
     filters:
-      tags:
-        ignore: /.*/
       branches:
-        only:
-          - master
+        # Forked pull requests have CIRCLE_BRANCH set to pull/XXX
+        only: /pull\/[0-9]+/
 
   # Job templates
   - &job-composer-code-style
@@ -171,7 +175,7 @@ jobs:
       - image: docker.io/k911/swoole-bundle-composer:7.3-lowest-$CIRCLE_SHA1
 
   swoole-bundle-73-code-coverage:
-    <<: *docker-env
+    executor: k911-docker-client
     environment:
       REGISTRY: docker.io
       NAMESPACE: k911
@@ -192,13 +196,6 @@ jobs:
       - run:
           name: Print docker info
           command: docker info
-      - run:
-          name: Login to Docker Hub
-          command: >-
-            DOCKER_REGISTRY="docker.io"
-            DOCKER_USERNAME="$DOCKER_HUB_USERNAME"
-            DOCKER_PASSWORD="$DOCKER_HUB_TOKEN"
-            docker-registry-login
       - run:
           name: Pull required docker images
           command: docker-compose pull composer coverage-pcov coverage-xdebug
@@ -235,11 +232,9 @@ jobs:
           file: clover.xml
 
   releaser-dry-run:
-    docker:
-      - image: docker.io/k911/swoole-bundle-releaser:7.4-std-$CIRCLE_SHA1
-    working_directory: /usr/src/app
+    executor: k911-release-version
     environment:
-      DEBUG: "1"
+      DEBUG: "0"
       DRY_RUN: "1"
       GH_TOKEN: "xxx"
     steps:
@@ -247,18 +242,23 @@ jobs:
       - run:
           name: Dry run release-version script
           command: release-version
+      - run:
+          name: Dry run release-version script with debug
+          when: on_fail
+          environment:
+            DEBUG: "1"
+          command: release-version
 
   releaser:
-    docker:
-      - image: docker.io/k911/swoole-bundle-releaser:7.4-std-$CIRCLE_SHA1
-    working_directory: /usr/src/app
+    executor: k911-release-version
     environment:
       DEBUG: "1"
       DRY_RUN: "0"
+      GH_RELEASE_DRAFT: "false"
     steps:
       - checkout
       - run:
-          name: Dry run release-version script
+          name: Run release-version script
           command: release-version
 
   docker-buildx-bake-74:
@@ -269,7 +269,7 @@ jobs:
       REGISTRY: docker.io
       NAMESPACE: k911
       IMAGE: swoole-bundle
-      SERVICES: releaser composer
+      SERVICES: composer
 
   docker-buildx-bake-73:
     <<: *docker-bake
@@ -321,9 +321,6 @@ jobs:
     steps:
       - checkout
       - run:
-          name: Shellcheck ".circleci" directory
-          command: shellcheck .circleci/*.sh
-      - run:
           name: Shellcheck "tests" directory
           command: shellcheck tests/*.sh
 
@@ -346,173 +343,219 @@ jobs:
 
 workflows:
   version: 2.1
-  pull-request-checks:
+  pull-request-checks-trusted:
+    when:
+      not:
+        equal: [ master, << pipeline.git.branch >> ]
     jobs:
       - validate-commit-message:
-          <<: *pull-request-checks-job-filters
+          <<: *filter-run-on-local-branches
       - shellcheck:
-          <<: *pull-request-checks-job-filters
+          <<: *filter-run-on-local-branches
       - check-composer-config:
-          <<: *pull-request-checks-job-filters
+          <<: *filter-run-on-local-branches
       - releaser-dry-run:
-          <<: *pull-request-checks-job-filters
+          <<: *filter-run-on-local-branches
+      - docker-buildx-bake-74:
+          context: swoole-bundle-dockerhub
           requires:
             - shellcheck
-            - docker-buildx-bake-74
-      - docker-buildx-bake-74:
-          <<: *pull-request-checks-job-filters
-          requires:
             - check-composer-config
             - validate-commit-message
       - swoole-bundle-composer-74-code-style:
-          <<: *pull-request-checks-job-filters
           requires:
             - docker-buildx-bake-74
       - swoole-bundle-composer-74-unit-tests:
-          <<: *pull-request-checks-job-filters
           requires:
             - docker-buildx-bake-74
       - swoole-bundle-composer-74-feature-tests:
-          <<: *pull-request-checks-job-filters
           requires:
             - docker-buildx-bake-74
       - docker-buildx-bake-73:
-          <<: *pull-request-checks-job-filters
+          context: swoole-bundle-dockerhub
           requires:
             - docker-buildx-bake-74
       - swoole-bundle-composer-73-code-style:
-          <<: *pull-request-checks-job-filters
           requires:
             - docker-buildx-bake-73
       - swoole-bundle-composer-73-unit-tests:
-          <<: *pull-request-checks-job-filters
           requires:
             - docker-buildx-bake-73
       - swoole-bundle-composer-73-feature-tests:
-          <<: *pull-request-checks-job-filters
           requires:
             - docker-buildx-bake-73
       - docker-buildx-bake-73-lowest:
-          <<: *pull-request-checks-job-filters
+          context: swoole-bundle-dockerhub
           requires:
             - docker-buildx-bake-74
       - swoole-bundle-composer-73-lowest-code-style:
-          <<: *pull-request-checks-job-filters
           requires:
             - docker-buildx-bake-73-lowest
       - swoole-bundle-composer-73-lowest-unit-tests:
-          <<: *pull-request-checks-job-filters
           requires:
             - docker-buildx-bake-73-lowest
       - swoole-bundle-composer-73-lowest-feature-tests:
-          <<: *pull-request-checks-job-filters
           requires:
             - docker-buildx-bake-73-lowest
       - docker-buildx-bake-74-latest:
-          <<: *pull-request-checks-job-filters
+          context: swoole-bundle-dockerhub
           requires:
             - docker-buildx-bake-74
       - swoole-bundle-composer-74-latest-code-style:
-          <<: *pull-request-checks-job-filters
           requires:
             - docker-buildx-bake-74-latest
       - swoole-bundle-composer-74-latest-unit-tests:
-          <<: *pull-request-checks-job-filters
           requires:
             - docker-buildx-bake-74-latest
       - swoole-bundle-composer-74-latest-feature-tests:
-          <<: *pull-request-checks-job-filters
           requires:
             - docker-buildx-bake-74-latest
       - swoole-bundle-73-code-coverage:
-          <<: *pull-request-checks-job-filters
+          requires:
+            - docker-buildx-bake-73
+
+  pull-request-checks-untrusted:
+    when:
+      not:
+        equal: [ master, << pipeline.git.branch >> ]
+    jobs:
+      - validate-commit-message:
+          <<: *filter-run-on-forked-pull-requests
+      - shellcheck:
+          <<: *filter-run-on-forked-pull-requests
+      - check-composer-config:
+          <<: *filter-run-on-forked-pull-requests
+      - releaser-dry-run:
+          <<: *filter-run-on-forked-pull-requests
+      - approve-docker-bake:
+          type: approval
+          requires:
+            - shellcheck
+            - check-composer-config
+            - validate-commit-message
+      - docker-buildx-bake-74:
+          context: swoole-bundle-dockerhub
+          requires:
+            - approve-docker-bake
+      - swoole-bundle-composer-74-code-style:
+          requires:
+            - docker-buildx-bake-74
+      - swoole-bundle-composer-74-unit-tests:
+          requires:
+            - docker-buildx-bake-74
+      - swoole-bundle-composer-74-feature-tests:
+          requires:
+            - docker-buildx-bake-74
+      - docker-buildx-bake-73:
+          context: swoole-bundle-dockerhub
+          requires:
+            - docker-buildx-bake-74
+      - swoole-bundle-composer-73-code-style:
+          requires:
+            - docker-buildx-bake-73
+      - swoole-bundle-composer-73-unit-tests:
+          requires:
+            - docker-buildx-bake-73
+      - swoole-bundle-composer-73-feature-tests:
+          requires:
+            - docker-buildx-bake-73
+      - docker-buildx-bake-73-lowest:
+          context: swoole-bundle-dockerhub
+          requires:
+            - docker-buildx-bake-74
+      - swoole-bundle-composer-73-lowest-code-style:
+          requires:
+            - docker-buildx-bake-73-lowest
+      - swoole-bundle-composer-73-lowest-unit-tests:
+          requires:
+            - docker-buildx-bake-73-lowest
+      - swoole-bundle-composer-73-lowest-feature-tests:
+          requires:
+            - docker-buildx-bake-73-lowest
+      - docker-buildx-bake-74-latest:
+          context: swoole-bundle-dockerhub
+          requires:
+            - docker-buildx-bake-74
+      - swoole-bundle-composer-74-latest-code-style:
+          requires:
+            - docker-buildx-bake-74-latest
+      - swoole-bundle-composer-74-latest-unit-tests:
+          requires:
+            - docker-buildx-bake-74-latest
+      - swoole-bundle-composer-74-latest-feature-tests:
+          requires:
+            - docker-buildx-bake-74-latest
+      - swoole-bundle-73-code-coverage:
           requires:
             - docker-buildx-bake-73
 
   release:
+    when:
+      equal: [ master, << pipeline.git.branch >> ]
     jobs:
-      - shellcheck:
-          <<: *release-job-filters
-      - check-composer-config:
-          <<: *release-job-filters
-      - validate-commit-message:
-          <<: *release-job-filters
-      - releaser-dry-run:
-          <<: *release-job-filters
+      - shellcheck
+      - check-composer-config
+      - validate-commit-message
+      - releaser-dry-run
+      - docker-buildx-bake-74:
+          context: swoole-bundle-dockerhub
           requires:
             - shellcheck
-            - docker-buildx-bake-74
-      - docker-buildx-bake-74:
-          <<: *release-job-filters
-          requires:
             - check-composer-config
             - validate-commit-message
       - swoole-bundle-composer-74-code-style:
-          <<: *release-job-filters
           requires:
             - docker-buildx-bake-74
       - swoole-bundle-composer-74-unit-tests:
-          <<: *release-job-filters
           requires:
             - docker-buildx-bake-74
       - swoole-bundle-composer-74-feature-tests:
-          <<: *release-job-filters
           requires:
             - docker-buildx-bake-74
       - docker-buildx-bake-73:
-          <<: *release-job-filters
+          context: swoole-bundle-dockerhub
           requires:
             - docker-buildx-bake-74
       - swoole-bundle-composer-73-code-style:
-          <<: *release-job-filters
           requires:
             - docker-buildx-bake-73
       - swoole-bundle-composer-73-unit-tests:
-          <<: *release-job-filters
           requires:
             - docker-buildx-bake-73
       - swoole-bundle-composer-73-feature-tests:
-          <<: *release-job-filters
           requires:
             - docker-buildx-bake-73
       - docker-buildx-bake-73-lowest:
-          <<: *release-job-filters
+          context: swoole-bundle-dockerhub
           requires:
             - docker-buildx-bake-74
       - swoole-bundle-composer-73-lowest-code-style:
-          <<: *release-job-filters
           requires:
             - docker-buildx-bake-73-lowest
       - swoole-bundle-composer-73-lowest-unit-tests:
-          <<: *release-job-filters
           requires:
             - docker-buildx-bake-73-lowest
       - swoole-bundle-composer-73-lowest-feature-tests:
-          <<: *release-job-filters
           requires:
             - docker-buildx-bake-73-lowest
       - docker-buildx-bake-74-latest:
-          <<: *release-job-filters
+          context: swoole-bundle-dockerhub
           requires:
             - docker-buildx-bake-74
       - swoole-bundle-composer-74-latest-code-style:
-          <<: *release-job-filters
           requires:
             - docker-buildx-bake-74-latest
       - swoole-bundle-composer-74-latest-unit-tests:
-          <<: *release-job-filters
           requires:
             - docker-buildx-bake-74-latest
       - swoole-bundle-composer-74-latest-feature-tests:
-          <<: *release-job-filters
           requires:
             - docker-buildx-bake-74-latest
       - swoole-bundle-73-code-coverage:
-          <<: *release-job-filters
           requires:
             - docker-buildx-bake-73
-      - releaser:
-          <<: *release-job-filters
+      - approve-release:
+          type: approval
           requires:
             - releaser-dry-run
             - swoole-bundle-73-code-coverage
@@ -528,3 +571,7 @@ workflows:
             - swoole-bundle-composer-73-feature-tests
             - swoole-bundle-composer-73-unit-tests
             - swoole-bundle-composer-73-code-style
+      - releaser:
+          context: swoole-bundle-github
+          requires:
+            - approve-release
