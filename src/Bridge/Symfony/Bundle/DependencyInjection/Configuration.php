@@ -212,7 +212,7 @@ final class Configuration implements ConfigurationInterface
                             ->addDefaultsIfNotSet()
                             ->children()
                                 ->scalarNode('log_file')
-                                    ->cannotBeEmpty()
+                                    // TODO: NEXT MAJOR - remove default value
                                     ->defaultValue('%kernel.logs_dir%/swoole_%kernel.environment%.log')
                                 ->end()
                                 ->enumNode('log_level')
