@@ -189,4 +189,48 @@ final class SymfonySessionSwooleSessionStorageTest extends ServerTestCase
             $this->assertNotSame($setCookieHeader1, $setCookieHeader2);
         });
     }
+
+    public function testDoNotReturnTheSameSessionForDifferentClientsWithHttpCacheEnabled(): void
+    {
+        $cookieLifetime = 5;
+        $serverStart = $this->createConsoleProcess([
+            'swoole:server:start',
+            '--host=localhost',
+            '--port=9999',
+        ], [
+            'APP_ENV' => 'session_http_cache',
+            'COOKIE_LIFETIME' => $cookieLifetime,
+            // Only one worker to reliably verify app state is reset between requests.
+            // Without it 2nd request may be handled by a different "clean" worker, which would distort test results.
+            'WORKER_COUNT' => 1,
+        ]);
+
+        $serverStart->setTimeout(3);
+        $serverStart->run();
+
+        $this->assertProcessSucceeded($serverStart);
+
+        $this->runAsCoroutineAndWait(function (): void {
+            $this->deferServerStop();
+
+            $client1 = HttpClient::fromDomain('localhost', 9999, false);
+            $this->assertTrue($client1->connect());
+
+            $response1 = $client1->send('/session/1')['response'];
+            $this->assertArrayHasKey('SWOOLESSID', $response1['cookies']);
+            $sessionId1 = $response1['cookies']['SWOOLESSID'];
+            $body1 = $response1['body'];
+
+            $client2 = HttpClient::fromDomain('localhost', 9999, false);
+            $this->assertTrue($client2->connect());
+
+            $response2 = $client2->send('/session/2')['response'];
+            $this->assertArrayHasKey('SWOOLESSID', $response2['cookies']);
+            $sessionId2 = $response2['cookies']['SWOOLESSID'];
+            $body2 = $response2['body'];
+
+            $this->assertNotSame($sessionId1, $sessionId2);
+            $this->assertNotSame($body1, $body2);
+        });
+    }
 }

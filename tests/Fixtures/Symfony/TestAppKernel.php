@@ -16,6 +16,8 @@ use Symfony\Bundle\TwigBundle\TwigBundle;
 use Symfony\Bundle\WebProfilerBundle\WebProfilerBundle;
 use Symfony\Component\Config\Loader\LoaderInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpKernel\HttpKernelInterface;
 use Symfony\Component\HttpKernel\Kernel;
 use Symfony\Component\Routing\RouteCollectionBuilder;
 
@@ -24,6 +26,8 @@ class TestAppKernel extends Kernel
     use MicroKernelTrait;
 
     private const CONFIG_EXTENSIONS = '.{php,xml,yaml,yml}';
+
+    private $cacheKernel;
 
     private $coverageEnabled;
 
@@ -42,6 +46,11 @@ class TestAppKernel extends Kernel
 
         if ('profiler' === $environment) {
             $this->profilerEnabled = true;
+        }
+
+        if ('_http_cache' === \mb_substr($environment, -11, 11)) {
+            $environment = \mb_substr($environment, 0, -11);
+            $this->cacheKernel = new TestCacheKernel($this);
         }
 
         parent::__construct($environment, $debug);
@@ -89,6 +98,22 @@ class TestAppKernel extends Kernel
     public function getProjectDir(): string
     {
         return __DIR__.'/app';
+    }
+
+    public function handle(Request $request, $type = HttpKernelInterface::MASTER_REQUEST, $catch = true)
+    {
+        // Use CacheKernel if available.
+        if (null !== $this->cacheKernel) {
+            // Prevent endless loop. Unset $this->cacheKernel, handle the request and then restore it.
+            $cacheKernel = $this->cacheKernel;
+            $this->cacheKernel = null;
+            $response = $cacheKernel->handle($request, $type, $catch);
+            $this->cacheKernel = $cacheKernel;
+
+            return $response;
+        }
+
+        return parent::handle($request, $type, $catch);
     }
 
     /**
