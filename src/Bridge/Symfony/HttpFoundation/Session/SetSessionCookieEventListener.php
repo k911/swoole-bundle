@@ -9,10 +9,10 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\Cookie;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Symfony\Component\HttpFoundation\Session\Storage\SessionStorageInterface;
+use Symfony\Component\HttpKernel\Event\FinishRequestEvent;
 use Symfony\Component\HttpKernel\Event\KernelEvent;
 use Symfony\Component\HttpKernel\Event\RequestEvent;
 use Symfony\Component\HttpKernel\Event\ResponseEvent;
-use Symfony\Component\HttpKernel\Event\TerminateEvent;
 use Symfony\Component\HttpKernel\KernelEvents;
 
 /**
@@ -66,9 +66,9 @@ final class SetSessionCookieEventListener implements EventSubscriberInterface
         $responseHeaderBag->setCookie($this->makeSessionCookie($session));
     }
 
-    public function onKernelTerminate(TerminateEvent $event): void
+    public function onFinishRequest(FinishRequestEvent $event): void
     {
-        if (!$this->isSessionRelated($event)) {
+        if (!$event->isMasterRequest() || !$this->isSessionRelated($event)) {
             return;
         }
 
@@ -84,7 +84,7 @@ final class SetSessionCookieEventListener implements EventSubscriberInterface
         return [
             KernelEvents::REQUEST => ['onKernelRequest', 192],
             KernelEvents::RESPONSE => ['onKernelResponse', -128],
-            KernelEvents::TERMINATE => ['onKernelTerminate', -128],
+            KernelEvents::FINISH_REQUEST => ['onFinishRequest', -128],
         ];
     }
 
