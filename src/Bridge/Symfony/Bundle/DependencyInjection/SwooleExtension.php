@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace K911\Swoole\Bridge\Symfony\Bundle\DependencyInjection;
 
 use Doctrine\ORM\EntityManagerInterface;
+use K911\Swoole\Bridge\Doctrine\ORM\DoctrinePingConnectionsHandler;
 use K911\Swoole\Bridge\Doctrine\ORM\EntityManagerHandler;
 use K911\Swoole\Bridge\Symfony\ErrorHandler\ErrorResponder;
 use K911\Swoole\Bridge\Symfony\ErrorHandler\ExceptionHandlerFactory;
@@ -302,6 +303,16 @@ final class SwooleExtension extends Extension implements PrependExtensionInterfa
                 ->setAutoconfigured(true)
                 ->setPublic(false)
                 ->setDecoratedService(RequestHandlerInterface::class, null, -20)
+            ;
+        }
+
+        if ($config['doctrine_ping_connections_handler']) {
+            $container->register(DoctrinePingConnectionsHandler::class)
+                ->addArgument(new Reference(DoctrinePingConnectionsHandler::class.'.inner'))
+                ->setAutowired(true)
+                ->setAutoconfigured(true)
+                ->setPublic(false)
+                ->setDecoratedService(RequestHandlerInterface::class, null, -25)
             ;
         }
 
