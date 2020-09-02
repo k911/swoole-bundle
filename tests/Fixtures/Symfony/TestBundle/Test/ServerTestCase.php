@@ -25,7 +25,7 @@ class ServerTestCase extends KernelTestCase
     protected function tearDown(): void
     {
         // Make sure everything is stopped
-//        $this->killAllProcessesListeningOnPort(9999);
+        $this->killAllProcessesListeningOnPort(9999);
         \sleep(self::coverageEnabled() ? 3 : 1);
     }
 
@@ -60,14 +60,24 @@ class ServerTestCase extends KernelTestCase
         }
     }
 
-    public function killAllProcessesListeningOnPort(int $port, int $timeout = 3): void
+    /**
+     * Notice: This command requires running on os with "lsof" binary that supports "-i :PORT" option
+     *         For example for alpine it is required to install it via: apk add lsof.
+     */
+    public function killAllProcessesListeningOnPort(int $port, int $timeout = 1): void
     {
-        $killProcessesListeningOnPort = Process::fromShellCommandline('kill -9 $(lsof -i ":$PORT" | grep php | awk \'{print $2}\') &> /dev/null || true');
-        $killProcessesListeningOnPort->setTimeout($timeout);
-        $killProcessesListeningOnPort->run(null, [
-            'PORT' => $port,
-        ]);
-        $this->assertProcessSucceeded($killProcessesListeningOnPort);
+        $listProcessesOnPort = new Process(['lsof', '-t', '-i', \sprintf(':%d', $port)]);
+        $listProcessesOnPort->setTimeout($timeout);
+        $listProcessesOnPort->run();
+
+        if ($listProcessesOnPort->isSuccessful()) {
+            foreach (\array_filter(\explode(PHP_EOL, $listProcessesOnPort->getOutput())) as $processId) {
+                $kill = new Process(['kill', '-9', $processId]);
+                $kill->setTimeout($timeout);
+                $kill->disableOutput();
+                $kill->run();
+            }
+        }
     }
 
     public function assertProcessSucceeded(Process $process): void

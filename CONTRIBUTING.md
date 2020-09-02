@@ -100,7 +100,7 @@ lsof -i :9999 | grep php
 To kill these processes use command:
 
 ```sh
-kill -9 $(lsof -i :9999 | grep php | awk '{print $2}')
+kill -9 $(lsof -t -i :9999)
 ```
 
 ### Docker

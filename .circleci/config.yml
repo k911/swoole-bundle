@@ -198,7 +198,7 @@ jobs:
           command: docker info
       - run:
           name: Pull required docker images
-          command: docker-compose pull composer coverage-pcov coverage-xdebug
+          command: docker-compose pull composer coverage-pcov coverage-xdebug merge-code-coverage
       - run:
           name: Prepare CodeClimate Code Coverage reporter
           command: |-

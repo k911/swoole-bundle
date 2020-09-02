@@ -42,7 +42,7 @@ WORKDIR /usr/src/app
 RUN addgroup -g 1000 -S runner && \
     adduser -u 1000 -S app -G runner && \
     chown app:runner /usr/src/app
-RUN apk add --no-cache libstdc++ icu
+RUN apk add --no-cache libstdc++ icu lsof
 # php -i | grep 'PHP API' | sed -e 's/PHP API => //'
 ARG PHP_API_VERSION="20190902"
 COPY --from=ext-swoole /usr/local/lib/php/extensions/no-debug-non-zts-${PHP_API_VERSION}/swoole.so /usr/local/lib/php/extensions/no-debug-non-zts-${PHP_API_VERSION}/swoole.so
@@ -67,7 +67,7 @@ COPY . ./
 RUN composer dump-autoload --classmap-authoritative --ansi
 
 FROM base as base-coverage-xdebug
-RUN apk add --no-cache bash lsof
+RUN apk add --no-cache bash
 ARG PHP_API_VERSION="20190902"
 COPY --from=ext-xdebug /usr/local/lib/php/extensions/no-debug-non-zts-${PHP_API_VERSION}/xdebug.so /usr/local/lib/php/extensions/no-debug-non-zts-${PHP_API_VERSION}/xdebug.so
 COPY --from=ext-xdebug /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini
