@@ -12,7 +12,7 @@ volumes:
 
 services:
   releaser:
-    image: docker.io/k911/release-version-script:latest
+    image: "docker.io/k911/release-version-script:latest"
     environment:
       DEBUG: "${DEBUG:-0}"
       DRY_RUN: "${DRY_RUN:-1}"
@@ -79,18 +79,18 @@ services:
       - coverage:/usr/src/app/cov
 
   merge-code-coverage:
-    image: "${REGISTRY:-docker.io}/${NAMESPACE:-k911}/${IMAGE:-swoole-bundle}-coverage-pcov:${TAG:-local}"
+    image: "${REGISTRY:-docker.io}/${NAMESPACE:-k911}/${IMAGE:-swoole-bundle}-merge-code-coverage:${TAG:-local}"
     command: merge-code-coverage
     build:
       context: .
-      target: CoveragePcov
+      target: MergeCodeCoverage
       args:
         <<: *DEFAULT_BUILD_ARGS
     volumes:
       - coverage:/usr/src/app/cov
 
   coverage-volume-helper:
-    image: alpine:${ALPINE_VERSION:-3.12}
+    image: "alpine:${ALPINE_VERSION:-3.12}"
     entrypoint: sleep
     command: infinity
     working_dir: /usr/src/app

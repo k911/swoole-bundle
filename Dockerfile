@@ -87,6 +87,18 @@ ENV COVERAGE="1" \
 COPY --chown=app:runner --from=composer-bin /usr/bin/composer /usr/local/bin/composer
 COPY --chown=app:runner --from=app-installer /usr/src/app ./
 
+FROM base as base-pcov-xdebug
+ARG PHP_API_VERSION="20190902"
+COPY --from=ext-pcov /usr/local/lib/php/extensions/no-debug-non-zts-${PHP_API_VERSION}/pcov.so /usr/local/lib/php/extensions/no-debug-non-zts-${PHP_API_VERSION}/pcov.so
+COPY --from=ext-pcov /usr/local/etc/php/conf.d/docker-php-ext-pcov.ini /usr/local/etc/php/conf.d/docker-php-ext-pcov.ini
+COPY --from=ext-xdebug /usr/local/lib/php/extensions/no-debug-non-zts-${PHP_API_VERSION}/xdebug.so /usr/local/lib/php/extensions/no-debug-non-zts-${PHP_API_VERSION}/xdebug.so
+COPY --from=ext-xdebug /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini
+USER app:runner
+ENV COVERAGE="1" \
+    COMPOSER_ALLOW_SUPERUSER="1"
+COPY --chown=app:runner --from=composer-bin /usr/bin/composer /usr/local/bin/composer
+COPY --chown=app:runner --from=app-installer /usr/src/app ./
+
 FROM base as cli
 USER app:runner
 COPY --chown=app:runner --from=app-installer /usr/src/app ./
@@ -106,6 +118,10 @@ CMD ["unit-code-coverage"]
 FROM base-coverage-pcov as CoveragePcov
 ENTRYPOINT ["composer"]
 CMD ["unit-code-coverage"]
+
+FROM base-pcov-xdebug as MergeCodeCoverage
+ENTRYPOINT ["composer"]
+CMD ["merge-code-coverage"]
 
 FROM base-coverage-xdebug as CoverageXdebugWithRetry
 ENTRYPOINT ["/bin/bash"]

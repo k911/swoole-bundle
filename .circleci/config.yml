@@ -279,7 +279,7 @@ jobs:
       REGISTRY: docker.io
       NAMESPACE: k911
       IMAGE: swoole-bundle
-      SERVICES: composer coverage-xdebug coverage-pcov
+      SERVICES: composer coverage-xdebug coverage-pcov merge-code-coverage
 
   docker-buildx-bake-73-lowest:
     <<: *docker-bake

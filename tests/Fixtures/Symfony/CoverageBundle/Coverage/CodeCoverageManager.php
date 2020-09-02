@@ -100,7 +100,7 @@ final class CodeCoverageManager
             $parameterBag->get('coverage.dir') :
             \sprintf('%s/%s', \dirname(__DIR__, 5), 'src');
 
-        $codeCoverage->filter()->addDirectoryToWhitelist($coverageDir);
+        $codeCoverage->filter()->includeDirectory($coverageDir);
     }
 
     private function generateTestName(): string
