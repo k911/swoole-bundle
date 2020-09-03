@@ -29,3 +29,9 @@ target "coverage-pcov" {
   cache-to   = ["type=registry,ref=k911/swoole-bundle-cache:${PHP_VERSION}-${BUILD_TYPE}-coverage-pcov,mode=max"]
   output     = ["type=registry"]
 }
+
+target "merge-code-coverage" {
+  cache-from = ["type=registry,ref=k911/swoole-bundle-cache:${PHP_VERSION}-${BUILD_TYPE}-merge-code-coverage"]
+  cache-to   = ["type=registry,ref=k911/swoole-bundle-cache:${PHP_VERSION}-${BUILD_TYPE}-merge-code-coverage,mode=max"]
+  output     = ["type=registry"]
+}

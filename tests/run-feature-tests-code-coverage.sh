@@ -16,7 +16,7 @@ for f in ./tests/Feature/*.php; do
         TEST_EXIT_CODE=$?
 
         # Make sure server is killed for next test
-        PID=$(lsof -i :9999 | grep php | awk '{print $2}')
+        PID=$(lsof -t -i :9999)
         if [[ "" != "$PID" ]]; then
             kill -9 "$PID" || true
             sleep 1;

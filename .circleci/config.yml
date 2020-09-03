@@ -198,7 +198,7 @@ jobs:
           command: docker info
       - run:
           name: Pull required docker images
-          command: docker-compose pull composer coverage-pcov coverage-xdebug
+          command: docker-compose pull composer coverage-pcov coverage-xdebug merge-code-coverage
       - run:
           name: Prepare CodeClimate Code Coverage reporter
           command: |-
@@ -279,7 +279,7 @@ jobs:
       REGISTRY: docker.io
       NAMESPACE: k911
       IMAGE: swoole-bundle
-      SERVICES: composer coverage-xdebug coverage-pcov
+      SERVICES: composer coverage-xdebug coverage-pcov merge-code-coverage
 
   docker-buildx-bake-73-lowest:
     <<: *docker-bake

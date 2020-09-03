@@ -22,6 +22,8 @@ use K911\Swoole\Tests\Fixtures\Symfony\CoverageBundle\ServerLifecycle\CoverageSt
 use K911\Swoole\Tests\Fixtures\Symfony\CoverageBundle\ServerLifecycle\CoverageStartOnServerWorkerStart;
 use K911\Swoole\Tests\Fixtures\Symfony\CoverageBundle\TaskHandler\CodeCoverageTaskHandler;
 use SebastianBergmann\CodeCoverage\CodeCoverage;
+use SebastianBergmann\CodeCoverage\Driver\Driver;
+use SebastianBergmann\CodeCoverage\Filter;
 use SebastianBergmann\CodeCoverage\Report\PHP;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Reference;
@@ -31,8 +33,18 @@ class CoverageBundle extends Bundle
 {
     public function build(ContainerBuilder $container): void
     {
-        $container->register(PHP::class);
-        $container->register(CodeCoverage::class);
+        $container->autowire(PHP::class);
+        $container->register(Filter::class);
+        $container->register(Driver::class)
+            ->setFactory([Driver::class, 'forLineCoverage'])
+            ->setArgument('$filter', new Reference(Filter::class))
+        ;
+        $container->register(CodeCoverage::class)
+            ->setArguments([
+                '$driver' => new Reference(Driver::class),
+                '$filter' => new Reference(Filter::class),
+            ])
+        ;
         $container->autowire(CodeCoverageManager::class);
 
         $this->registerSingleProcessCoverageFlow($container);

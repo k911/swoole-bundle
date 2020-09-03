@@ -100,7 +100,7 @@ lsof -i :9999 | grep php
 To kill these processes use command:
 
 ```sh
-kill -9 $(lsof -i :9999 | grep php | awk '{print $2}')
+kill -9 $(lsof -t -i :9999)
 ```
 
 ### Docker
@@ -152,12 +152,13 @@ To gather code coverage, a PHP extension `xdebug` or `pcov` is required. Swoole 
 
 Therefore the full flow of gathering code coverage can be done securely only in docker containers.
 
-**Attention**: Bellow commands creates locally `./cov` directory and `clover.xml` file with merged code coverage in the `clover` format.
+**Attention**: Bellow commands creates locally `clover.xml` file with merged code coverage in the `clover` format.
 
 ```sh
 docker-compose build --pull coverage-pcov coverage-xdebug-feature-with-retry merge-code-coverage
 
 docker-compose up -d coverage-volume-helper
+docker-compose exec coverage-volume-helper chown 1000:1000 cov
 docker-compose run --rm coverage-pcov
 docker-compose run --rm coverage-xdebug-feature-with-retry
 docker-compose run --rm coverage-pcov feature-code-coverage
