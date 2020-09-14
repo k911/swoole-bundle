@@ -4544,16 +4544,16 @@
         },
         {
             "name": "phpunit/phpcov",
-            "version": "8.1.0",
+            "version": "8.1.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/sebastianbergmann/phpcov.git",
-                "reference": "9bd7e2d81500952551ea784ed73195afbaaa9dc7"
+                "reference": "c75b265c1e0e753424607369ca91437293b85fbe"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sebastianbergmann/phpcov/zipball/9bd7e2d81500952551ea784ed73195afbaaa9dc7",
-                "reference": "9bd7e2d81500952551ea784ed73195afbaaa9dc7",
+                "url": "https://api.github.com/repos/sebastianbergmann/phpcov/zipball/c75b265c1e0e753424607369ca91437293b85fbe",
+                "reference": "c75b265c1e0e753424607369ca91437293b85fbe",
                 "shasum": ""
             },
             "require": {
@@ -4598,7 +4598,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2020-08-13T11:59:40+00:00"
+            "time": "2020-09-10T18:56:34+00:00"
         },
         {
             "name": "phpunit/phpunit",
