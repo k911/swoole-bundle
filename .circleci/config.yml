@@ -4,7 +4,7 @@ orbs:
 executors:
   k911-docker-client:
     docker:
-      - image: k911/docker-client:19.03.12-compose
+      - image: k911/docker-client:19.03.13-compose
     working_directory: ~/workdir
 
   k911-release-version:
@@ -134,6 +134,11 @@ jobs:
     docker:
       - image: docker.io/k911/swoole-bundle-composer:7.4-latest-$CIRCLE_SHA1
 
+  swoole-bundle-composer-dev-code-style:
+    <<: *job-composer-code-style
+    docker:
+      - image: docker.io/k911/swoole-bundle-composer:7.4-dev-$CIRCLE_SHA1
+
   swoole-bundle-composer-73-unit-tests:
     <<: *job-composer-unit-tests
     docker:
@@ -154,6 +159,11 @@ jobs:
     docker:
       - image: docker.io/k911/swoole-bundle-composer:7.4-latest-$CIRCLE_SHA1
 
+  swoole-bundle-composer-dev-unit-tests:
+    <<: *job-composer-unit-tests
+    docker:
+      - image: docker.io/k911/swoole-bundle-composer:7.4-dev-$CIRCLE_SHA1
+
   swoole-bundle-composer-73-feature-tests:
     <<: *job-composer-feature-tests
     docker:
@@ -173,6 +183,11 @@ jobs:
     <<: *job-composer-feature-tests
     docker:
       - image: docker.io/k911/swoole-bundle-composer:7.3-lowest-$CIRCLE_SHA1
+
+  swoole-bundle-composer-dev-feature-tests:
+    <<: *job-composer-feature-tests
+    docker:
+      - image: docker.io/k911/swoole-bundle-composer:7.4-dev-$CIRCLE_SHA1
 
   swoole-bundle-73-code-coverage:
     executor: k911-docker-client
@@ -306,6 +321,19 @@ jobs:
       SERVICES: composer
       BUILD_TYPE: latest
 
+  docker-buildx-bake-dev:
+    <<: *docker-bake
+    environment:
+      PHP_VERSION: 7.4 # TODO: 8.0.8beta4
+      PHP_API_VERSION: "20190902"
+      COMPOSER_ARGS: update --ignore-platform-reqs
+      SWOOLE_VERSION: master
+      REGISTRY: docker.io
+      NAMESPACE: k911
+      IMAGE: swoole-bundle
+      SERVICES: composer
+      BUILD_TYPE: dev
+
   check-composer-config:
     docker:
       - image: composer:1
@@ -413,6 +441,19 @@ workflows:
       - swoole-bundle-73-code-coverage:
           requires:
             - docker-buildx-bake-73
+      - docker-buildx-bake-dev:
+          context: swoole-bundle-dockerhub
+          requires:
+            - docker-buildx-bake-74
+      - swoole-bundle-composer-dev-code-style:
+          requires:
+            - docker-buildx-bake-dev
+      - swoole-bundle-composer-dev-unit-tests:
+          requires:
+            - docker-buildx-bake-dev
+      - swoole-bundle-composer-dev-feature-tests:
+          requires:
+            - docker-buildx-bake-dev
 
   pull-request-checks-untrusted:
     when:
