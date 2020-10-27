@@ -23,7 +23,8 @@ RUN pecl install xdebug && \
 FROM ext-builder as ext-swoole
 RUN apk add --no-cache git
 ARG SWOOLE_VERSION="4.5.2"
-RUN git clone https://github.com/swoole/swoole-src.git --branch "v$SWOOLE_VERSION" --depth 1 && \
+RUN if $(echo "$SWOOLE_VERSION" | grep -qE '^[4-9]\.[0-9]+\.[0-9]+$'); then SWOOLE_GIT_REF="v$SWOOLE_VERSION"; else SWOOLE_GIT_REF="$SWOOLE_VERSION"; fi && \
+    git clone https://github.com/swoole/swoole-src.git --branch "$SWOOLE_GIT_REF" --depth 1 && \
     cd swoole-src && \
     phpize && \
     ./configure && \
