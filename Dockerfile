@@ -1,5 +1,5 @@
 ARG PHP_TAG="7.4-cli-alpine3.12"
-ARG COMPOSER_TAG="1.10.8"
+ARG COMPOSER_TAG="2.0.2"
 
 FROM php:$PHP_TAG as ext-builder
 RUN docker-php-source extract && \
@@ -59,11 +59,10 @@ FROM composer:${COMPOSER_TAG} AS composer-bin
 FROM base as app-installer
 ENV COMPOSER_ALLOW_SUPERUSER="1"
 COPY --chown=app:runner --from=composer-bin /usr/bin/composer /usr/local/bin/composer
-RUN composer global require "hirak/prestissimo:^0.3" --prefer-dist --no-progress --no-suggest --classmap-authoritative --ansi
 COPY composer.json composer.lock ./
 RUN composer validate
 ARG COMPOSER_ARGS="install"
-RUN composer ${COMPOSER_ARGS} --prefer-dist --no-progress --no-suggest --no-autoloader --ansi
+RUN composer ${COMPOSER_ARGS} --prefer-dist --no-progress --no-autoloader --ansi
 COPY . ./
 RUN composer dump-autoload --classmap-authoritative --ansi
 

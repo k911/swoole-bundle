@@ -5,7 +5,7 @@ x-env-aliases:
     PHP_API_VERSION: "${PHP_API_VERSION:-20190902}"
     COMPOSER_ARGS: "${COMPOSER_ARGS:-install}"
     SWOOLE_VERSION: "${SWOOLE_VERSION:-4.5.2}"
-    COMPOSER_TAG: "${COMPOSER_TAG:-1.10.8}"
+    COMPOSER_TAG: "${COMPOSER_TAG:-2.0.2}"
 
 volumes:
   coverage: {}

@@ -17,7 +17,7 @@ aliases:
   - &docker-remote-version
     setup_remote_docker:
       # https://circleci.com/docs/2.0/building-docker-images/#docker-version
-      version: 19.03.12
+      version: 19.03.13
 
   - &docker-bake
     executor: k911-docker-client
@@ -336,7 +336,7 @@ jobs:
 
   check-composer-config:
     docker:
-      - image: composer:1
+      - image: composer:2
     steps:
       - checkout
       - run:
