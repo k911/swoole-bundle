@@ -41,6 +41,7 @@ final class SwooleServerReloadViaApiClientTest extends ServerTestCase
         ]);
 
         $serverStart->setTimeout(3);
+        $serverStart->disableOutput();
         $serverStart->run();
 
         $this->assertTrue($serverStart->isSuccessful());
@@ -90,6 +91,7 @@ final class SwooleServerReloadViaApiClientTest extends ServerTestCase
         ], ['APP_ENV' => 'api']);
 
         $serverStart->setTimeout(3);
+        $serverStart->disableOutput();
         $serverStart->run();
 
         $this->assertTrue($serverStart->isSuccessful());

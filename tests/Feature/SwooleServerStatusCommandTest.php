@@ -27,6 +27,7 @@ final class SwooleServerStatusCommandTest extends ServerTestCase
         ]);
 
         $serverStart->setTimeout(3);
+        $serverStart->disableOutput();
         $serverStart->run();
 
         $this->assertProcessSucceeded($serverStart);
@@ -68,6 +69,7 @@ final class SwooleServerStatusCommandTest extends ServerTestCase
         ]);
 
         $serverStart->setTimeout(3);
+        $serverStart->disableOutput();
         $serverStart->run();
 
         $this->assertProcessSucceeded($serverStart);
