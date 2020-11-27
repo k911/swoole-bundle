@@ -23,6 +23,7 @@ final class SwooleServerStartStopCommandTest extends ServerTestCase
         ]);
 
         $serverStart->setTimeout(3);
+        $serverStart->disableOutput();
         $serverStart->run();
 
         $this->assertProcessSucceeded($serverStart);
@@ -45,6 +46,7 @@ final class SwooleServerStartStopCommandTest extends ServerTestCase
         ], ['APP_ENV' => 'reactor']);
 
         $serverStart->setTimeout(3);
+        $serverStart->disableOutput();
         $serverStart->run();
 
         $this->assertProcessSucceeded($serverStart);

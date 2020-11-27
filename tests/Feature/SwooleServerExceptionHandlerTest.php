@@ -23,6 +23,7 @@ final class SwooleServerExceptionHandlerTest extends ServerTestCase
         ]);
 
         $serverStart->setTimeout(3);
+        $serverStart->disableOutput();
         $serverStart->run();
 
         $this->assertProcessSucceeded($serverStart);
@@ -62,6 +63,7 @@ final class SwooleServerExceptionHandlerTest extends ServerTestCase
         ], ['APP_ENV' => 'reactor']);
 
         $serverStart->setTimeout(3);
+        $serverStart->disableOutput();
         $serverStart->run();
 
         $this->assertProcessSucceeded($serverStart);
@@ -101,6 +103,7 @@ final class SwooleServerExceptionHandlerTest extends ServerTestCase
         ], ['APP_ENV' => 'prod', 'APP_DEBUG' => '0']);
 
         $serverStart->setTimeout(3);
+        $serverStart->disableOutput();
         $serverStart->run();
 
         $this->assertProcessSucceeded($serverStart);
@@ -133,6 +136,7 @@ final class SwooleServerExceptionHandlerTest extends ServerTestCase
         ], ['APP_DEBUG' => '0']);
 
         $serverStart->setTimeout(3);
+        $serverStart->disableOutput();
         $serverStart->run();
 
         $this->assertProcessSucceeded($serverStart);
@@ -165,6 +169,7 @@ final class SwooleServerExceptionHandlerTest extends ServerTestCase
         ], ['APP_ENV' => 'exception_handler_json']);
 
         $serverStart->setTimeout(3);
+        $serverStart->disableOutput();
         $serverStart->run();
 
         $this->assertProcessSucceeded($serverStart);
@@ -200,6 +205,7 @@ final class SwooleServerExceptionHandlerTest extends ServerTestCase
         ], ['APP_ENV' => 'exception_handler_symfony', 'APP_DEBUG' => '0']);
 
         $serverStart->setTimeout(3);
+        $serverStart->disableOutput();
         $serverStart->run();
 
         $this->assertProcessSucceeded($serverStart);
@@ -232,6 +238,7 @@ final class SwooleServerExceptionHandlerTest extends ServerTestCase
         ], ['APP_ENV' => 'exception_handler_symfony', 'APP_DEBUG' => '1']);
 
         $serverStart->setTimeout(3);
+        $serverStart->disableOutput();
         $serverStart->run();
 
         $this->assertProcessSucceeded($serverStart);
@@ -264,6 +271,7 @@ final class SwooleServerExceptionHandlerTest extends ServerTestCase
         ], ['APP_ENV' => 'exception_handler_custom']);
 
         $serverStart->setTimeout(3);
+        $serverStart->disableOutput();
         $serverStart->run();
 
         $this->assertProcessSucceeded($serverStart);

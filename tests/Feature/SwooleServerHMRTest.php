@@ -30,6 +30,7 @@ final class SwooleServerHMRTest extends ServerTestCase
         ], ['APP_ENV' => 'auto']);
 
         $serverStart->setTimeout(3);
+        $serverStart->disableOutput();
         $serverStart->run();
 
         $this->assertProcessSucceeded($serverStart);
@@ -70,6 +71,7 @@ final class SwooleServerHMRTest extends ServerTestCase
         ], ['APP_ENV' => 'prod']);
 
         $serverStart->setTimeout(3);
+        $serverStart->disableOutput();
         $serverStart->run();
 
         $this->assertProcessSucceeded($serverStart);

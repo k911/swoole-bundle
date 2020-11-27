@@ -28,6 +28,7 @@ final class SymfonySessionSwooleSessionStorageTest extends ServerTestCase
         ]);
 
         $serverStart->setTimeout(3);
+        $serverStart->disableOutput();
         $serverStart->run();
 
         $this->assertProcessSucceeded($serverStart);
@@ -68,6 +69,7 @@ final class SymfonySessionSwooleSessionStorageTest extends ServerTestCase
         ]);
 
         $serverStart->setTimeout(3);
+        $serverStart->disableOutput();
         $serverStart->run();
 
         $this->assertProcessSucceeded($serverStart);
@@ -109,6 +111,7 @@ final class SymfonySessionSwooleSessionStorageTest extends ServerTestCase
         ]);
 
         $serverStart->setTimeout(3);
+        $serverStart->disableOutput();
         $serverStart->run();
 
         $this->assertProcessSucceeded($serverStart);
@@ -155,7 +158,8 @@ final class SymfonySessionSwooleSessionStorageTest extends ServerTestCase
             'COOKIE_LIFETIME' => $cookieLifetime,
         ]);
 
-        $serverStart->setTimeout(5);
+        $serverStart->setTimeout(3);
+        $serverStart->disableOutput();
         $serverStart->run();
 
         $this->assertProcessSucceeded($serverStart);
@@ -206,6 +210,7 @@ final class SymfonySessionSwooleSessionStorageTest extends ServerTestCase
         ]);
 
         $serverStart->setTimeout(3);
+        $serverStart->disableOutput();
         $serverStart->run();
 
         $this->assertProcessSucceeded($serverStart);
