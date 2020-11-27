@@ -129,10 +129,12 @@ jobs:
     docker:
       - image: docker.io/k911/swoole-bundle-composer:7.4-latest-$CIRCLE_SHA1
 
-  swoole-bundle-composer-dev-code-style:
+  swoole-bundle-composer-80-latest-code-style:
     <<: *job-composer-code-style
+    environment:
+      PHP_CS_FIXER_IGNORE_ENV: "1"
     docker:
-      - image: docker.io/k911/swoole-bundle-composer:7.4-dev-$CIRCLE_SHA1
+      - image: docker.io/k911/swoole-bundle-composer:8.0-latest-$CIRCLE_SHA1
 
   swoole-bundle-composer-74-unit-tests:
     <<: *job-composer-unit-tests
@@ -149,10 +151,10 @@ jobs:
     docker:
       - image: docker.io/k911/swoole-bundle-composer:7.4-latest-$CIRCLE_SHA1
 
-  swoole-bundle-composer-dev-unit-tests:
+  swoole-bundle-composer-80-latest-unit-tests:
     <<: *job-composer-unit-tests
     docker:
-      - image: docker.io/k911/swoole-bundle-composer:7.4-dev-$CIRCLE_SHA1
+      - image: docker.io/k911/swoole-bundle-composer:8.0-latest-$CIRCLE_SHA1
 
   swoole-bundle-composer-74-latest-feature-tests:
     <<: *job-composer-feature-tests
@@ -164,10 +166,10 @@ jobs:
     docker:
       - image: docker.io/k911/swoole-bundle-composer:7.3-lowest-$CIRCLE_SHA1
 
-  swoole-bundle-composer-dev-feature-tests:
+  swoole-bundle-composer-80-latest-feature-tests:
     <<: *job-composer-feature-tests
     docker:
-      - image: docker.io/k911/swoole-bundle-composer:7.4-dev-$CIRCLE_SHA1
+      - image: docker.io/k911/swoole-bundle-composer:8.0-latest-$CIRCLE_SHA1
 
   swoole-bundle-74-code-coverage:
     executor: k911-docker-client
@@ -259,7 +261,7 @@ jobs:
   docker-buildx-bake-73-lowest:
     <<: *docker-bake
     environment:
-      PHP_VERSION: 7.3
+      PHP_VERSION: "7.3"
       PHP_API_VERSION: "20180731"
       COMPOSER_ARGS: update --prefer-lowest
       REGISTRY: docker.io
@@ -271,7 +273,7 @@ jobs:
   docker-buildx-bake-74:
     <<: *docker-bake
     environment:
-      PHP_VERSION: 7.4
+      PHP_VERSION: "7.4"
       PHP_API_VERSION: "20190902"
       REGISTRY: docker.io
       NAMESPACE: k911
@@ -281,7 +283,7 @@ jobs:
   docker-buildx-bake-74-latest:
     <<: *docker-bake
     environment:
-      PHP_VERSION: 7.4
+      PHP_VERSION: "7.4"
       PHP_API_VERSION: "20190902"
       COMPOSER_ARGS: update --ignore-platform-reqs
       SWOOLE_VERSION: latest
@@ -291,18 +293,18 @@ jobs:
       SERVICES: composer
       BUILD_TYPE: latest
 
-  docker-buildx-bake-dev:
+  docker-buildx-bake-80-latest:
     <<: *docker-bake
     environment:
-      PHP_VERSION: 7.4 # TODO: 8.0.8beta4
-      PHP_API_VERSION: "20190902"
+      PHP_VERSION: "8.0"
+      PHP_API_VERSION: "20200930"
       COMPOSER_ARGS: update --ignore-platform-reqs
-      SWOOLE_VERSION: master
+      SWOOLE_VERSION: latest
       REGISTRY: docker.io
       NAMESPACE: k911
       IMAGE: swoole-bundle
       SERVICES: composer
-      BUILD_TYPE: dev
+      BUILD_TYPE: latest
 
   check-composer-config:
     docker:
@@ -312,6 +314,9 @@ jobs:
       - run:
           name: Validate composer configuration
           command: composer validate
+      - run:
+          name: Check if there are any out of date dependencies
+          command: composer outdated --locked
 
   shellcheck:
     docker:
@@ -395,19 +400,19 @@ workflows:
       - swoole-bundle-74-code-coverage:
           requires:
             - docker-buildx-bake-74
-      - docker-buildx-bake-dev:
+      - docker-buildx-bake-80-latest:
           context: swoole-bundle-dockerhub
           requires:
             - docker-buildx-bake-74
-      - swoole-bundle-composer-dev-code-style:
+      - swoole-bundle-composer-80-latest-code-style:
           requires:
-            - docker-buildx-bake-dev
-      - swoole-bundle-composer-dev-unit-tests:
+            - docker-buildx-bake-80-latest
+      - swoole-bundle-composer-80-latest-unit-tests:
           requires:
-            - docker-buildx-bake-dev
-      - swoole-bundle-composer-dev-feature-tests:
+            - docker-buildx-bake-80-latest
+      - swoole-bundle-composer-80-latest-feature-tests:
           requires:
-            - docker-buildx-bake-dev
+            - docker-buildx-bake-80-latest
 
   pull-request-checks-untrusted:
     when:
@@ -467,6 +472,19 @@ workflows:
       - swoole-bundle-74-code-coverage:
           requires:
             - docker-buildx-bake-74
+      - docker-buildx-bake-80-latest:
+          context: swoole-bundle-dockerhub
+          requires:
+            - docker-buildx-bake-74
+      - swoole-bundle-composer-80-latest-code-style:
+          requires:
+            - docker-buildx-bake-80-latest
+      - swoole-bundle-composer-80-latest-unit-tests:
+          requires:
+            - docker-buildx-bake-80-latest
+      - swoole-bundle-composer-80-latest-feature-tests:
+          requires:
+            - docker-buildx-bake-80-latest
 
   release:
     when:
@@ -517,6 +535,19 @@ workflows:
       - swoole-bundle-74-code-coverage:
           requires:
             - docker-buildx-bake-74
+      - docker-buildx-bake-80-latest:
+          context: swoole-bundle-dockerhub
+          requires:
+            - docker-buildx-bake-74
+      - swoole-bundle-composer-80-latest-code-style:
+          requires:
+            - docker-buildx-bake-80-latest
+      - swoole-bundle-composer-80-latest-unit-tests:
+          requires:
+            - docker-buildx-bake-80-latest
+      - swoole-bundle-composer-80-latest-feature-tests:
+          requires:
+            - docker-buildx-bake-80-latest
       - approve-release:
           type: approval
           requires:
@@ -530,6 +561,9 @@ workflows:
             - swoole-bundle-composer-73-lowest-code-style
             - swoole-bundle-composer-74-unit-tests
             - swoole-bundle-composer-74-code-style
+            - swoole-bundle-composer-80-latest-code-style
+            - swoole-bundle-composer-80-latest-unit-tests
+            - swoole-bundle-composer-80-latest-feature-tests
       - releaser:
           context: swoole-bundle-github
           requires:
