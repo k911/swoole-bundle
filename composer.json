@@ -18,7 +18,7 @@
         "homepage": "https://github.com/k911"
     }],
     "require": {
-        "php": "^7.3",
+        "php": "^7.3|^8.0",
         "ext-json": "*",
         "ext-swoole": "^4.4.7",
         "beberlei/assert": "^3.0",

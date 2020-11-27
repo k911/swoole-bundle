@@ -19,12 +19,18 @@ matrix:
       env:
         - SWOOLE_LATEST=1
         - COMPOSER_ARGS='update --ignore-platform-reqs'
+    - php: "8.0"
+      env:
+        - PHP_CS_FIXER_IGNORE_ENV=1
   fast_finish: true
   allow_failures:
     - php: "7.4"
       env:
         - SWOOLE_LATEST=1
         - COMPOSER_ARGS='update --ignore-platform-reqs'
+    - php: "8.0"
+      env:
+        - PHP_CS_FIXER_IGNORE_ENV=1
 
 before_script:
   - phpenv config-rm xdebug.ini
