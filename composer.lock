@@ -6954,16 +6954,16 @@
         },
         {
             "name": "symfony/twig-bridge",
-            "version": "v5.1.8",
+            "version": "v5.1.9",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/twig-bridge.git",
-                "reference": "874735a8c97963af2009e0eaee55b17fc0846db2"
+                "reference": "49a58af9f34ffcb11ef47d1ba1f8425396a6eac4"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/twig-bridge/zipball/874735a8c97963af2009e0eaee55b17fc0846db2",
-                "reference": "874735a8c97963af2009e0eaee55b17fc0846db2",
+                "url": "https://api.github.com/repos/symfony/twig-bridge/zipball/49a58af9f34ffcb11ef47d1ba1f8425396a6eac4",
+                "reference": "49a58af9f34ffcb11ef47d1ba1f8425396a6eac4",
                 "shasum": ""
             },
             "require": {
@@ -6987,7 +6987,7 @@
                 "symfony/dependency-injection": "^4.4|^5.0",
                 "symfony/expression-language": "^4.4|^5.0",
                 "symfony/finder": "^4.4|^5.0",
-                "symfony/form": "^5.1",
+                "symfony/form": "^5.1.9",
                 "symfony/http-foundation": "^4.4|^5.0",
                 "symfony/http-kernel": "^4.4|^5.0",
                 "symfony/mime": "^4.4|^5.0",
@@ -7061,11 +7061,11 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2020-10-24T12:01:57+00:00"
+            "time": "2020-11-28T10:57:20+00:00"
         },
         {
             "name": "symfony/twig-bundle",
-            "version": "v5.1.8",
+            "version": "v5.1.9",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/twig-bundle.git",
