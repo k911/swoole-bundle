@@ -6271,16 +6271,16 @@
         },
         {
             "name": "symfony/monolog-bridge",
-            "version": "v5.1.8",
+            "version": "v5.1.9",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/monolog-bridge.git",
-                "reference": "0c507eddb704a3154b53f066cc0b587c4586c868"
+                "reference": "763f8d9ca7e1e1a5be5cdda8a6702291825aff67"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/monolog-bridge/zipball/0c507eddb704a3154b53f066cc0b587c4586c868",
-                "reference": "0c507eddb704a3154b53f066cc0b587c4586c868",
+                "url": "https://api.github.com/repos/symfony/monolog-bridge/zipball/763f8d9ca7e1e1a5be5cdda8a6702291825aff67",
+                "reference": "763f8d9ca7e1e1a5be5cdda8a6702291825aff67",
                 "shasum": ""
             },
             "require": {
@@ -6345,7 +6345,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2020-10-24T12:01:57+00:00"
+            "time": "2020-10-28T21:31:18+00:00"
         },
         {
             "name": "symfony/monolog-bundle",
