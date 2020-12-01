@@ -5569,16 +5569,16 @@
         },
         {
             "name": "symfony/amqp-messenger",
-            "version": "v5.1.8",
+            "version": "v5.2.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/amqp-messenger.git",
-                "reference": "daa895ff04c3a692b8ca3568445a46b44796e254"
+                "reference": "8aa604498a40e48909266a0fddcbd3ea341623db"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/amqp-messenger/zipball/daa895ff04c3a692b8ca3568445a46b44796e254",
-                "reference": "daa895ff04c3a692b8ca3568445a46b44796e254",
+                "url": "https://api.github.com/repos/symfony/amqp-messenger/zipball/8aa604498a40e48909266a0fddcbd3ea341623db",
+                "reference": "8aa604498a40e48909266a0fddcbd3ea341623db",
                 "shasum": ""
             },
             "require": {
@@ -5630,7 +5630,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2020-10-27T10:11:13+00:00"
+            "time": "2020-10-27T10:14:44+00:00"
         },
         {
             "name": "symfony/cache",
@@ -5917,16 +5917,16 @@
         },
         {
             "name": "symfony/doctrine-messenger",
-            "version": "v5.1.8",
+            "version": "v5.2.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/doctrine-messenger.git",
-                "reference": "dbff2dc94784923d91be06bf2296a9fdeb7d329d"
+                "reference": "647d35585648808efba7d9d449e8f735513a9eea"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/doctrine-messenger/zipball/dbff2dc94784923d91be06bf2296a9fdeb7d329d",
-                "reference": "dbff2dc94784923d91be06bf2296a9fdeb7d329d",
+                "url": "https://api.github.com/repos/symfony/doctrine-messenger/zipball/647d35585648808efba7d9d449e8f735513a9eea",
+                "reference": "647d35585648808efba7d9d449e8f735513a9eea",
                 "shasum": ""
             },
             "require": {
@@ -5935,10 +5935,11 @@
                 "symfony/service-contracts": "^1.1|^2"
             },
             "conflict": {
+                "doctrine/dbal": "<2.10",
                 "doctrine/persistence": "<1.3"
             },
             "require-dev": {
-                "doctrine/dbal": "^2.6|^3.0",
+                "doctrine/dbal": "^2.10|^3.0",
                 "doctrine/persistence": "^1.3|^2",
                 "symfony/property-access": "^4.4|^5.0",
                 "symfony/serializer": "^4.4|^5.0"
@@ -5982,7 +5983,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2020-10-24T12:01:57+00:00"
+            "time": "2020-11-28T23:28:16+00:00"
         },
         {
             "name": "symfony/finder",
@@ -6186,16 +6187,16 @@
         },
         {
             "name": "symfony/messenger",
-            "version": "v5.1.8",
+            "version": "v5.2.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/messenger.git",
-                "reference": "800acfc4dfc954aea6e6adc192e82b44c84520fe"
+                "reference": "ae14385879e5b14d5dae94d5b30502a617ef6b06"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/messenger/zipball/800acfc4dfc954aea6e6adc192e82b44c84520fe",
-                "reference": "800acfc4dfc954aea6e6adc192e82b44c84520fe",
+                "url": "https://api.github.com/repos/symfony/messenger/zipball/ae14385879e5b14d5dae94d5b30502a617ef6b06",
+                "reference": "ae14385879e5b14d5dae94d5b30502a617ef6b06",
                 "shasum": ""
             },
             "require": {
@@ -6267,7 +6268,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2020-10-24T12:01:57+00:00"
+            "time": "2020-11-10T06:17:22+00:00"
         },
         {
             "name": "symfony/monolog-bridge",
@@ -6670,16 +6671,16 @@
         },
         {
             "name": "symfony/redis-messenger",
-            "version": "v5.1.8",
+            "version": "v5.2.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/redis-messenger.git",
-                "reference": "0c62cc7e04f391fa88fca55dc50d8e5c6b4d4909"
+                "reference": "8a827544bd0536a6097006e178bc6e2c5873aad1"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/redis-messenger/zipball/0c62cc7e04f391fa88fca55dc50d8e5c6b4d4909",
-                "reference": "0c62cc7e04f391fa88fca55dc50d8e5c6b4d4909",
+                "url": "https://api.github.com/repos/symfony/redis-messenger/zipball/8a827544bd0536a6097006e178bc6e2c5873aad1",
+                "reference": "8a827544bd0536a6097006e178bc6e2c5873aad1",
                 "shasum": ""
             },
             "require": {
@@ -6729,7 +6730,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2020-10-24T12:01:57+00:00"
+            "time": "2020-10-24T12:08:07+00:00"
         },
         {
             "name": "symfony/routing",
