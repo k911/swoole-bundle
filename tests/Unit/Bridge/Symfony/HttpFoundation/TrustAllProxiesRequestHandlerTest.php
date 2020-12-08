@@ -15,6 +15,7 @@ use Symfony\Component\HttpFoundation\Request as SymfonyRequest;
 class TrustAllProxiesRequestHandlerTest extends TestCase
 {
     use \Prophecy\PhpUnit\ProphecyTrait;
+
     /**
      * @var ObjectProphecy|RequestHandlerInterface
      */
@@ -22,7 +23,7 @@ class TrustAllProxiesRequestHandlerTest extends TestCase
 
     protected function setUp(): void
     {
-        SymfonyRequest::setTrustedProxies([], SymfonyRequest::HEADER_X_FORWARDED_ALL);
+        SymfonyRequest::setTrustedProxies([], TrustAllProxiesRequestHandler::HEADER_X_FORWARDED_ALL);
         $this->decoratedProphecy = $this->prophesize(RequestHandlerInterface::class);
     }
 
