@@ -21,7 +21,7 @@ final class SetRequestRuntimeConfiguration implements BootableInterface
             Request::setTrustedHosts($runtimeConfiguration['trustedHosts']);
         }
         if (\array_key_exists('trustedProxies', $runtimeConfiguration)) {
-            Request::setTrustedProxies($runtimeConfiguration['trustedProxies'], $runtimeConfiguration['trustedHeaderSet'] ?? Request::HEADER_X_FORWARDED_ALL);
+            Request::setTrustedProxies($runtimeConfiguration['trustedProxies'], $runtimeConfiguration['trustedHeaderSet'] ?? TrustAllProxiesRequestHandler::HEADER_X_FORWARDED_ALL);
         }
     }
 }
