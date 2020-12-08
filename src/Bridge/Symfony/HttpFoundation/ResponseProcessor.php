@@ -18,7 +18,7 @@ final class ResponseProcessor implements ResponseProcessorInterface
     public function process(HttpFoundationResponse $httpFoundationResponse, SwooleResponse $swooleResponse): void
     {
         if ($httpFoundationResponse instanceof StreamedResponse) {
-            throw new RuntimeException(\sprintf('HttpFoundation "StreamedResponse" response object is not yet supported'));
+            throw new RuntimeException('HttpFoundation "StreamedResponse" response object is not yet supported');
         }
 
         foreach ($httpFoundationResponse->headers->allPreserveCaseWithoutCookies() as $name => $values) {

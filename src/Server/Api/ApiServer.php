@@ -29,7 +29,7 @@ final class ApiServer implements ApiServerInterface
     public function metrics(): array
     {
         return [
-            'date' => (new \DateTimeImmutable('now'))->format(\DATE_ATOM),
+            'date' => (new \DateTimeImmutable('now'))->format(DATE_ATOM),
             'server' => $this->server->metrics(),
         ];
     }
@@ -58,7 +58,7 @@ final class ApiServer implements ApiServerInterface
         $swooleServer = $this->server->getServer();
 
         return [
-            'date' => \date(\DATE_ATOM),
+            'date' => \date(DATE_ATOM),
             'server' => [
                 'host' => $swooleServer->host,
                 'port' => $swooleServer->port,

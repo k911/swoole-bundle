@@ -27,6 +27,6 @@ final class JsonExceptionHandler implements ExceptionHandlerInterface
 
         $response->header(Http::HEADER_CONTENT_TYPE, Http::CONTENT_TYPE_APPLICATION_JSON);
         $response->status(500);
-        $response->end(\json_encode($data, \JSON_THROW_ON_ERROR));
+        $response->end(\json_encode($data, JSON_THROW_ON_ERROR));
     }
 }
