@@ -12,6 +12,7 @@ use Symfony\Component\Config\Definition\Exception\InvalidTypeException;
 final class Configuration implements ConfigurationInterface
 {
     public const DEFAULT_PUBLIC_DIR = '%kernel.project_dir%/public';
+    public const DEFAULT_WATCH_DIR = '%kernel.project_dir%/';
 
     private const CONFIG_NAME = 'swoole';
 
@@ -73,11 +74,42 @@ final class Configuration implements ConfigurationInterface
                             ->defaultFalse()
                             ->treatNullLike(false)
                         ->end()
-                        ->enumNode('hmr')
-                            ->cannotBeEmpty()
-                            ->defaultValue('auto')
-                            ->treatFalseLike('off')
-                            ->values(['off', 'auto', 'inotify'])
+                        ->arrayNode('hmr')
+                            ->addDefaultsIfNotSet()
+                            ->beforeNormalization()
+                                ->ifTrue(function ($v): bool {
+                                    return \is_string($v) || \is_bool($v) || \is_numeric($v) || null === $v;
+                                })
+                                ->then(function ($v): array {
+                                    return [
+                                        'enabled' => \in_array($v, ['auto', 'inotify', 'fsnotify'], true),
+                                        'type' => \in_array($v, ['auto', 'inotify', 'fsnotify'], true) ? $v : 'auto',
+                                        'watch_dir' => self::DEFAULT_WATCH_DIR,
+                                        'verbose_output' => false,
+                                        'tick_duration' => 5,
+                                    ];
+                                })
+                            ->end()
+                            ->children()
+                                ->booleanNode('enabled')
+                                    ->defaultFalse()
+                                ->end()
+                                ->enumNode('type')
+                                    ->defaultValue('auto')
+                                    ->values(['auto', 'inotify', 'fsnotify'])
+                                ->end()
+                                ->integerNode('tick_duration')
+                                    ->min(0)
+                                    ->defaultValue(5)
+                                    ->max(60)
+                                ->end()
+                                ->booleanNode('verbose_output')
+                                    ->defaultFalse()
+                                ->end()
+                                ->scalarNode('watch_dir')
+                                    ->defaultValue(self::DEFAULT_WATCH_DIR)
+                                ->end()
+                            ->end()
                         ->end()
                         ->arrayNode('api')
                             ->addDefaultsIfNotSet()

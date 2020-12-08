@@ -7894,22 +7894,22 @@
         },
         {
             "name": "upscale/swoole-blackfire",
-            "version": "3.0.0",
+            "version": "3.1.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/upscalesoftware/swoole-blackfire.git",
-                "reference": "595aa1a2d3b02060bb7e8be6649a5a348795a818"
+                "reference": "b9e4bfea81bad2529a4993a99f1f641cfc0cf252"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/upscalesoftware/swoole-blackfire/zipball/595aa1a2d3b02060bb7e8be6649a5a348795a818",
-                "reference": "595aa1a2d3b02060bb7e8be6649a5a348795a818",
+                "url": "https://api.github.com/repos/upscalesoftware/swoole-blackfire/zipball/b9e4bfea81bad2529a4993a99f1f641cfc0cf252",
+                "reference": "b9e4bfea81bad2529a4993a99f1f641cfc0cf252",
                 "shasum": ""
             },
             "require": {
                 "blackfire/php-sdk": "^1.16",
                 "ext-swoole": "^4.0",
-                "php": ">=5.5",
+                "php": ">=7.1",
                 "upscale/swoole-reflection": "^1.2"
             },
             "type": "library",
@@ -7941,27 +7941,27 @@
             ],
             "support": {
                 "issues": "https://github.com/upscalesoftware/swoole-blackfire/issues",
-                "source": "https://github.com/upscalesoftware/swoole-blackfire/tree/3.0.0"
+                "source": "https://github.com/upscalesoftware/swoole-blackfire/tree/3.1.0"
             },
-            "time": "2019-05-23T22:35:00+00:00"
+            "time": "2020-12-09T01:17:15+00:00"
         },
         {
             "name": "upscale/swoole-reflection",
-            "version": "1.3.4",
+            "version": "1.4.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/upscalesoftware/swoole-reflection.git",
-                "reference": "c239201b992150e85fa816788dc4797e6d3020c0"
+                "reference": "fef8688fe01471ab5f73c5a166eb46159e9eaebf"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/upscalesoftware/swoole-reflection/zipball/c239201b992150e85fa816788dc4797e6d3020c0",
-                "reference": "c239201b992150e85fa816788dc4797e6d3020c0",
+                "url": "https://api.github.com/repos/upscalesoftware/swoole-reflection/zipball/fef8688fe01471ab5f73c5a166eb46159e9eaebf",
+                "reference": "fef8688fe01471ab5f73c5a166eb46159e9eaebf",
                 "shasum": ""
             },
             "require": {
                 "ext-swoole": "^4.0",
-                "php": ">=5.6"
+                "php": ">=7.1"
             },
             "require-dev": {
                 "ext-curl": "*",
@@ -7998,9 +7998,9 @@
             ],
             "support": {
                 "issues": "https://github.com/upscalesoftware/swoole-reflection/issues",
-                "source": "https://github.com/upscalesoftware/swoole-reflection/tree/1.3.4"
+                "source": "https://github.com/upscalesoftware/swoole-reflection/tree/1.4.0"
             },
-            "time": "2020-11-23T02:50:23+00:00"
+            "time": "2020-12-09T00:32:58+00:00"
         },
         {
             "name": "webmozart/assert",

@@ -1,0 +1,9 @@
+swoole:
+    http_server:
+#        running_mode: reactor
+        running_mode: reactor
+        hmr:
+            enabled: true
+            type: fsnotify
+            verbose_output: true
+            watch_dir: '%bundle.root_dir%/'
