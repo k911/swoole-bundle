@@ -23,7 +23,7 @@ final class TaskController
     public function dispatchMessage(MessageBusInterface $bus, Request $request): Response
     {
         $fileName = $request->get('fileName', 'test-default-file.txt');
-        $content = $request->get('content', (new \DateTimeImmutable())->format(\DATE_ATOM));
+        $content = $request->get('content', (new \DateTimeImmutable())->format(DATE_ATOM));
         $message = new CreateFileMessage($fileName, $content);
         $bus->dispatch($message);
 
