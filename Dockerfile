@@ -73,7 +73,8 @@ COPY --from=ext-xdebug /usr/local/lib/php/extensions/no-debug-non-zts-${PHP_API_
 COPY --from=ext-xdebug /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini
 USER app:runner
 ENV COVERAGE="1" \
-    COMPOSER_ALLOW_SUPERUSER="1"
+    COMPOSER_ALLOW_SUPERUSER="1" \
+    XDEBUG_MODE="coverage"
 COPY --chown=app:runner --from=composer-bin /usr/bin/composer /usr/local/bin/composer
 COPY --chown=app:runner --from=app-installer /usr/src/app ./
 
@@ -95,7 +96,8 @@ COPY --from=ext-xdebug /usr/local/lib/php/extensions/no-debug-non-zts-${PHP_API_
 COPY --from=ext-xdebug /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini
 USER app:runner
 ENV COVERAGE="1" \
-    COMPOSER_ALLOW_SUPERUSER="1"
+    COMPOSER_ALLOW_SUPERUSER="1" \
+    XDEBUG_MODE="coverage"
 COPY --chown=app:runner --from=composer-bin /usr/bin/composer /usr/local/bin/composer
 COPY --chown=app:runner --from=app-installer /usr/src/app ./
 

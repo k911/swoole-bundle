@@ -20,6 +20,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\HttpKernelInterface;
 use Symfony\Component\HttpKernel\Kernel;
 use Symfony\Component\Routing\Loader\Configurator\RoutingConfigurator;
+use Symfony\Component\Routing\RouteCollectionBuilder;
 
 class TestAppKernel extends Kernel
 {
@@ -118,8 +119,12 @@ class TestAppKernel extends Kernel
 
     /**
      * {@inheritdoc}
+     *
+     * @param RouteCollectionBuilder|RoutingConfigurator $routes
+     *
+     * @throws \Symfony\Component\Config\Exception\LoaderLoadException
      */
-    protected function configureRoutes(RoutingConfigurator $routes): void
+    protected function configureRoutes($routes): void
     {
         $routes->import($this->getProjectDir().'/routing.yml');
 
