@@ -1,4 +1,4 @@
-dist: xenial
+dist: bionic
 language: php
 
 cache:
@@ -9,7 +9,7 @@ cache:
 env:
   global:
     - COMPOSER_ARGS=install
-    - SWOOLE_VERSION=4.5.2
+    - SWOOLE_VERSION=4.5.8
 
 matrix:
   include:
@@ -43,7 +43,7 @@ before_script:
   - phpenv config-rm xdebug.ini
 
 before_install:
-  - export PATH="$PATH:$HOME/.composer/vendor/bin"
+  - export PATH="$PATH:$HOME/.config/composer/vendor/bin"
   - composer global require phwoolcon/ci-pecl-cacher
   - pecl update-channels
   - ci-pecl-install inotify
