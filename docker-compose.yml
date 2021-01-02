@@ -1,11 +1,11 @@
-version: "3.6"
+version: "3.8"
 x-env-aliases:
   - &DEFAULT_BUILD_ARGS
     PHP_TAG: "${PHP_VERSION:-7.4}-cli-alpine${ALPINE_VERSION:-3.12}"
     PHP_API_VERSION: "${PHP_API_VERSION:-20190902}"
     COMPOSER_ARGS: "${COMPOSER_ARGS:-install}"
-    SWOOLE_VERSION: "${SWOOLE_VERSION:-4.5.9}"
-    COMPOSER_TAG: "${COMPOSER_TAG:-2.0.7}"
+    SWOOLE_VERSION: "${SWOOLE_VERSION:-4.5.10}"
+    COMPOSER_TAG: "${COMPOSER_TAG:-2.0.8}"
 
 volumes:
   coverage: {}
