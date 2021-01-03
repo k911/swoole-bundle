@@ -180,9 +180,7 @@ abstract class AbstractServerStartCommand extends Command
         Assertion::isArray($runtimeConfiguration['trustedProxies']);
         if (\in_array('*', $runtimeConfiguration['trustedProxies'], true)) {
             $runtimeConfiguration['trustAllProxies'] = true;
-            $runtimeConfiguration['trustedProxies'] = \array_filter($runtimeConfiguration['trustedProxies'], function (string $trustedProxy): bool {
-                return '*' !== $trustedProxy;
-            });
+            $runtimeConfiguration['trustedProxies'] = \array_filter($runtimeConfiguration['trustedProxies'], fn (string $trustedProxy): bool => '*' !== $trustedProxy);
         }
 
         return $runtimeConfiguration;

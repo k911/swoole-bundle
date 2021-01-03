@@ -37,7 +37,7 @@ class WithWorkerStartHandlerTest extends TestCase
 
         $this->configurator->configure($swooleServerOnEventSpy);
 
-        $this->assertTrue($swooleServerOnEventSpy->registeredEvent);
-        $this->assertSame(['WorkerStart', [$this->noOpWorkerStartHandler, 'handle']], $swooleServerOnEventSpy->registeredEventPair);
+        self::assertTrue($swooleServerOnEventSpy->registeredEvent);
+        self::assertSame(['WorkerStart', [$this->noOpWorkerStartHandler, 'handle']], $swooleServerOnEventSpy->registeredEventPair);
     }
 }

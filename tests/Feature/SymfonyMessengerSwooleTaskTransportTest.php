@@ -27,7 +27,7 @@ final class SymfonyMessengerSwooleTaskTransportTest extends ServerTestCase
             '--port=9999',
         ], ['APP_ENV' => 'messenger']);
 
-        $this->assertFileDoesNotExist($testFilePath);
+        self::assertFileDoesNotExist($testFilePath);
 
         $serverRun->setTimeout(10);
         $serverRun->start();
@@ -51,8 +51,8 @@ final class SymfonyMessengerSwooleTaskTransportTest extends ServerTestCase
 
         $serverRun->stop();
 
-        $this->assertFileExists($testFilePath);
-        $this->assertSame($testFileContent, \file_get_contents($testFilePath));
+        self::assertFileExists($testFilePath);
+        self::assertSame($testFileContent, \file_get_contents($testFilePath));
     }
 
     private function generateNotExistingCustomTestFile(): string

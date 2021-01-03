@@ -27,9 +27,9 @@ final class SwooleServerRunXdebugRestartedCommandTest extends ServerTestCase
             '--port' => '9999',
         ]);
 
-        $this->assertSame(0, $commandTester->getStatusCode());
+        self::assertSame(0, $commandTester->getStatusCode());
         if (\extension_loaded('xdebug')) {
-            $this->assertStringContainsString('Restarting command without Xdebug..', $commandTester->getDisplay());
+            self::assertStringContainsString('Restarting command without Xdebug..', $commandTester->getDisplay());
         }
     }
 }

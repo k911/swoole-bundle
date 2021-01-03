@@ -97,10 +97,10 @@ final class SwooleServerStatusCommandTest extends ServerTestCase
 
         $output = $commandTester->getDisplay();
 
-        $this->assertStringContainsString('Fetched status', $output);
-        $this->assertStringContainsString('Fetched metrics', $output);
-        $this->assertStringContainsString('Listener[0] Host', $output);
-        $this->assertStringContainsString('Requests', $output);
+        self::assertStringContainsString('Fetched status', $output);
+        self::assertStringContainsString('Fetched metrics', $output);
+        self::assertStringContainsString('Listener[0] Host', $output);
+        self::assertStringContainsString('Requests', $output);
     }
 
     public function testCheckServerStatusFailWhenServerNotRunning(): void
@@ -116,7 +116,7 @@ final class SwooleServerStatusCommandTest extends ServerTestCase
             '--api-port' => '9998',
         ]);
 
-        $this->assertSame(1, $commandTester->getStatusCode());
+        self::assertSame(1, $commandTester->getStatusCode());
         $this->assertCommandTesterDisplayContainsString(
             'An error occurred while connecting to the API Server. Please verify configuration.',
             $commandTester

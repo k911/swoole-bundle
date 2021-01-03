@@ -12,18 +12,18 @@ class AtomicCounterTest extends TestCase
     public function testConstructFromZero(): void
     {
         $counter = AtomicCounter::fromZero();
-        $this->assertSame(0, $counter->get());
+        self::assertSame(0, $counter->get());
     }
 
     public function testIncrement(): void
     {
         $atomicSpy = new AtomicSpy();
-        $this->assertFalse($atomicSpy->incremented);
+        self::assertFalse($atomicSpy->incremented);
 
         $counter = new AtomicCounter($atomicSpy);
         $counter->increment();
 
-        $this->assertTrue($atomicSpy->incremented);
+        self::assertTrue($atomicSpy->incremented);
     }
 
     public function testGet(): void
@@ -31,6 +31,6 @@ class AtomicCounterTest extends TestCase
         $count = 10;
         $counter = new AtomicCounter(new AtomicStub($count));
 
-        $this->assertSame($count, $counter->get());
+        self::assertSame($count, $counter->get());
     }
 }

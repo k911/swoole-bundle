@@ -37,7 +37,7 @@ class WithServerManagerStopHandlerTest extends TestCase
 
         $this->configurator->configure($swooleServerOnEventSpy);
 
-        $this->assertTrue($swooleServerOnEventSpy->registeredEvent);
-        $this->assertSame(['ManagerStop', [$this->noOpServerManagerStopHandler, 'handle']], $swooleServerOnEventSpy->registeredEventPair);
+        self::assertTrue($swooleServerOnEventSpy->registeredEvent);
+        self::assertSame(['ManagerStop', [$this->noOpServerManagerStopHandler, 'handle']], $swooleServerOnEventSpy->registeredEventPair);
     }
 }

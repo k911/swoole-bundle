@@ -50,8 +50,8 @@ class WithServerStartHandlerTest extends TestCase
 
         $this->configurator->configure($swooleServerOnEventSpy);
 
-        $this->assertTrue($swooleServerOnEventSpy->registeredEvent);
-        $this->assertSame(['start', [$this->noOpServerStartHandler, 'handle']], $swooleServerOnEventSpy->registeredEventPair);
+        self::assertTrue($swooleServerOnEventSpy->registeredEvent);
+        self::assertSame(['start', [$this->noOpServerStartHandler, 'handle']], $swooleServerOnEventSpy->registeredEventPair);
     }
 
     public function testConfigureReactorMode(): void
@@ -65,6 +65,6 @@ class WithServerStartHandlerTest extends TestCase
 
         $this->configurator->configure($swooleServerOnEventSpy);
 
-        $this->assertFalse($swooleServerOnEventSpy->registeredEvent);
+        self::assertFalse($swooleServerOnEventSpy->registeredEvent);
     }
 }

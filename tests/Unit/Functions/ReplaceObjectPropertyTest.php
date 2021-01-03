@@ -21,37 +21,37 @@ class ReplaceObjectPropertyTest extends TestCase
 
     public function testReplacePublicProperty(): void
     {
-        $this->assertSame(TestObject::WRONG_VALUE, $this->testObject->getPublicProp());
+        self::assertSame(TestObject::WRONG_VALUE, $this->testObject->getPublicProp());
 
         replace_object_property($this->testObject, 'publicProp', TestObject::GOOD_VALUE);
 
-        $this->assertSame(TestObject::GOOD_VALUE, $this->testObject->getPublicProp());
+        self::assertSame(TestObject::GOOD_VALUE, $this->testObject->getPublicProp());
     }
 
     public function testReplaceProtectedProperty(): void
     {
-        $this->assertSame(TestObject::WRONG_VALUE, $this->testObject->getPublicProp());
+        self::assertSame(TestObject::WRONG_VALUE, $this->testObject->getPublicProp());
 
         replace_object_property($this->testObject, 'protectedProp', TestObject::GOOD_VALUE);
 
-        $this->assertSame(TestObject::GOOD_VALUE, $this->testObject->getProtectedProp());
+        self::assertSame(TestObject::GOOD_VALUE, $this->testObject->getProtectedProp());
     }
 
     public function testReplacePrivateProperty(): void
     {
-        $this->assertSame(TestObject::WRONG_VALUE, $this->testObject->getPublicProp());
+        self::assertSame(TestObject::WRONG_VALUE, $this->testObject->getPublicProp());
 
         replace_object_property($this->testObject, 'privateProp', TestObject::GOOD_VALUE);
 
-        $this->assertSame(TestObject::GOOD_VALUE, $this->testObject->getPrivateProp());
+        self::assertSame(TestObject::GOOD_VALUE, $this->testObject->getPrivateProp());
     }
 
     public function testReplaceDynamicProperty(): void
     {
-        $this->assertSame(TestObject::WRONG_VALUE, $this->testObject->getPublicProp());
+        self::assertSame(TestObject::WRONG_VALUE, $this->testObject->getPublicProp());
 
         replace_object_property($this->testObject, 'dynamicProp', TestObject::GOOD_VALUE);
 
-        $this->assertSame(TestObject::GOOD_VALUE, $this->testObject->getDynamicProp());
+        self::assertSame(TestObject::GOOD_VALUE, $this->testObject->getDynamicProp());
     }
 }

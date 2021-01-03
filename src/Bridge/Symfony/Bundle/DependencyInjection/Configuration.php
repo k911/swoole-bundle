@@ -48,7 +48,7 @@ final class Configuration implements ConfigurationInterface
                             ->prototype('scalar')->end()
                             ->beforeNormalization()
                                 ->ifString()
-                                ->then(function ($v): array { return decode_string_as_set($v); })
+                                ->then(fn ($v): array => decode_string_as_set($v))
                             ->end()
                         ->end()
                         ->arrayNode('trusted_proxies')
@@ -56,7 +56,7 @@ final class Configuration implements ConfigurationInterface
                             ->prototype('scalar')->end()
                             ->beforeNormalization()
                                 ->ifString()
-                                ->then(function ($v): array { return decode_string_as_set($v); })
+                                ->then(fn ($v): array => decode_string_as_set($v))
                             ->end()
                         ->end()
                         ->enumNode('running_mode')
@@ -82,9 +82,7 @@ final class Configuration implements ConfigurationInterface
                         ->arrayNode('api')
                             ->addDefaultsIfNotSet()
                             ->beforeNormalization()
-                                ->ifTrue(function ($v): bool {
-                                    return \is_string($v) || \is_bool($v) || \is_numeric($v) || null === $v;
-                                })
+                                ->ifTrue(fn ($v): bool => \is_string($v) || \is_bool($v) || \is_numeric($v) || null === $v)
                                 ->then(function ($v): array {
                                     return [
                                         'enabled' => (bool) $v,

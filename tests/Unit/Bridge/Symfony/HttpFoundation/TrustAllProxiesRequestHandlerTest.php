@@ -59,11 +59,11 @@ class TrustAllProxiesRequestHandlerTest extends TestCase
     public function testBooting(bool $startWith, array $bootWith, bool $expected): void
     {
         $handler = $this->withTrustAllProxies($startWith);
-        $this->assertSame($startWith, $handler->trustAllProxies());
+        self::assertSame($startWith, $handler->trustAllProxies());
 
         $handler->boot($bootWith);
 
-        $this->assertSame($expected, $handler->trustAllProxies());
+        self::assertSame($expected, $handler->trustAllProxies());
     }
 
     public function testHandleWithoutTrusting(): void
@@ -79,7 +79,7 @@ class TrustAllProxiesRequestHandlerTest extends TestCase
 
         $handler->handle($requestMock, $responseMock);
 
-        $this->assertSame([], SymfonyRequest::getTrustedProxies());
+        self::assertSame([], SymfonyRequest::getTrustedProxies());
     }
 
     public function testHandleWithTrusting(): void
@@ -99,7 +99,7 @@ class TrustAllProxiesRequestHandlerTest extends TestCase
 
         $handler->handle($requestMock, $responseMock);
 
-        $this->assertSame(['127.0.0.1', $addr], SymfonyRequest::getTrustedProxies());
+        self::assertSame(['127.0.0.1', $addr], SymfonyRequest::getTrustedProxies());
     }
 
     public function withTrustAllProxies(bool $trustAllProxies): TrustAllProxiesRequestHandler

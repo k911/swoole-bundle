@@ -29,13 +29,13 @@ final class SwooleCommandsRegisteredTest extends ServerTestCase
         $cacheClear = $application->find('cache:clear');
         $commandTester = new CommandTester($cacheClear);
         $commandTester->execute([]);
-        $this->assertSame(0, $commandTester->getStatusCode());
+        self::assertSame(0, $commandTester->getStatusCode());
 
         $listCommand = $application->find('list');
         $commandTester = new CommandTester($listCommand);
         $commandTester->execute(['swoole']);
 
-        $this->assertSame(0, $commandTester->getStatusCode());
+        self::assertSame(0, $commandTester->getStatusCode());
         $this->assertSwooleCommandsRegistered($commandTester->getDisplay());
     }
 
@@ -47,13 +47,13 @@ final class SwooleCommandsRegisteredTest extends ServerTestCase
         $cacheClear = $application->find('cache:clear');
         $commandTester = new CommandTester($cacheClear);
         $commandTester->execute([]);
-        $this->assertSame(0, $commandTester->getStatusCode());
+        self::assertSame(0, $commandTester->getStatusCode());
 
         $listCommand = $application->find('list');
         $commandTester = new CommandTester($listCommand);
         $commandTester->execute(['swoole']);
 
-        $this->assertSame(0, $commandTester->getStatusCode());
+        self::assertSame(0, $commandTester->getStatusCode());
         $this->assertSwooleCommandsRegistered($commandTester->getDisplay());
     }
 
@@ -65,13 +65,13 @@ final class SwooleCommandsRegisteredTest extends ServerTestCase
         $cacheClear = $application->find('cache:clear');
         $commandTester = new CommandTester($cacheClear);
         $commandTester->execute([]);
-        $this->assertSame(0, $commandTester->getStatusCode());
+        self::assertSame(0, $commandTester->getStatusCode());
 
         $listCommand = $application->find('list');
         $commandTester = new CommandTester($listCommand);
         $commandTester->execute(['swoole']);
 
-        $this->assertSame(0, $commandTester->getStatusCode());
+        self::assertSame(0, $commandTester->getStatusCode());
         $this->assertSwooleCommandsRegistered($commandTester->getDisplay());
     }
 
@@ -83,23 +83,23 @@ final class SwooleCommandsRegisteredTest extends ServerTestCase
         $cacheClear = $application->find('cache:clear');
         $commandTester = new CommandTester($cacheClear);
         $commandTester->execute([]);
-        $this->assertSame(0, $commandTester->getStatusCode());
+        self::assertSame(0, $commandTester->getStatusCode());
 
         $listCommand = $application->find('list');
         $commandTester = new CommandTester($listCommand);
         $commandTester->execute(['swoole']);
 
-        $this->assertSame(0, $commandTester->getStatusCode());
+        self::assertSame(0, $commandTester->getStatusCode());
         $this->assertSwooleCommandsRegistered($commandTester->getDisplay());
     }
 
     public function assertSwooleCommandsRegistered(string $output): void
     {
-        $this->assertStringContainsString('swoole:server:profile', $output);
-        $this->assertStringContainsString('swoole:server:reload', $output);
-        $this->assertStringContainsString('swoole:server:run', $output);
-        $this->assertStringContainsString('swoole:server:start', $output);
-        $this->assertStringContainsString('swoole:server:stop', $output);
-        $this->assertStringContainsString('swoole:server:status', $output);
+        self::assertStringContainsString('swoole:server:profile', $output);
+        self::assertStringContainsString('swoole:server:reload', $output);
+        self::assertStringContainsString('swoole:server:run', $output);
+        self::assertStringContainsString('swoole:server:start', $output);
+        self::assertStringContainsString('swoole:server:stop', $output);
+        self::assertStringContainsString('swoole:server:status', $output);
     }
 }

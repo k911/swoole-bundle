@@ -37,7 +37,7 @@ class WithRequestHandlerTest extends TestCase
 
         $this->configurator->configure($serverMock);
 
-        $this->assertTrue($serverMock->registeredEvent);
-        $this->assertSame(['request', [$this->requestHandlerDummy, 'handle']], $serverMock->registeredEventPair);
+        self::assertTrue($serverMock->registeredEvent);
+        self::assertSame(['request', [$this->requestHandlerDummy, 'handle']], $serverMock->registeredEventPair);
     }
 }

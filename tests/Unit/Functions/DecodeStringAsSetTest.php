@@ -46,6 +46,6 @@ class DecodeStringAsSetTest extends TestCase
      */
     public function testDecodeStringAsSet(?string $string, array $set): void
     {
-        $this->assertSame($set, decode_string_as_set($string));
+        self::assertSame($set, decode_string_as_set($string));
     }
 }

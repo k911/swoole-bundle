@@ -19,7 +19,7 @@ class CoroutinePoolTest extends TestCase
         });
         $pool->run();
 
-        $this->assertSame($expected, $value);
+        self::assertSame($expected, $value);
     }
 
     public function testCoroutinePoolWithManyCoroutinesWorks(): void
@@ -46,9 +46,9 @@ class CoroutinePoolTest extends TestCase
         );
         $pool->run();
 
-        $this->assertSame($expected1, $value1);
-        $this->assertSame($expected2, $value2);
-        $this->assertSame($expected3, $value3);
+        self::assertSame($expected1, $value1);
+        self::assertSame($expected2, $value2);
+        self::assertSame($expected3, $value3);
     }
 
     public function testCoroutinePoolInCoroutinePoolWorks(): void
@@ -68,7 +68,7 @@ class CoroutinePoolTest extends TestCase
         });
         $pool1->run();
 
-        $this->assertSame($expected1, $value1);
-        $this->assertSame($expected2, $value2);
+        self::assertSame($expected1, $value1);
+        self::assertSame($expected2, $value2);
     }
 }

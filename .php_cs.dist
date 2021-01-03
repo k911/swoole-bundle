@@ -16,6 +16,9 @@ return PhpCsFixer\Config::create()
         '@PHP71Migration' => true,
         '@PHP71Migration:risky' => true,
         '@PHP73Migration' => true,
+        '@PHP74Migration' => true,
+        '@PHP74Migration:risky' => true,
+        '@PHPUnit84Migration:risky' => true,
         'array_syntax' => ['syntax' => 'short'],
         'combine_consecutive_issets' => true,
         'combine_consecutive_unsets' => true,
@@ -36,6 +39,7 @@ return PhpCsFixer\Config::create()
         'multiline_whitespace_before_semicolons' => ['strategy' => 'new_line_for_chained_calls'],
         'no_blank_lines_after_class_opening' => true,
         'blank_line_before_statement' => true,
+        'php_unit_test_case_static_method_calls' => ['call_type' => 'self'],
     ])
     ->setRiskyAllowed(true)
     ->setFinder($finder);

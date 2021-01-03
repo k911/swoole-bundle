@@ -41,12 +41,12 @@ Make sure you have installed the latest version of PHP:
 ```sh
 php -v
 
-# PHP 7.3.7 (cli) (built: Jul  3 2019 13:55:48) ( NTS )
-# Copyright (c) 1997-2018 The PHP Group
-# Zend Engine v3.3.7, Copyright (c) 1998-2018 Zend Technologies
+# PHP 7.4.13 (cli) (built: Nov 24 2020 16:22:20) ( NTS )
+# Copyright (c) The PHP Group
+# Zend Engine v3.4.0, Copyright (c) Zend Technologies
 ```
 
-Currently, the minimum supported version is `7.3.10` but it is highly recommended to develop using the latest PHP version.
+Currently, the minimum supported version is `7.4.x` but it is highly recommended to develop using the latest PHP version.
 
 #### [Docker](https://docs.docker.com/install/)
 
@@ -55,20 +55,20 @@ Docker is a relatively new solution, therefore vulnerable to security issues, yo
 ```sh
 docker --version
 
-# Docker version 18.09.7-ce, build 2d0083d657
+# Docker version 20.10.1, build 831ebeae96
 ```
 
-Minimum supported version of `Docker` due to used `docker-compose`'s [format version](https://docs.docker.com/compose/compose-file/compose-versioning/) version `3.6` is `18.02.0+`.
+Minimum supported version of `Docker` due to used `docker-compose`'s [format version](https://docs.docker.com/compose/compose-file/compose-versioning/) version `3.8` is `19.03.0+`.
 
 #### [docker-compose](https://docs.docker.com/compose/install/)
 
 ```sh
 docker-compose --version
 
-# docker-compose version 1.24.1, build unknown
+# docker-compose version 1.27.4, build unknown
 ```
 
-`docker-compose` version is not that important, the only requirement it supports format version `3.6`, which should be supported by versions `1.20.0` and above.
+`docker-compose` version is not that important, the only requirement it supports format version `3.8`, which should be supported by versions `1.25.5` and above.
 
 ## Testing
 

@@ -38,7 +38,7 @@ class HMRWorkerStartHandlerTest extends TestCase
 
         $this->hmrWorkerStartHandler->handle($serverMock, IntMother::random());
 
-        $this->assertFalse($serverMock->registeredTick);
+        self::assertFalse($serverMock->registeredTick);
     }
 
     public function testWorkerRegisterTick(): void
@@ -47,14 +47,14 @@ class HMRWorkerStartHandlerTest extends TestCase
 
         $this->hmrWorkerStartHandler->handle($serverMock, IntMother::random());
 
-        $this->assertTrue($serverMock->registeredTick);
-        $this->assertSame(2000, $serverMock->registeredTickTuple[0]);
+        self::assertTrue($serverMock->registeredTick);
+        self::assertSame(2000, $serverMock->registeredTickTuple[0]);
         $this->assertCallbackTriggersClick($serverMock->registeredTickTuple[1]);
     }
 
     private function assertCallbackTriggersClick(callable $callback): void
     {
         $callback();
-        $this->assertTrue($this->hmrSpy->tick);
+        self::assertTrue($this->hmrSpy->tick);
     }
 }
