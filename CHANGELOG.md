@@ -1,3 +1,12 @@
+## [0.8.3](https://github.com/k911/swoole-bundle/compare/v0.8.2...v0.8.3) (2021-01-03)
+
+[Full changelog](https://github.com/k911/swoole-bundle/compare/v0.8.2...v0.8.3)
+
+### Bug Fixes
+
+* **session-storage:** Reset session storage on kernel.finish_request ([6b7a992](https://github.com/k911/swoole-bundle/commit/6b7a9923bece217e1cfa43b7fb6cd0016d8069af))
+* allow defining no log file path to enable logging to stdout ([#301](https://github.com/k911/swoole-bundle/issues/301)) ([eea4a4f](https://github.com/k911/swoole-bundle/commit/eea4a4f41e6e8100affb763b18fa62403d30e705))
+
 ## [0.8.2](https://github.com/k911/swoole-bundle/compare/v0.8.1...v0.8.2) (2020-07-20)
 
 [Full changelog](https://github.com/k911/swoole-bundle/compare/v0.8.1...v0.8.2)
