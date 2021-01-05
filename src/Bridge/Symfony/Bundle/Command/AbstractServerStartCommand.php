@@ -9,6 +9,8 @@ use K911\Swoole\Common\XdebugHandler\XdebugHandler;
 use function K911\Swoole\decode_string_as_set;
 use function K911\Swoole\format_bytes;
 use function K911\Swoole\get_max_memory;
+use K911\Swoole\Process\Signal\PcntlSignalHandler;
+use K911\Swoole\Process\Signal\Signal;
 use K911\Swoole\Server\Config\Socket;
 use K911\Swoole\Server\Configurator\ConfiguratorInterface;
 use K911\Swoole\Server\HttpServer;
@@ -25,33 +27,28 @@ use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 
 abstract class AbstractServerStartCommand extends Command
 {
-    /**
-     * @var ParameterBagInterface
-     */
-    protected $parameterBag;
-
-    private $server;
-    private $bootManager;
-    private $serverConfiguration;
-    private $serverConfigurator;
-
-    /**
-     * @var bool
-     */
-    private $testing = false;
+    protected ParameterBagInterface $parameterBag;
+    private HttpServer $server;
+    private BootableInterface $bootManager;
+    private HttpServerConfiguration $serverConfiguration;
+    private ConfiguratorInterface $serverConfigurator;
+    private ?PcntlSignalHandler $pcntlSignalHandler;
+    private bool $testing = false;
 
     public function __construct(
         HttpServer $server,
         HttpServerConfiguration $serverConfiguration,
         ConfiguratorInterface $serverConfigurator,
         ParameterBagInterface $parameterBag,
-        BootableInterface $bootManager
+        BootableInterface $bootManager,
+        ?PcntlSignalHandler $pcntlSignalHandler
     ) {
         $this->server = $server;
         $this->bootManager = $bootManager;
         $this->parameterBag = $parameterBag;
         $this->serverConfigurator = $serverConfigurator;
         $this->serverConfiguration = $serverConfiguration;
+        $this->pcntlSignalHandler = $pcntlSignalHandler;
 
         parent::__construct();
     }
@@ -201,7 +198,7 @@ abstract class AbstractServerStartCommand extends Command
             ['worker_count', $serverConfiguration->getWorkerCount()],
             ['reactor_count', $serverConfiguration->getReactorCount()],
             ['worker_max_request', $serverConfiguration->getMaxRequest()],
-            ['worker_max_request_grace', $serverConfiguration->getMaxRequestGrace()],
+            ['worker_max_request_grace', $serverConfiguration->getMaxRequestGrace() ?? '~'],
             ['memory_limit', format_bytes(get_max_memory())],
             ['trusted_hosts', \implode(', ', $runtimeConfiguration['trustedHosts'])],
         ];
@@ -225,6 +222,15 @@ abstract class AbstractServerStartCommand extends Command
     protected function startServer(HttpServerConfiguration $serverConfiguration, HttpServer $server, SymfonyStyle $io): void
     {
         $io->comment('Quit the server with CONTROL-C.');
+
+        if ($this->pcntlSignalHandler instanceof PcntlSignalHandler && $serverConfiguration->isReactorRunningMode()) {
+            // Register dummy SIGINT handler to make sure process doesn't exit to early when CONTROL-C is hit
+            $this->pcntlSignalHandler->register(function () use ($server): void {
+                if (\getmypid() !== $server->getMasterPid()) {
+                    $server->shutdown();
+                }
+            }, Signal::int());
+        }
 
         if ($server->start()) {
             $io->newLine();

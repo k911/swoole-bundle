@@ -37,9 +37,12 @@ final class SymfonyProfilerTest extends ServerTestCase
             $this->assertNotEmpty($response['headers']['x-debug-token']);
             $debugToken = $response['headers']['x-debug-token'];
 
-            $profilerResponse = $client->send('/_wdt/'.$debugToken)['response'];
+            $client2 = HttpClient::fromDomain('localhost', 9999, false);
+            $this->assertTrue($client2->connect());
 
-            $this->assertStringContainsString('sf-toolbar-block-logger sf-toolbar-status-red', $profilerResponse['body']);
+            $profilerResponse = $client2->send('/_profiler/'.$debugToken)['response'];
+            $this->assertSame(200, $profilerResponse['statusCode']);
+            $this->assertStringContainsString('Profiler', $profilerResponse['body']);
         });
 
         $serverRun->stop();

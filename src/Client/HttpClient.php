@@ -48,6 +48,16 @@ final class HttpClient implements \Serializable
         $this->client = $client;
     }
 
+    public function __destruct()
+    {
+        $this->close();
+    }
+
+    public function close(): void
+    {
+        $this->client->close();
+    }
+
     public static function fromSocket(Socket $socket, array $options = []): self
     {
         return self::fromDomain(

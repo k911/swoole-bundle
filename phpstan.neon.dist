@@ -1,4 +1,5 @@
 parameters:
+    level: 7
     inferPrivatePropertyTypeFromConstructor: true
     checkMissingIterableValueType: false
     excludes_analyse:
@@ -8,3 +9,5 @@ parameters:
         - src/Server/WorkerHandler/HMRWorkerStartHandler.php
     ignoreErrors:
         # Put false positives here
+    paths:
+        - src

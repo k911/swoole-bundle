@@ -136,6 +136,11 @@ final class HttpServer
         return $this->listeners;
     }
 
+    public function getMasterPid(): int
+    {
+        return $this->getServer()->master_pid;
+    }
+
     private function isRunningInBackground(): bool
     {
         try {

@@ -82,10 +82,10 @@
             "php tests/Fixtures/Symfony/app/console --ansi"
         ],
         "static-analyse-src": [
-            "phpstan analyze src -l 7 -c phpstan.neon.dist --ansi --memory-limit=512M"
+            "phpstan analyze -c phpstan.neon.dist --ansi --memory-limit=512M"
         ],
         "static-analyse-tests": [
-            "phpstan analyze tests -l 4 -c phpstan.tests.neon --ansi --memory-limit=512M"
+            "phpstan analyze -c phpstan.tests.neon --ansi --memory-limit=512M"
         ],
         "cs-analyse": [
             "php-cs-fixer fix -v --dry-run --diff --stop-on-violation --ansi"
