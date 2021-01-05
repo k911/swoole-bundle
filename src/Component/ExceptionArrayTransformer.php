@@ -70,8 +70,6 @@ final class ExceptionArrayTransformer
 
     private function transformTraceArgs(array $args): array
     {
-        return \array_map(function ($arg): string {
-            return \is_object($arg) ? \get_class($arg) : \gettype($arg);
-        }, $args);
+        return \array_map(fn ($arg): string => \is_object($arg) ? \get_class($arg) : \gettype($arg), $args);
     }
 }

@@ -37,7 +37,7 @@ class WithServerManagerStartHandlerTest extends TestCase
 
         $this->configurator->configure($swooleServerOnEventSpy);
 
-        $this->assertTrue($swooleServerOnEventSpy->registeredEvent);
-        $this->assertSame(['ManagerStart', [$this->noOpServerManagerStartHandler, 'handle']], $swooleServerOnEventSpy->registeredEventPair);
+        self::assertTrue($swooleServerOnEventSpy->registeredEvent);
+        self::assertSame(['ManagerStart', [$this->noOpServerManagerStartHandler, 'handle']], $swooleServerOnEventSpy->registeredEventPair);
     }
 }

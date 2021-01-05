@@ -37,7 +37,7 @@ class WithServerShutdownHandlerTest extends TestCase
 
         $this->configurator->configure($swooleServerOnEventSpy);
 
-        $this->assertTrue($swooleServerOnEventSpy->registeredEvent);
-        $this->assertSame(['shutdown', [$this->noOpServerShutdownHandler, 'handle']], $swooleServerOnEventSpy->registeredEventPair);
+        self::assertTrue($swooleServerOnEventSpy->registeredEvent);
+        self::assertSame(['shutdown', [$this->noOpServerShutdownHandler, 'handle']], $swooleServerOnEventSpy->registeredEventPair);
     }
 }

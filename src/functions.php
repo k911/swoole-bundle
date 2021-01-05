@@ -31,9 +31,7 @@ function replace_object_property(object $obj, string $propertyName, $newValue, ?
  */
 function &get_object_property(object $obj, string $propertyName, ?string $scope = null)
 {
-    return Closure::bind(function &(string $propertyName) {
-        return $this->$propertyName;
-    }, $obj, $scope ?? $obj)($propertyName);
+    return Closure::bind(fn &(string $propertyName) => $this->$propertyName, $obj, $scope ?? $obj)($propertyName);
 }
 
 /**

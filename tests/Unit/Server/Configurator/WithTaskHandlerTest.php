@@ -55,8 +55,8 @@ class WithTaskHandlerTest extends TestCase
 
         $this->configurator->configure($swooleServerOnEventSpy);
 
-        $this->assertTrue($swooleServerOnEventSpy->registeredEvent);
-        $this->assertSame(['task', [$this->noOpTaskHandler, 'handle']], $swooleServerOnEventSpy->registeredEventPair);
+        self::assertTrue($swooleServerOnEventSpy->registeredEvent);
+        self::assertSame(['task', [$this->noOpTaskHandler, 'handle']], $swooleServerOnEventSpy->registeredEventPair);
     }
 
     public function testDoNotConfigureWhenNoTaskWorkers(): void
@@ -70,6 +70,6 @@ class WithTaskHandlerTest extends TestCase
 
         $this->configurator->configure($swooleServerOnEventSpy);
 
-        $this->assertFalse($swooleServerOnEventSpy->registeredEvent);
+        self::assertFalse($swooleServerOnEventSpy->registeredEvent);
     }
 }

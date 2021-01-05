@@ -82,7 +82,7 @@ final class SwooleServerReloadViaHttpApiTest extends ServerTestCase
 
     private function assertTestControllerResponseEquals(string $expected): void
     {
-        $this->assertSame(
+        self::assertSame(
             \str_replace(self::CONTROLLER_TEMPLATE_REPLACE_TEXT, $expected, \file_get_contents(self::CONTROLLER_TEMPLATE_SRC)),
             \file_get_contents(self::CONTROLLER_TEMPLATE_DEST)
         );

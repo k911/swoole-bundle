@@ -75,7 +75,7 @@ final class SwooleServerReloadCommandTest extends ServerTestCase
         $this->assertProcessSucceeded($serverReload);
 
         if (!self::coverageEnabled()) {
-            $this->assertStringContainsString('Swoole HTTP Server\'s workers reloaded successfully', $serverReload->getOutput());
+            self::assertStringContainsString('Swoole HTTP Server\'s workers reloaded successfully', $serverReload->getOutput());
         }
     }
 
@@ -89,7 +89,7 @@ final class SwooleServerReloadCommandTest extends ServerTestCase
 
     private function assertTestControllerResponseEquals(string $expected): void
     {
-        $this->assertSame(
+        self::assertSame(
             \str_replace(self::CONTROLLER_TEMPLATE_REPLACE_TEXT, $expected, \file_get_contents(self::CONTROLLER_TEMPLATE_SRC)),
             \file_get_contents(self::CONTROLLER_TEMPLATE_DEST)
         );

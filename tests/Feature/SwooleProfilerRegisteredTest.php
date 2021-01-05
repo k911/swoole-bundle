@@ -21,7 +21,7 @@ final class SwooleProfilerRegisteredTest extends ServerTestCase
         $container = $kernel->getContainer();
         $testContainer = $container->get('test.service_container');
 
-        $this->assertTrue($testContainer->has(Profiler::class));
-        $this->assertTrue($testContainer->has(WithProfiler::class));
+        self::assertTrue($testContainer->has(Profiler::class));
+        self::assertTrue($testContainer->has(WithProfiler::class));
     }
 }

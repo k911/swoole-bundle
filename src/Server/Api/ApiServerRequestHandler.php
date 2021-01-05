@@ -25,9 +25,7 @@ final class ApiServerRequestHandler implements RequestHandlerInterface
     {
         $this->routes = [
             '/healthz' => [
-                Http::METHOD_GET => $this->composeSimpleRouteDefinition(200, function (): array {
-                    return ['ok' => true];
-                }),
+                Http::METHOD_GET => $this->composeSimpleRouteDefinition(200, fn (): array => ['ok' => true]),
             ],
             '/api' => [
                 Http::METHOD_GET => $this->composeSimpleRouteDefinition(200, [$this, 'getRouteMap']),
@@ -131,9 +129,7 @@ final class ApiServerRequestHandler implements RequestHandlerInterface
 
     private function getRouteMap(): array
     {
-        return \array_map(function (array $route): array {
-            return \array_keys($route);
-        }, $this->routes);
+        return \array_map(fn (array $route): array => \array_keys($route), $this->routes);
     }
 
     private function sendResponse(Response $response, int $statusCode = 200, ?array $data = []): void

@@ -22,7 +22,7 @@ final class SwooleServerCustomPidFileTest extends ServerTestCase
             \sprintf('--pid-file=%s', $pidFile),
         ]);
 
-        $this->assertFileDoesNotExist($pidFile);
+        self::assertFileDoesNotExist($pidFile);
 
         $serverStart->setTimeout(3);
         $serverStart->disableOutput();
@@ -54,14 +54,14 @@ final class SwooleServerCustomPidFileTest extends ServerTestCase
             \sprintf('--pid-file=%s', $pidFile),
         ]);
 
-        $this->assertFileExists($pidFile);
-        $this->assertFileIsNotWritable($pidFile);
+        self::assertFileExists($pidFile);
+        self::assertFileIsNotWritable($pidFile);
 
         $serverStart->setTimeout(3);
         $serverStart->run();
 
         $this->assertProcessFailed($serverStart);
-        $this->assertStringContainsString('Could not create pid file', $serverStart->getErrorOutput());
+        self::assertStringContainsString('Could not create pid file', $serverStart->getErrorOutput());
     }
 
     private function generateNotExistingCustomPidFile(): string
@@ -76,8 +76,8 @@ final class SwooleServerCustomPidFileTest extends ServerTestCase
         $hash = \bin2hex(\random_bytes(8));
         $readOnlyFile = \sprintf('%s/existing-readonly-pid-file-%s.pid', self::FIXTURE_RESOURCES_DIR, $hash);
 
-        $this->assertNotFalse(\file_put_contents($readOnlyFile, '-9999'));
-        $this->assertTrue(\chmod($readOnlyFile, 0400));
+        self::assertNotFalse(\file_put_contents($readOnlyFile, '-9999'));
+        self::assertTrue(\chmod($readOnlyFile, 0400));
 
         return $readOnlyFile;
     }

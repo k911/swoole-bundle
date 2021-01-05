@@ -87,12 +87,12 @@ class ServerTestCase extends KernelTestCase
             throw new ProcessFailedException($process);
         }
 
-        $this->assertTrue($status);
+        self::assertTrue($status);
     }
 
     public function assertCommandTesterDisplayContainsString(string $expected, CommandTester $commandTester): void
     {
-        $this->assertStringContainsString(
+        self::assertStringContainsString(
             $expected,
             \preg_replace('!\s+!', ' ', \str_replace(PHP_EOL, '', $commandTester->getDisplay()))
         );
@@ -114,7 +114,7 @@ class ServerTestCase extends KernelTestCase
         $serverStop->run();
 
         $this->assertProcessSucceeded($serverStop);
-        $this->assertStringContainsString('Swoole server shutdown successfully', $serverStop->getOutput());
+        self::assertStringContainsString('Swoole server shutdown successfully', $serverStop->getOutput());
     }
 
     public function createConsoleProcess(array $args, array $envs = [], $input = null, ?float $timeout = 60.0): Process
@@ -143,15 +143,15 @@ class ServerTestCase extends KernelTestCase
     {
         $response = $client->send('/')['response'];
 
-        $this->assertSame(200, $response['statusCode']);
-        $this->assertSame([
+        self::assertSame(200, $response['statusCode']);
+        self::assertSame([
             'hello' => 'world!',
         ], $response['body']);
     }
 
     public function assertProcessFailed(Process $process): void
     {
-        $this->assertFalse($process->isSuccessful());
+        self::assertFalse($process->isSuccessful());
     }
 
     protected static function createKernel(array $options = []): KernelInterface
@@ -169,21 +169,21 @@ class ServerTestCase extends KernelTestCase
     protected function markTestSkippedIfXdebugEnabled(): void
     {
         if (\extension_loaded('xdebug')) {
-            $this->markTestSkipped('Test is incompatible with Xdebug extension. Please disable it and try again. To generate code coverage use "pcov" extension.');
+            self::markTestSkipped('Test is incompatible with Xdebug extension. Please disable it and try again. To generate code coverage use "pcov" extension.');
         }
     }
 
     protected function markTestSkippedIfInotifyDisabled(): void
     {
         if (!\extension_loaded('inotify')) {
-            $this->markTestSkipped('Swoole Bundle HMR requires "inotify" PHP extension present and installed on the system.');
+            self::markTestSkipped('Swoole Bundle HMR requires "inotify" PHP extension present and installed on the system.');
         }
     }
 
     protected function markTestSkippedIfSymfonyVersionIsLoverThan(string $version): void
     {
         if (\version_compare(Kernel::VERSION, $version, 'lt')) {
-            $this->markTestSkipped(\sprintf('This test needs Symfony in version : %s.', $version));
+            self::markTestSkipped(\sprintf('This test needs Symfony in version : %s.', $version));
         }
     }
 

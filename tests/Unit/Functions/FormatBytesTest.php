@@ -48,7 +48,7 @@ class FormatBytesTest extends TestCase
      */
     public function testFormatBytes(int $bytes, string $formatted): void
     {
-        $this->assertSame($formatted, format_bytes($bytes));
+        self::assertSame($formatted, format_bytes($bytes));
     }
 
     public function testNegativeBytes(): void

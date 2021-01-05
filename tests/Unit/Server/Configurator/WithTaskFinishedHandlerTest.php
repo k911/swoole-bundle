@@ -55,8 +55,8 @@ class WithTaskFinishedHandlerTest extends TestCase
 
         $this->configurator->configure($swooleServerOnEventSpy);
 
-        $this->assertTrue($swooleServerOnEventSpy->registeredEvent);
-        $this->assertSame(['finish', [$this->noOpTaskFinishedHandler, 'handle']], $swooleServerOnEventSpy->registeredEventPair);
+        self::assertTrue($swooleServerOnEventSpy->registeredEvent);
+        self::assertSame(['finish', [$this->noOpTaskFinishedHandler, 'handle']], $swooleServerOnEventSpy->registeredEventPair);
     }
 
     public function testDoNotConfigureWhenNoTaskWorkers(): void
@@ -70,6 +70,6 @@ class WithTaskFinishedHandlerTest extends TestCase
 
         $this->configurator->configure($swooleServerOnEventSpy);
 
-        $this->assertFalse($swooleServerOnEventSpy->registeredEvent);
+        self::assertFalse($swooleServerOnEventSpy->registeredEvent);
     }
 }

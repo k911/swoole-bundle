@@ -30,9 +30,9 @@ class SetRequestRuntimeConfigurationTest extends TestCase
 
         $this->configuration->boot($configuration);
 
-        $this->assertSame(['{127.0.0.1}i', '{localhost}i'], Request::getTrustedHosts());
+        self::assertSame(['{127.0.0.1}i', '{localhost}i'], Request::getTrustedHosts());
 
-        $this->assertSame($configuration['trustedProxies'], Request::getTrustedProxies());
-        $this->assertSame($configuration['trustedHeaderSet'], Request::getTrustedHeaderSet());
+        self::assertSame($configuration['trustedProxies'], Request::getTrustedProxies());
+        self::assertSame($configuration['trustedHeaderSet'], Request::getTrustedHeaderSet());
     }
 }

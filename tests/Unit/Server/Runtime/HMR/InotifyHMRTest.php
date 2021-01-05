@@ -20,19 +20,19 @@ class InotifyHMRTest extends TestCase
     protected function setUp(): void
     {
         if (!\extension_loaded('inotify')) {
-            $this->markTestSkipped('Swoole Bundle HMR requires "inotify" PHP extension present and installed on the system.');
+            self::markTestSkipped('Swoole Bundle HMR requires "inotify" PHP extension present and installed on the system.');
         }
     }
 
     public function testConstructSetGetNonReloadableFiles(): void
     {
         $hmr = new InotifyHMR(self::NON_RELOADABLE_EXISTING_FILES);
-        $this->assertSame(self::NON_RELOADABLE_EXISTING_FILES, $hmr->getNonReloadableFiles());
+        self::assertSame(self::NON_RELOADABLE_EXISTING_FILES, $hmr->getNonReloadableFiles());
     }
 
     public function testConstructSetNotExistingNonReloadableFiles(): void
     {
-        $this->assertFileDoesNotExist(self::NON_EXISTING_FILE);
+        self::assertFileDoesNotExist(self::NON_EXISTING_FILE);
 
         $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessage(\sprintf('File "%s" was expected to exist.', self::NON_EXISTING_FILE));
@@ -52,12 +52,12 @@ class InotifyHMRTest extends TestCase
         $result = $hmr->getNonReloadableFiles();
         \sort($result);
 
-        $this->assertSame($result, $expected);
+        self::assertSame($result, $expected);
     }
 
     public function testBootSetNotExistingNonReloadableFiles(): void
     {
-        $this->assertFileDoesNotExist(self::NON_EXISTING_FILE);
+        self::assertFileDoesNotExist(self::NON_EXISTING_FILE);
 
         $hmr = new InotifyHMR();
 

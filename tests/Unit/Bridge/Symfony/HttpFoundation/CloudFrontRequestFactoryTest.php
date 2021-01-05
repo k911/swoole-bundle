@@ -40,7 +40,7 @@ class CloudFrontRequestFactoryTest extends TestCase
 
         $this->decoratedProphecy->make($swooleRequest)->willReturn($httpFoundationRequest)->shouldBeCalled();
 
-        $this->assertSame($httpFoundationRequest, $this->requestFactory->make($swooleRequest));
+        self::assertSame($httpFoundationRequest, $this->requestFactory->make($swooleRequest));
     }
 
     public function testHandleCloudFrontHeader(): void
@@ -50,7 +50,7 @@ class CloudFrontRequestFactoryTest extends TestCase
 
         $this->decoratedProphecy->make($swooleRequest)->willReturn($httpFoundationRequest)->shouldBeCalled();
 
-        $this->assertSame($httpFoundationRequest, $this->requestFactory->make($swooleRequest));
-        $this->assertSame('https', $httpFoundationRequest->headers->get('x_forwarded_proto'));
+        self::assertSame($httpFoundationRequest, $this->requestFactory->make($swooleRequest));
+        self::assertSame('https', $httpFoundationRequest->headers->get('x_forwarded_proto'));
     }
 }
