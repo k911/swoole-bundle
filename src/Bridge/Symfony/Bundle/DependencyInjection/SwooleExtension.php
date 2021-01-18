@@ -5,8 +5,9 @@ declare(strict_types=1);
 namespace K911\Swoole\Bridge\Symfony\Bundle\DependencyInjection;
 
 use Doctrine\ORM\EntityManagerInterface;
+use Doctrine\Persistence\ManagerRegistry;
+use K911\Swoole\Bridge\Doctrine\ORM\ClearEntityManagerHandler;
 use K911\Swoole\Bridge\Doctrine\ORM\DoctrinePingConnectionsHandler;
-use K911\Swoole\Bridge\Doctrine\ORM\EntityManagerHandler;
 use K911\Swoole\Bridge\Symfony\ErrorHandler\ErrorResponder;
 use K911\Swoole\Bridge\Symfony\ErrorHandler\ExceptionHandlerFactory;
 use K911\Swoole\Bridge\Symfony\ErrorHandler\SymfonyExceptionHandler;
@@ -40,6 +41,7 @@ use RuntimeException;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Definition;
+use Symfony\Component\DependencyInjection\Exception\InvalidArgumentException;
 use Symfony\Component\DependencyInjection\Extension\PrependExtensionInterface;
 use Symfony\Component\DependencyInjection\Loader\YamlFileLoader;
 use Symfony\Component\DependencyInjection\Reference;
@@ -294,11 +296,36 @@ final class SwooleExtension extends Extension implements PrependExtensionInterfa
             ;
         }
 
-        if ($config['entity_manager_handler'] || (
-            null === $config['entity_manager_handler'] && $this->isDoctrineEntityManagerConfigured($container)
-        )) {
-            $container->register(EntityManagerHandler::class)
-                ->addArgument(new Reference(EntityManagerHandler::class.'.inner'))
+        if (null !== $config['entity_manager_handler']) {
+            if (null !== $config['doctrine_ping_connections_handler']
+                || null !== $config['clear_entity_manager_handler']
+            ) {
+                throw new InvalidArgumentException('Config option "entity_manager_handler" cannot be used together with "doctrine_ping_connections_handler" and "clear_entity_manager_handler".');
+            }
+            $config['doctrine_ping_connections_handler'] = $config['entity_manager_handler'];
+            $config['clear_entity_manager_handler'] = $config['entity_manager_handler'];
+        }
+        if (null === $config['doctrine_ping_connections_handler']
+            && null === $config['clear_entity_manager_handler']
+            && $this->isDoctrineConfigured($container)
+        ) {
+            $config['doctrine_ping_connections_handler'] = true;
+            $config['clear_entity_manager_handler'] = true;
+        }
+
+        if ($config['doctrine_ping_connections_handler']) {
+            $container->register(DoctrinePingConnectionsHandler::class)
+                ->addArgument(new Reference(DoctrinePingConnectionsHandler::class.'.inner'))
+                ->setAutowired(true)
+                ->setAutoconfigured(true)
+                ->setPublic(false)
+                ->setDecoratedService(RequestHandlerInterface::class, null, -20)
+            ;
+        }
+
+        if ($config['clear_entity_manager_handler']) {
+            $container->register(ClearEntityManagerHandler::class)
+                ->addArgument(new Reference(ClearEntityManagerHandler::class.'.inner'))
                 ->setAutowired(true)
                 ->setAutoconfigured(true)
                 ->setPublic(false)
@@ -398,11 +425,11 @@ final class SwooleExtension extends Extension implements PrependExtensionInterfa
         return isset($bundles[$fullBundleName]);
     }
 
-    private function isDoctrineEntityManagerConfigured(ContainerBuilder $container): bool
+    private function isDoctrineConfigured(ContainerBuilder $container): bool
     {
         return \interface_exists(EntityManagerInterface::class) &&
             $this->isBundleLoaded($container, 'doctrine') &&
-            $container->has(EntityManagerInterface::class);
+            $container->has(ManagerRegistry::class);
     }
 
     private function isProd(ContainerBuilder $container): bool
