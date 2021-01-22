@@ -19,11 +19,32 @@ services:
 
     K911\Swoole\Bridge\Symfony\HttpFoundation\SetRequestRuntimeConfiguration:
 
+    K911\Swoole\Bridge\Symfony\HttpFoundation\SwooleRequestResponseContextManager:
+
     K911\Swoole\Bridge\Symfony\HttpFoundation\RequestFactoryInterface:
         class: K911\Swoole\Bridge\Symfony\HttpFoundation\RequestFactory
 
     K911\Swoole\Bridge\Symfony\HttpFoundation\ResponseProcessorInterface:
         class: K911\Swoole\Bridge\Symfony\HttpFoundation\ResponseProcessor
+
+    K911\Swoole\Bridge\Symfony\HttpFoundation\NoOpStreamedResponseProcessor:
+        decorates: K911\Swoole\Bridge\Symfony\HttpFoundation\ResponseProcessorInterface
+        arguments:
+            - '@K911\Swoole\Bridge\Symfony\HttpFoundation\NoOpStreamedResponseProcessor.inner'
+
+    response_processor.headers_and_cookies.default:
+        class: K911\Swoole\Bridge\Symfony\HttpFoundation\ResponseHeadersAndStatusProcessor
+        decorates: K911\Swoole\Bridge\Symfony\HttpFoundation\ResponseProcessorInterface
+        arguments:
+            - '@response_processor.headers_and_cookies.default.inner'
+
+    K911\Swoole\Bridge\Symfony\HttpFoundation\StreamedResponseProcessor:
+
+    response_processor.headers_and_cookies.streamed:
+        class: K911\Swoole\Bridge\Symfony\HttpFoundation\ResponseHeadersAndStatusProcessor
+        decorates: K911\Swoole\Bridge\Symfony\HttpFoundation\StreamedResponseProcessor
+        arguments:
+            - '@response_processor.headers_and_cookies.streamed.inner'
 
     K911\Swoole\Server\RequestHandler\RequestHandlerInterface:
         alias: K911\Swoole\Server\RequestHandler\ExceptionRequestHandler
