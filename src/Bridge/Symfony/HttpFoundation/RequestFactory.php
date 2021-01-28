@@ -22,7 +22,8 @@ final class RequestFactory implements RequestFactoryInterface
         }
 
         $queryString = $server['QUERY_STRING'] ?? '';
-        $server['REQUEST_URI'] = $server['REQUEST_URI'].('' !== $queryString ? '?'.$queryString : '');
+        $server['REQUEST_URI'] = $server['REQUEST_URI'] ?? '';
+        $server['REQUEST_URI'] .= '' !== $queryString ? '?'.$queryString : '';
 
         return new HttpFoundationRequest(
             $request->get ?? [],
