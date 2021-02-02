@@ -19,6 +19,8 @@ services:
 
     K911\Swoole\Bridge\Symfony\HttpFoundation\SetRequestRuntimeConfiguration:
 
+    K911\Swoole\Bridge\Symfony\HttpFoundation\SwooleRequestResponseContextManager:
+
     K911\Swoole\Bridge\Symfony\HttpFoundation\RequestFactoryInterface:
         class: K911\Swoole\Bridge\Symfony\HttpFoundation\RequestFactory
 
