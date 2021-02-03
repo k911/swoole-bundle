@@ -36,8 +36,9 @@ class ResponseProcessorTest extends TestCase
 
     public function testProcess(): void
     {
+        $content = 'success';
         $this->symfonyResponse = new HttpFoundationResponse(
-            'success',
+            $content,
             200,
             [
                 'Vary' => [
@@ -49,7 +50,7 @@ class ResponseProcessorTest extends TestCase
         );
 
         $swooleResponse = $this->swooleResponse->reveal();
+        $this->swooleResponse->end($content)->shouldBeCalled();
         $this->responseProcessor->process($this->symfonyResponse, $swooleResponse);
-        $this->swooleResponse->header('Vary', 'Content-Type, Authorization, Origin')->shouldBeCalled();
     }
 }
