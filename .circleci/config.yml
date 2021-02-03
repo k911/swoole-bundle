@@ -210,21 +210,27 @@ jobs:
       - run:
           name: Run unit tests with coverage (pcov)
           command: docker-compose run --rm coverage-pcov
+          when: always
       - run:
           name: Run feature tests with coverage (xdebug) and retry
           command: docker-compose run --rm coverage-xdebug-feature-with-retry
+          when: always
       - run:
           name: Run feature tests with coverage (pcov)
           command: docker-compose run --rm coverage-pcov feature-code-coverage
+          when: always
       - run:
           name: Merge code coverage files generated across test suites
           command: docker-compose run --rm merge-code-coverage
+          when: always
       - run:
           name: Extract code coverage from container volume
           command: docker cp $(docker-compose ps -q coverage-volume-helper):/usr/src/app/cov/clover.xml clover.xml
+          when: always
       - run:
           name: Send Code Coverage report to CodeClimate
           command: ./cc-test-reporter after-build -t clover --exit-code 0 --prefix /usr/src/app
+          when: always
       - codecov/upload:
           file: clover.xml
 
