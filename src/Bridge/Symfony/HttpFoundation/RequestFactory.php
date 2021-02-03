@@ -14,7 +14,7 @@ final class RequestFactory implements RequestFactoryInterface
      */
     public function make(SwooleRequest $request): HttpFoundationRequest
     {
-        $server = \array_change_key_case($request->server, CASE_UPPER);
+        $server = \array_change_key_case($request->server, \CASE_UPPER);
 
         // Add formatted headers to server
         foreach ($request->header as $key => $value) {

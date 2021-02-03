@@ -71,7 +71,7 @@ class ServerTestCase extends KernelTestCase
         $listProcessesOnPort->run();
 
         if ($listProcessesOnPort->isSuccessful()) {
-            foreach (\array_filter(\explode(PHP_EOL, $listProcessesOnPort->getOutput())) as $processId) {
+            foreach (\array_filter(\explode(\PHP_EOL, $listProcessesOnPort->getOutput())) as $processId) {
                 $kill = new Process(['kill', '-9', $processId]);
                 $kill->setTimeout($timeout);
                 $kill->disableOutput();
@@ -94,7 +94,7 @@ class ServerTestCase extends KernelTestCase
     {
         self::assertStringContainsString(
             $expected,
-            \preg_replace('!\s+!', ' ', \str_replace(PHP_EOL, '', $commandTester->getDisplay()))
+            \preg_replace('!\s+!', ' ', \str_replace(\PHP_EOL, '', $commandTester->getDisplay()))
         );
     }
 

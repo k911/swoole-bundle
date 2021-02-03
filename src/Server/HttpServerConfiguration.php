@@ -57,12 +57,12 @@ class HttpServerConfiguration
     ];
 
     private const SWOOLE_LOG_LEVELS = [
-        'debug' => SWOOLE_LOG_DEBUG,
-        'trace' => SWOOLE_LOG_TRACE,
-        'info' => SWOOLE_LOG_INFO,
-        'notice' => SWOOLE_LOG_NOTICE,
-        'warning' => SWOOLE_LOG_WARNING,
-        'error' => SWOOLE_LOG_ERROR,
+        'debug' => \SWOOLE_LOG_DEBUG,
+        'trace' => \SWOOLE_LOG_TRACE,
+        'info' => \SWOOLE_LOG_INFO,
+        'notice' => \SWOOLE_LOG_NOTICE,
+        'warning' => \SWOOLE_LOG_WARNING,
+        'error' => \SWOOLE_LOG_ERROR,
     ];
 
     private $sockets;
