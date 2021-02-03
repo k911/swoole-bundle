@@ -379,6 +379,7 @@ final class SwooleExtension extends Extension implements PrependExtensionInterfa
 
     private function isBundleLoaded(ContainerBuilder $container, string $bundleName): bool
     {
+        /** @var array<string,string> */
         $bundles = $container->getParameter('kernel.bundles');
 
         $bundleNameOnly = \str_replace('bundle', '', \mb_strtolower($bundleName));
@@ -401,7 +402,7 @@ final class SwooleExtension extends Extension implements PrependExtensionInterfa
 
     private function isDebug(ContainerBuilder $container): bool
     {
-        return $container->getParameter('kernel.debug');
+        return (bool) $container->getParameter('kernel.debug');
     }
 
     private function isDebugOrNotProd(ContainerBuilder $container): bool
