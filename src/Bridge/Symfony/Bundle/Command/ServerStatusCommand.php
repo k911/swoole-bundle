@@ -126,7 +126,7 @@ final class ServerStatusCommand extends Command
 
     private function showMetrics(SymfonyStyle $io, array $metrics): void
     {
-        $date = \DateTimeImmutable::createFromFormat(DATE_ATOM, $metrics['date']);
+        $date = \DateTimeImmutable::createFromFormat(\DATE_ATOM, $metrics['date']);
         Assertion::isInstanceOf($date, \DateTimeImmutable::class);
         $server = $metrics['server'];
         $runningSeconds = $date->getTimestamp() - $server['start_time'];

@@ -87,7 +87,7 @@ final class ServerStartCommand extends AbstractServerStartCommand
 
     private function closeStreamOutput(StreamOutput $output): void
     {
-        $output->setVerbosity(PHP_INT_MIN);
+        $output->setVerbosity(\PHP_INT_MIN);
         \fclose($output->getStream());
     }
 }

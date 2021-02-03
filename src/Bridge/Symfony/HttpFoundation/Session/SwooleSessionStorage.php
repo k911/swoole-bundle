@@ -121,7 +121,7 @@ final class SwooleSessionStorage implements SessionStorageInterface
 
         $this->storage->set(
             $this->currentId,
-            \json_encode($this->data, JSON_THROW_ON_ERROR),
+            \json_encode($this->data, \JSON_THROW_ON_ERROR),
             $this->sessionLifetimeSeconds
         );
     }
@@ -251,7 +251,7 @@ final class SwooleSessionStorage implements SessionStorageInterface
 
         Assertion::string($sessionData);
 
-        return \json_decode($sessionData, true, 512, JSON_THROW_ON_ERROR);
+        return \json_decode($sessionData, true, 512, \JSON_THROW_ON_ERROR);
     }
 
     /**

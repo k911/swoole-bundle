@@ -160,7 +160,7 @@ abstract class AbstractServerStartCommand extends Command
             $sockets->changeApiSocket(new Socket('0.0.0.0', (int) $apiPort));
         }
 
-        if (\filter_var($input->getOption('serve-static'), FILTER_VALIDATE_BOOLEAN)) {
+        if (\filter_var($input->getOption('serve-static'), \FILTER_VALIDATE_BOOLEAN)) {
             $publicDir = $input->getOption('public-dir');
             Assertion::string($publicDir, 'Public dir must be a valid path');
             $serverConfiguration->enableServingStaticFiles($publicDir);

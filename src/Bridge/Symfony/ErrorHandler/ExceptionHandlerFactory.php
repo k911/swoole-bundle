@@ -45,7 +45,7 @@ final class ExceptionHandlerFactory
                 $e = new ErrorException(
                     $e->getMessage(),
                     $e->getCode(),
-                    E_ERROR,
+                    \E_ERROR,
                     $e->getFile(),
                     $e->getLine(),
                     $e->getPrevious()

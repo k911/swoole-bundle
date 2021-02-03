@@ -37,7 +37,7 @@ class FormatBytesTest extends TestCase
                 '2 GiB',
             ],
             'PHP_INT_MAX bytes' => [
-                PHP_INT_MAX,
+                \PHP_INT_MAX,
                 '8192 PiB',
             ],
         ];

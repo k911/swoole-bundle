@@ -84,7 +84,7 @@ class SwooleHttpServerDummy extends Server
     {
     }
 
-    public function addListener($host, $port, $type = SWOOLE_SOCK_TCP): void
+    public function addListener($host, $port, $type = \SWOOLE_SOCK_TCP): void
     {
     }
 
@@ -96,7 +96,7 @@ class SwooleHttpServerDummy extends Server
     {
     }
 
-    public function listen($host, $port, $type = SWOOLE_SOCK_TCP): void
+    public function listen($host, $port, $type = \SWOOLE_SOCK_TCP): void
     {
     }
 

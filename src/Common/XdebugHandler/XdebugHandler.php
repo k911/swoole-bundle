@@ -46,7 +46,7 @@ final class XdebugHandler
 
     public function prepareRestartedProcess(): Process
     {
-        $command = [PHP_BINARY, '-n', '-c', $this->createPreparedTempIniFile()];
+        $command = [\PHP_BINARY, '-n', '-c', $this->createPreparedTempIniFile()];
         $currentCommand = $_SERVER['argv'];
         $command = \array_merge($command, $currentCommand);
 
@@ -139,7 +139,7 @@ final class XdebugHandler
             }
 
             $data = \preg_replace($regex, ';$1', $iniContent);
-            $content .= $data.PHP_EOL;
+            $content .= $data.\PHP_EOL;
         }
 
         // Merge loaded settings into our ini content, if it is valid
@@ -152,7 +152,7 @@ final class XdebugHandler
         }
 
         // Work-around for https://bugs.php.net/bug.php?id=75932
-        $content .= 'opcache.enable_cli=0'.PHP_EOL;
+        $content .= 'opcache.enable_cli=0'.\PHP_EOL;
 
         return $content;
     }
@@ -175,7 +175,7 @@ final class XdebugHandler
 
             if (!isset($iniConfig[$name]) || $iniConfig[$name] !== $value) {
                 // Double-quote escape each value
-                $content .= $name.'="'.\addcslashes($value, '\\"').'"'.PHP_EOL;
+                $content .= $name.'="'.\addcslashes($value, '\\"').'"'.\PHP_EOL;
             }
         }
 

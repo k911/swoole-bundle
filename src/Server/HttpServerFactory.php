@@ -11,8 +11,8 @@ use Swoole\Http\Server;
 final class HttpServerFactory
 {
     private const SWOOLE_RUNNING_MODE = [
-        'process' => SWOOLE_PROCESS,
-        'reactor' => SWOOLE_BASE,
+        'process' => \SWOOLE_PROCESS,
+        'reactor' => \SWOOLE_BASE,
         //        'thread' => SWOOLE_THREAD,
     ];
 

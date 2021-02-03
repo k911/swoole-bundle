@@ -11,12 +11,12 @@ final class Socket
 {
     private const CONSTANT_SWOOLE_SSL_IS_NOT_DEFINED_ERROR_MESSAGE = 'Constant SWOOLE_SSL is not defined. Please compile swoole extension with SSL support enabled.';
     private const SWOOLE_SOCKET_TYPE = [
-        'tcp' => SWOOLE_SOCK_TCP,
-        'tcp_ipv6' => SWOOLE_SOCK_TCP6,
-        'udp' => SWOOLE_SOCK_UDP,
-        'udp_ipv6' => SWOOLE_SOCK_UDP6,
-        'unix_dgram' => SWOOLE_SOCK_UNIX_DGRAM,
-        'unix_stream' => SWOOLE_SOCK_UNIX_STREAM,
+        'tcp' => \SWOOLE_SOCK_TCP,
+        'tcp_ipv6' => \SWOOLE_SOCK_TCP6,
+        'udp' => \SWOOLE_SOCK_UDP,
+        'udp_ipv6' => \SWOOLE_SOCK_UDP6,
+        'unix_dgram' => \SWOOLE_SOCK_UNIX_DGRAM,
+        'unix_stream' => \SWOOLE_SOCK_UNIX_STREAM,
     ];
 
     /**
@@ -90,7 +90,7 @@ final class Socket
             if (!\defined('SWOOLE_SSL')) {
                 throw new InvalidArgumentException(self::CONSTANT_SWOOLE_SSL_IS_NOT_DEFINED_ERROR_MESSAGE);
             }
-            $resolvedSocketType |= SWOOLE_SSL;
+            $resolvedSocketType |= \SWOOLE_SSL;
         }
 
         return $resolvedSocketType;
