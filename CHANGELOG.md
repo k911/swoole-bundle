@@ -1,3 +1,16 @@
+# [0.9.0](https://github.com/k911/swoole-bundle/compare/v0.8.3...v0.9.0) (2021-02-03)
+
+[Full changelog](https://github.com/k911/swoole-bundle/compare/v0.8.3...v0.9.0)
+
+### Bug Fixes
+
+* **request-factory:** Avoid accessing undefined index REQUEST_URI ([#422](https://github.com/k911/swoole-bundle/issues/422)) ([807ba9f](https://github.com/k911/swoole-bundle/commit/807ba9f0c7ceaa523af76899ce154c816ab69242))
+
+
+### Features
+
+* **response-processor:** add support for StreamedResponse ([89fc7ca](https://github.com/k911/swoole-bundle/commit/89fc7cac9864465cc707224422e81ad0d101edc4))
+
 ## [0.8.3](https://github.com/k911/swoole-bundle/compare/v0.8.2...v0.8.3) (2021-01-03)
 
 [Full changelog](https://github.com/k911/swoole-bundle/compare/v0.8.2...v0.8.3)
