@@ -1,5 +1,5 @@
-ARG PHP_TAG="7.4-cli-alpine3.12"
-ARG COMPOSER_TAG="2.0.8"
+ARG PHP_TAG="7.4-cli-alpine3.13"
+ARG COMPOSER_TAG="2.0.11"
 
 FROM php:$PHP_TAG as ext-builder
 RUN docker-php-source extract && \
@@ -22,7 +22,7 @@ RUN pecl install xdebug && \
 
 FROM ext-builder as ext-swoole
 RUN apk add --no-cache git
-ARG SWOOLE_VERSION="4.5.10"
+ARG SWOOLE_VERSION="4.5.11"
 RUN if $(echo "$SWOOLE_VERSION" | grep -qE '^[4-9]\.[0-9]+\.[0-9]+$'); then SWOOLE_GIT_REF="v$SWOOLE_VERSION"; else SWOOLE_GIT_REF="$SWOOLE_VERSION"; fi && \
     git clone https://github.com/swoole/swoole-src.git --branch "$SWOOLE_GIT_REF" --depth 1 && \
     cd swoole-src && \
