@@ -72,7 +72,7 @@ abstract class AbstractServerStartCommand extends Command
         $sockets = $this->serverConfiguration->getSockets();
         $serverSocket = $sockets->getServerSocket();
         $this->addOption('host', null, InputOption::VALUE_REQUIRED, 'Host name to bind to. To bind to any host, use: 0.0.0.0', $serverSocket->host())
-            ->addOption('port', null, InputOption::VALUE_REQUIRED, 'Listen for Swoole HTTP Server on this port, when 0 random available port is chosen', $serverSocket->port())
+            ->addOption('port', null, InputOption::VALUE_REQUIRED, 'Listen for Swoole HTTP Server on this port, when 0 random available port is chosen', (string) $serverSocket->port())
             ->addOption('serve-static', 's', InputOption::VALUE_NONE, 'Enables serving static content from public directory')
             ->addOption('public-dir', null, InputOption::VALUE_REQUIRED, 'Public directory', $this->getDefaultPublicDir())
             ->addOption('trusted-hosts', null, InputOption::VALUE_REQUIRED, 'Trusted hosts', $this->parameterBag->get('swoole.http_server.trusted_hosts'))
