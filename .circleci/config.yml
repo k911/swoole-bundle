@@ -270,7 +270,7 @@ jobs:
       PHP_VERSION: "7.4"
       PHP_API_VERSION: "20190902"
       COMPOSER_ARGS: update --prefer-lowest
-      SWOOLE_VERSION: "4.5.10"
+      SWOOLE_VERSION: "4.5.11"
       REGISTRY: docker.io
       NAMESPACE: k911
       IMAGE: swoole-bundle
