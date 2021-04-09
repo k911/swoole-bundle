@@ -4,12 +4,12 @@ orbs:
 executors:
   k911-docker-client:
     docker:
-      - image: k911/docker-client:20.10.1-compose
+      - image: k911/docker-client:20.10.5-compose
     working_directory: ~/workdir
 
   k911-release-version:
     docker:
-      - image: docker.io/k911/release-version-script:0.3.3
+      - image: docker.io/k911/release-version-script:0.3.4
     working_directory: /usr/src/app
 
 aliases:
@@ -17,7 +17,7 @@ aliases:
   - &docker-remote-version
     setup_remote_docker:
       # https://circleci.com/docs/2.0/building-docker-images/#docker-version
-      version: 19.03.13
+      version: 20.10.2
 
   - &docker-bake
     executor: k911-docker-client
