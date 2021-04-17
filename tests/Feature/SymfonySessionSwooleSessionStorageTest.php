@@ -27,11 +27,7 @@ final class SymfonySessionSwooleSessionStorageTest extends ServerTestCase
             'COOKIE_LIFETIME' => $cookieLifetime,
         ]);
 
-        $serverStart->setTimeout(3);
-        $serverStart->disableOutput();
-        $serverStart->run();
-
-        $this->assertProcessSucceeded($serverStart);
+        $this->assertStartServerSucceeded($serverStart);
 
         $this->runAsCoroutineAndWait(function (): void {
             $this->deferServerStop();
@@ -68,11 +64,7 @@ final class SymfonySessionSwooleSessionStorageTest extends ServerTestCase
             'COOKIE_LIFETIME' => $cookieLifetime,
         ]);
 
-        $serverStart->setTimeout(3);
-        $serverStart->disableOutput();
-        $serverStart->run();
-
-        $this->assertProcessSucceeded($serverStart);
+        $this->assertStartServerSucceeded($serverStart);
 
         $this->runAsCoroutineAndWait(function (): void {
             $this->deferServerStop();
@@ -110,11 +102,7 @@ final class SymfonySessionSwooleSessionStorageTest extends ServerTestCase
             'COOKIE_LIFETIME' => $cookieLifetime,
         ]);
 
-        $serverStart->setTimeout(3);
-        $serverStart->disableOutput();
-        $serverStart->run();
-
-        $this->assertProcessSucceeded($serverStart);
+        $this->assertStartServerSucceeded($serverStart);
 
         $this->runAsCoroutineAndWait(function () use ($cookieLifetime): void {
             $this->deferServerStop();
@@ -130,7 +118,7 @@ final class SymfonySessionSwooleSessionStorageTest extends ServerTestCase
             $setCookieHeader1 = $response1['headers']['set-cookie'];
             $body1 = $response1['body'];
 
-            Coroutine::sleep($cookieLifetime + 1);
+            Coroutine::sleep($cookieLifetime + 2);
 
             $response2 = $client->send('/session/2')['response'];
             $this->assertSame(200, $response2['statusCode']);
@@ -158,11 +146,7 @@ final class SymfonySessionSwooleSessionStorageTest extends ServerTestCase
             'COOKIE_LIFETIME' => $cookieLifetime,
         ]);
 
-        $serverStart->setTimeout(3);
-        $serverStart->disableOutput();
-        $serverStart->run();
-
-        $this->assertProcessSucceeded($serverStart);
+        $this->assertStartServerSucceeded($serverStart);
 
         $this->runAsCoroutineAndWait(function (): void {
             $this->deferServerStop();
@@ -209,11 +193,7 @@ final class SymfonySessionSwooleSessionStorageTest extends ServerTestCase
             'WORKER_COUNT' => 1,
         ]);
 
-        $serverStart->setTimeout(3);
-        $serverStart->disableOutput();
-        $serverStart->run();
-
-        $this->assertProcessSucceeded($serverStart);
+        $this->assertStartServerSucceeded($serverStart);
 
         $this->runAsCoroutineAndWait(function (): void {
             $this->deferServerStop();

@@ -96,7 +96,8 @@ abstract class AbstractServerStartCommand extends Command
 
         if ($this->server->isRunning()) {
             $io->error('Swoole HTTP Server is already running');
-            exit(1);
+
+            return 1;
         }
 
         $swooleServer = $this->makeSwooleHttpServer();

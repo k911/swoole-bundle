@@ -5,7 +5,10 @@ declare(strict_types=1);
 namespace K911\Swoole\Tests\Fixtures\Symfony\TestBundle\Test;
 
 use K911\Swoole\Client\HttpClient;
+use K911\Swoole\Component\Clock\CoroutineFriendlyClock;
 use K911\Swoole\Coroutine\CoroutinePool;
+use K911\Swoole\Process\ProcessManager;
+use K911\Swoole\Process\Signal\SwooleProcessSignalHandler;
 use K911\Swoole\Tests\Fixtures\Symfony\TestAppKernel;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\Console\Tester\CommandTester;
@@ -21,11 +24,22 @@ class ServerTestCase extends KernelTestCase
     private const COMMAND = './console';
     private const WORKING_DIRECTORY = __DIR__.'/../../app';
 
+    private static SwooleProcessSignalHandler $signalHandler;
+    private static ProcessManager $processManager;
+
+    public static function setUpBeforeClass(): void
+    {
+        self::$signalHandler = new SwooleProcessSignalHandler();
+        self::$processManager = new ProcessManager(self::$signalHandler, new CoroutineFriendlyClock());
+    }
+
     protected function tearDown(): void
     {
         // Make sure everything is stopped
         $this->killAllProcessesListeningOnPort(9999);
-        \sleep(self::coverageEnabled() ? 3 : 1);
+
+        // Run parent function
+        parent::tearDown();
     }
 
     public static function resolveEnvironment(?string $env = null): string
@@ -70,13 +84,22 @@ class ServerTestCase extends KernelTestCase
         $listProcessesOnPort->run();
 
         if ($listProcessesOnPort->isSuccessful()) {
-            foreach (\array_filter(\explode(\PHP_EOL, $listProcessesOnPort->getOutput())) as $processId) {
-                $kill = new Process(['kill', '-9', $processId]);
-                $kill->setTimeout($timeout);
-                $kill->disableOutput();
-                $kill->run();
+            foreach (\array_map(fn (string $processId) => (int) $processId, \array_filter(\explode(\PHP_EOL, $listProcessesOnPort->getOutput()))) as $processId) {
+                self::$processManager->gracefullyTerminate($processId, $timeout);
+                self::assertFalse(self::$processManager->runningStatus($processId));
             }
         }
+    }
+
+    public function assertStartServerSucceeded(Process $startServerProcess): void
+    {
+        $startServerProcess->setTimeout(0);
+        $startServerProcess->start();
+
+        $startServerProcess->waitUntil(fn ($type, $output) => !\in_array(\trim($output), ['', '\n'], true));
+
+        $output = $startServerProcess->getOutput();
+        self::assertStringContainsString('Swoole HTTP Server started on', $output);
     }
 
     public function assertProcessSucceeded(Process $process): void
@@ -109,7 +132,7 @@ class ServerTestCase extends KernelTestCase
         $processArgs = \array_merge(['swoole:server:stop'], $args);
         $serverStop = $this->createConsoleProcess($processArgs);
 
-        $serverStop->setTimeout(10);
+        $serverStop->setTimeout(self::coverageEnabled() ? 30 : 10);
         $serverStop->run();
 
         $this->assertProcessSucceeded($serverStop);

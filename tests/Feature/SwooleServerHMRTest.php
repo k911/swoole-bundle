@@ -29,11 +29,7 @@ final class SwooleServerHMRTest extends ServerTestCase
             '--port=9999',
         ], ['APP_ENV' => 'auto']);
 
-        $serverStart->setTimeout(3);
-        $serverStart->disableOutput();
-        $serverStart->run();
-
-        $this->assertProcessSucceeded($serverStart);
+        $this->assertStartServerSucceeded($serverStart);
 
         $this->runAsCoroutineAndWait(function (): void {
             $this->deferServerStop();
@@ -70,11 +66,7 @@ final class SwooleServerHMRTest extends ServerTestCase
             '--port=9999',
         ], ['APP_ENV' => 'prod']);
 
-        $serverStart->setTimeout(3);
-        $serverStart->disableOutput();
-        $serverStart->run();
-
-        $this->assertProcessSucceeded($serverStart);
+        $this->assertStartServerSucceeded($serverStart);
 
         $this->runAsCoroutineAndWait(function (): void {
             $this->deferServerStop();

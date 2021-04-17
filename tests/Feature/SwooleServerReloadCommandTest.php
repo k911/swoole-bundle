@@ -28,11 +28,7 @@ final class SwooleServerReloadCommandTest extends ServerTestCase
             '--port=9999',
         ]);
 
-        $serverStart->setTimeout(3);
-        $serverStart->disableOutput();
-        $serverStart->run();
-
-        $this->assertProcessSucceeded($serverStart);
+        $this->assertStartServerSucceeded($serverStart);
 
         $this->runAsCoroutineAndWait(function (): void {
             $this->deferServerStop();

@@ -22,11 +22,7 @@ final class SwooleServerStartStopCommandTest extends ServerTestCase
             '--port=9999',
         ]);
 
-        $serverStart->setTimeout(3);
-        $serverStart->disableOutput();
-        $serverStart->run();
-
-        $this->assertProcessSucceeded($serverStart);
+        $this->assertStartServerSucceeded($serverStart);
 
         $this->runAsCoroutineAndWait(function (): void {
             $this->deferServerStop();
@@ -45,11 +41,7 @@ final class SwooleServerStartStopCommandTest extends ServerTestCase
             '--port=9999',
         ], ['APP_ENV' => 'reactor']);
 
-        $serverStart->setTimeout(3);
-        $serverStart->disableOutput();
-        $serverStart->run();
-
-        $this->assertProcessSucceeded($serverStart);
+        $this->assertStartServerSucceeded($serverStart);
 
         $this->runAsCoroutineAndWait(function (): void {
             $this->deferServerStop();

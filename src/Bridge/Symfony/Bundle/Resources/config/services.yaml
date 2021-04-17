@@ -199,3 +199,8 @@ services:
         autoconfigure: false
         arguments:
             $handler: '@K911\Swoole\Server\Runtime\ServerShutdown\SignalServerShutdownHandlerOnServerStart'
+
+    K911\Swoole\Bridge\Symfony\Bundle\EventListener\SwooleErrorOnConsoleTerminateEvent:
+        tags:
+            - name: kernel.event_listener
+              event: console.terminate

@@ -61,7 +61,8 @@ final class ServerReloadCommand extends Command
             $this->server->reload();
         } catch (Throwable $ex) {
             $io->error($ex->getMessage());
-            exit(1);
+
+            return 1;
         }
 
         $io->success('Swoole HTTP Server\'s workers reloaded successfully');

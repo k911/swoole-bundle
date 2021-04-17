@@ -24,11 +24,7 @@ final class SwooleServerCustomPidFileTest extends ServerTestCase
 
         self::assertFileDoesNotExist($pidFile);
 
-        $serverStart->setTimeout(3);
-        $serverStart->disableOutput();
-        $serverStart->run();
-
-        $this->assertProcessSucceeded($serverStart);
+        $this->assertStartServerSucceeded($serverStart);
 
         $this->runAsCoroutineAndWait(function () use ($pidFile): void {
             $this->deferServerStop(\sprintf('--pid-file=%s', $pidFile));
