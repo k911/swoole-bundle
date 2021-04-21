@@ -74,11 +74,23 @@ swoole:
             # see: \K911\Swoole\Bridge\Symfony\HttpFoundation\CloudFrontRequestFactory
             cloudfront_proto_header_handler: true
 
-            # see: \K911\Swoole\Bridge\Doctrine\ORM\EntityManagerHandler
-            entity_manager_handler: true
+            # see: \K911\Swoole\Bridge\Doctrine\ORM\DoctrinePingConnectionsHandler
+            doctrine_ping_connections_handler: true
+
+            # see: \K911\Swoole\Bridge\Doctrine\ORM\ClearEntityManagerHandler
+            clear_entity_manager_handler: true
             
             # see: \K911\Swoole\Bridge\Upscale\Blackfire\WithProfiler
             blackfire_profiler: false
+
+            # deprecated option. Incompatible with:
+            # - doctrine_ping_connections_handler
+            # - clear_entity_manager_handler
+            # If configured alone, will act the same as if both of those options were configured with the
+            # same value.
+            # If configured together with either of those options, exception will be thrown during the
+            # container compilation.
+            entity_manager_handler: true
 
 
         # swoole http server settings

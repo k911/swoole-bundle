@@ -9,6 +9,10 @@ use K911\Swoole\Server\RequestHandler\RequestHandlerInterface;
 use Swoole\Http\Request;
 use Swoole\Http\Response;
 
+/**
+ * @deprecated Replaced with ClearEntityManagerHandler and DoctrinePingConnectionsHandler
+ * TODO: NEXT MAJOR - remove this class
+ */
 final class EntityManagerHandler implements RequestHandlerInterface
 {
     private $decorated;

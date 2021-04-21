@@ -196,6 +196,16 @@ final class Configuration implements ConfigurationInterface
                                 ->end()
                                 ->booleanNode('entity_manager_handler')
                                     ->defaultNull()
+                                    ->setDeprecated(
+                                        'k911/swoole-bundle',
+                                        '0.8.4',
+                                        'The "%node%" option at "%path%" is deprecated. Use "doctrine_ping_connections_handler" and "clear_entity_manager_handler" instead.')
+                                ->end()
+                                ->booleanNode('doctrine_ping_connections_handler')
+                                    ->defaultNull()
+                                ->end()
+                                ->booleanNode('clear_entity_manager_handler')
+                                    ->defaultNull()
                                 ->end()
                                 ->booleanNode('blackfire_profiler')
                                     ->defaultNull()
