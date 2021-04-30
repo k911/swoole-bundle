@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace K911\Swoole\Bridge\Symfony\HttpKernel;
 
 use K911\Swoole\Bridge\Symfony\HttpFoundation\RequestFactoryInterface;
+use K911\Swoole\Bridge\Symfony\HttpFoundation\ResponseProcessorInjectorInterface;
 use K911\Swoole\Bridge\Symfony\HttpFoundation\ResponseProcessorInterface;
-use K911\Swoole\Bridge\Symfony\HttpFoundation\SwooleRequestResponseContextManager;
 use K911\Swoole\Server\RequestHandler\RequestHandlerInterface;
 use K911\Swoole\Server\Runtime\BootableInterface;
 use Swoole\Http\Request as SwooleRequest;
@@ -16,7 +16,7 @@ use Symfony\Component\HttpKernel\TerminableInterface;
 
 final class HttpKernelRequestHandler implements RequestHandlerInterface, BootableInterface
 {
-    private $contextManager;
+    private $processorInjector;
     private $kernel;
     private $requestFactory;
     private $responseProcessor;
@@ -24,13 +24,13 @@ final class HttpKernelRequestHandler implements RequestHandlerInterface, Bootabl
     public function __construct(
         KernelInterface $kernel,
         RequestFactoryInterface $requestFactory,
-        SwooleRequestResponseContextManager $contextManager,
+        ResponseProcessorInjectorInterface $processorInjector,
         ResponseProcessorInterface $responseProcessor
     ) {
         $this->kernel = $kernel;
         $this->requestFactory = $requestFactory;
         $this->responseProcessor = $responseProcessor;
-        $this->contextManager = $contextManager;
+        $this->processorInjector = $processorInjector;
     }
 
     /**
@@ -49,7 +49,7 @@ final class HttpKernelRequestHandler implements RequestHandlerInterface, Bootabl
     public function handle(SwooleRequest $request, SwooleResponse $response): void
     {
         $httpFoundationRequest = $this->requestFactory->make($request);
-        $this->contextManager->attachRequestResponseAttributes($httpFoundationRequest, $request, $response);
+        $this->processorInjector->injectProcessor($httpFoundationRequest, $response);
         $httpFoundationResponse = $this->kernel->handle($httpFoundationRequest);
         $this->responseProcessor->process($httpFoundationResponse, $response);
 
