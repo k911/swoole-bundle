@@ -1,3 +1,11 @@
+# [0.10.0](https://github.com/k911/swoole-bundle/compare/v0.9.0...v0.10.0) (2021-05-05)
+
+[Full changelog](https://github.com/k911/swoole-bundle/compare/v0.9.0...v0.10.0)
+
+### Features
+
+* **response-processor:** hiding Swoole StreamedResponse support from Symfony ([#509](https://github.com/k911/swoole-bundle/issues/509)) ([ebe8077](https://github.com/k911/swoole-bundle/commit/ebe80770e9132b45f6a74ad233f8b8b707854f2e))
+
 # [0.9.0](https://github.com/k911/swoole-bundle/compare/v0.8.3...v0.9.0) (2021-02-03)
 
 [Full changelog](https://github.com/k911/swoole-bundle/compare/v0.8.3...v0.9.0)
