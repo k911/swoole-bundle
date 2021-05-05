@@ -10,4 +10,4 @@ tests/**/.phpunit.result.cache
 !phpstan.neon.dist
 !phpstan.tests.neon
 !phpunit.xml
-!.php_cs.dist
+!.php-cs-fixer.dist.php

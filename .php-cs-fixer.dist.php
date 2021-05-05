@@ -3,14 +3,17 @@
 declare(strict_types=1);
 
 $finder = PhpCsFixer\Finder::create()
-    ->in(['src', 'tests'])
-    ->exclude(['Fixtures/Symfony/app/var']);
+    ->in([__DIR__])
+    ->exclude([
+        'tests/Fixtures/Symfony/app/var',
+        'vendor',
+    ]);
 
+$config = new PhpCsFixer\Config();
 /**
  * @see https://github.com/FriendsOfPHP/PHP-CS-Fixer for rules
  */
-return PhpCsFixer\Config::create()
-    ->setRules([
+return $config->setRules([
         '@Symfony' => true,
         '@Symfony:risky' => true,
         '@PHP71Migration' => true,
@@ -30,7 +33,7 @@ return PhpCsFixer\Config::create()
         'no_null_property_initialization' => true,
         'no_useless_else' => true,
         'no_useless_return' => true,
-        'ordered_imports' => ['sortAlgorithm' => 'alpha'],
+        'ordered_imports' => ['sort_algorithm' => 'alpha'],
         'phpdoc_order' => true,
         'strict_comparison' => true,
         'phpdoc_types_order' => true,

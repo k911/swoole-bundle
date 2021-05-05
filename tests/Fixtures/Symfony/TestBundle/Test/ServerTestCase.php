@@ -7,7 +7,6 @@ namespace K911\Swoole\Tests\Fixtures\Symfony\TestBundle\Test;
 use K911\Swoole\Client\HttpClient;
 use K911\Swoole\Coroutine\CoroutinePool;
 use K911\Swoole\Tests\Fixtures\Symfony\TestAppKernel;
-use Swoole\Coroutine\Scheduler;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\Console\Tester\CommandTester;
 use Symfony\Component\HttpKernel\Kernel;
