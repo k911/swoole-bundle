@@ -19,7 +19,11 @@ services:
 
     K911\Swoole\Bridge\Symfony\HttpFoundation\SetRequestRuntimeConfiguration:
 
-    K911\Swoole\Bridge\Symfony\HttpFoundation\SwooleRequestResponseContextManager:
+    K911\Swoole\Bridge\Symfony\HttpFoundation\ResponseProcessorInjectorInterface: '@K911\Swoole\Bridge\Symfony\HttpFoundation\ResponseProcessorInjector'
+
+    K911\Swoole\Bridge\Symfony\HttpFoundation\ResponseProcessorInjector:
+        arguments:
+            $responseProcessor: '@response_processor.headers_and_cookies.streamed'
 
     K911\Swoole\Bridge\Symfony\HttpFoundation\RequestFactoryInterface:
         class: K911\Swoole\Bridge\Symfony\HttpFoundation\RequestFactory
@@ -29,6 +33,7 @@ services:
 
     K911\Swoole\Bridge\Symfony\HttpFoundation\NoOpStreamedResponseProcessor:
         decorates: K911\Swoole\Bridge\Symfony\HttpFoundation\ResponseProcessorInterface
+        decoration_priority: -100
         arguments:
             - '@K911\Swoole\Bridge\Symfony\HttpFoundation\NoOpStreamedResponseProcessor.inner'
 

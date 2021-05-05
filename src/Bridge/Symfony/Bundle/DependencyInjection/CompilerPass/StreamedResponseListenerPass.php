@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace K911\Swoole\Bridge\Symfony\Bundle\DependencyInjection\CompilerPass;
 
 use K911\Swoole\Bridge\Symfony\HttpFoundation\StreamedResponseListener;
-use K911\Swoole\Bridge\Symfony\HttpFoundation\StreamedResponseProcessor;
 use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
+use Symfony\Component\DependencyInjection\Definition;
 use Symfony\Component\DependencyInjection\Reference;
 
 /**
@@ -17,18 +17,24 @@ final class StreamedResponseListenerPass implements CompilerPassInterface
 {
     public function process(ContainerBuilder $container): void
     {
+        $oldListenerDefinition = null;
+        $definitionId = 'streamed_response_listener';
+        $oldDefinitionId = \sprintf('%s.original', $definitionId);
+
         if ($container->hasDefinition('streamed_response_listener')) {
-            $definition = $container->getDefinition('streamed_response_listener');
-            $definition
-                ->setClass(StreamedResponseListener::class)
-                ->setAutowired(true)
-            ;
-        } else {
-            $definition = $container
-                ->autowire('streamed_response_listener', StreamedResponseListener::class)
-                ->setAutoconfigured(true)
-            ;
+            $oldListenerDefinition = $container->getDefinition('streamed_response_listener');
+            $oldListenerDefinition->clearTag('kernel.event_subscriber');
+            $container->setDefinition($oldDefinitionId, $oldListenerDefinition);
         }
-        $definition->setArgument(1, new Reference(StreamedResponseProcessor::class));
+
+        $newDefinition = new Definition(StreamedResponseListener::class);
+        $newDefinition->setAutoconfigured(true);
+        $newDefinition->addTag('kernel.event_subscriber');
+
+        if (null !== $oldListenerDefinition) {
+            $newDefinition->setArgument('$delegate', new Reference($oldDefinitionId));
+        }
+
+        $container->setDefinition($definitionId, $newDefinition);
     }
 }

@@ -7,19 +7,16 @@ namespace K911\Swoole\Bridge\Symfony\HttpFoundation;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 use Symfony\Component\HttpKernel\Event\ResponseEvent;
+use Symfony\Component\HttpKernel\EventListener\StreamedResponseListener as HttpFoundationStreamedResponseListener;
 use Symfony\Component\HttpKernel\KernelEvents;
 
 class StreamedResponseListener implements EventSubscriberInterface
 {
-    private $contextManager;
-    private $responseProcessor;
+    private $delegate;
 
-    public function __construct(
-        SwooleRequestResponseContextManager $contextManager,
-        ResponseProcessorInterface $responseProcessor
-    ) {
-        $this->responseProcessor = $responseProcessor;
-        $this->contextManager = $contextManager;
+    public function __construct(?HttpFoundationStreamedResponseListener $delegate = null)
+    {
+        $this->delegate = $delegate;
     }
 
     public function onKernelResponse(ResponseEvent $event): void
@@ -29,10 +26,22 @@ class StreamedResponseListener implements EventSubscriberInterface
         }
 
         $response = $event->getResponse();
-        if ($response instanceof StreamedResponse) {
-            $swooleResponse = $this->contextManager->findResponse($event->getRequest());
-            $this->responseProcessor->process($response, $swooleResponse);
+        $attributes = $event->getRequest()->attributes;
+
+        if ($response instanceof StreamedResponse &&
+            $attributes->has(ResponseProcessorInjectorInterface::ATTR_KEY_RESPONSE_PROCESSOR)
+        ) {
+            $processor = $attributes->get(ResponseProcessorInjectorInterface::ATTR_KEY_RESPONSE_PROCESSOR);
+            $processor($response);
+
+            return;
         }
+
+        if (null === $this->delegate) {
+            return;
+        }
+
+        $this->delegate->onKernelResponse($event);
     }
 
     public static function getSubscribedEvents()
