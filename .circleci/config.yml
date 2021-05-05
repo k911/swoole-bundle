@@ -124,11 +124,6 @@ jobs:
     docker:
       - image: docker.io/k911/swoole-bundle-composer:7.4-lowest-$CIRCLE_SHA1
 
-  swoole-bundle-composer-74-latest-code-style:
-    <<: *job-composer-code-style
-    docker:
-      - image: docker.io/k911/swoole-bundle-composer:7.4-latest-$CIRCLE_SHA1
-
   swoole-bundle-composer-80-latest-code-style:
     <<: *job-composer-code-style
     environment:
@@ -146,20 +141,10 @@ jobs:
     docker:
       - image: docker.io/k911/swoole-bundle-composer:7.4-lowest-$CIRCLE_SHA1
 
-  swoole-bundle-composer-74-latest-unit-tests:
-    <<: *job-composer-unit-tests
-    docker:
-      - image: docker.io/k911/swoole-bundle-composer:7.4-latest-$CIRCLE_SHA1
-
   swoole-bundle-composer-80-latest-unit-tests:
     <<: *job-composer-unit-tests
     docker:
       - image: docker.io/k911/swoole-bundle-composer:8.0-latest-$CIRCLE_SHA1
-
-  swoole-bundle-composer-74-latest-feature-tests:
-    <<: *job-composer-feature-tests
-    docker:
-      - image: docker.io/k911/swoole-bundle-composer:7.4-latest-$CIRCLE_SHA1
 
   swoole-bundle-composer-74-lowest-feature-tests:
     <<: *job-composer-feature-tests
@@ -287,19 +272,6 @@ jobs:
       IMAGE: swoole-bundle
       SERVICES: composer coverage-xdebug coverage-pcov merge-code-coverage
 
-  docker-buildx-bake-74-latest:
-    <<: *docker-bake
-    environment:
-      PHP_VERSION: "7.4"
-      PHP_API_VERSION: "20190902"
-      COMPOSER_ARGS: update --ignore-platform-reqs
-      SWOOLE_VERSION: latest
-      REGISTRY: docker.io
-      NAMESPACE: k911
-      IMAGE: swoole-bundle
-      SERVICES: composer
-      BUILD_TYPE: latest
-
   docker-buildx-bake-80-latest:
     <<: *docker-bake
     environment:
@@ -391,19 +363,6 @@ workflows:
       - swoole-bundle-composer-74-lowest-feature-tests:
           requires:
             - docker-buildx-bake-74-lowest
-      - docker-buildx-bake-74-latest:
-          context: swoole-bundle-dockerhub
-          requires:
-            - docker-buildx-bake-74
-      - swoole-bundle-composer-74-latest-code-style:
-          requires:
-            - docker-buildx-bake-74-latest
-      - swoole-bundle-composer-74-latest-unit-tests:
-          requires:
-            - docker-buildx-bake-74-latest
-      - swoole-bundle-composer-74-latest-feature-tests:
-          requires:
-            - docker-buildx-bake-74-latest
       - swoole-bundle-74-code-coverage:
           requires:
             - docker-buildx-bake-74
@@ -463,19 +422,6 @@ workflows:
       - swoole-bundle-composer-74-lowest-feature-tests:
           requires:
             - docker-buildx-bake-74-lowest
-      - docker-buildx-bake-74-latest:
-          context: swoole-bundle-dockerhub
-          requires:
-            - docker-buildx-bake-74
-      - swoole-bundle-composer-74-latest-code-style:
-          requires:
-            - docker-buildx-bake-74-latest
-      - swoole-bundle-composer-74-latest-unit-tests:
-          requires:
-            - docker-buildx-bake-74-latest
-      - swoole-bundle-composer-74-latest-feature-tests:
-          requires:
-            - docker-buildx-bake-74-latest
       - swoole-bundle-74-code-coverage:
           requires:
             - docker-buildx-bake-74
@@ -526,19 +472,6 @@ workflows:
       - swoole-bundle-composer-74-lowest-feature-tests:
           requires:
             - docker-buildx-bake-74-lowest
-      - docker-buildx-bake-74-latest:
-          context: swoole-bundle-dockerhub
-          requires:
-            - docker-buildx-bake-74
-      - swoole-bundle-composer-74-latest-code-style:
-          requires:
-            - docker-buildx-bake-74-latest
-      - swoole-bundle-composer-74-latest-unit-tests:
-          requires:
-            - docker-buildx-bake-74-latest
-      - swoole-bundle-composer-74-latest-feature-tests:
-          requires:
-            - docker-buildx-bake-74-latest
       - swoole-bundle-74-code-coverage:
           requires:
             - docker-buildx-bake-74
@@ -560,9 +493,6 @@ workflows:
           requires:
             - releaser-dry-run
             - swoole-bundle-74-code-coverage
-            - swoole-bundle-composer-74-latest-feature-tests
-            - swoole-bundle-composer-74-latest-unit-tests
-            - swoole-bundle-composer-74-latest-code-style
             - swoole-bundle-composer-74-lowest-feature-tests
             - swoole-bundle-composer-74-lowest-unit-tests
             - swoole-bundle-composer-74-lowest-code-style
