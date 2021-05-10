@@ -65,8 +65,6 @@ swoole:
 
         # additional swoole symfony bundle services
         services:
-            # see: \K911\Swoole\Bridge\Symfony\HttpKernel\DebugHttpKernelRequestHandler
-            debug_handler: true
 
             # see: \K911\Swoole\Bridge\Symfony\HttpFoundation\TrustAllProxiesRequestHandler
             trust_all_proxies_handler: true

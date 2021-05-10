@@ -185,6 +185,11 @@ final class Configuration implements ConfigurationInterface
                             ->children()
                                 ->booleanNode('debug_handler')
                                     ->defaultNull()
+                                    ->setDeprecated(
+                                        'k911/swoole-bundle',
+                                        '0.11',
+                                        'The "%node%" option is deprecated. It is no longer needed to provide debug http kernel.'
+                                    )
                                 ->end()
                                 ->booleanNode('trust_all_proxies_handler')
                                     ->defaultFalse()

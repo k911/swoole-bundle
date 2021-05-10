@@ -14,7 +14,6 @@ use K911\Swoole\Bridge\Symfony\HttpFoundation\CloudFrontRequestFactory;
 use K911\Swoole\Bridge\Symfony\HttpFoundation\RequestFactoryInterface;
 use K911\Swoole\Bridge\Symfony\HttpFoundation\Session\SetSessionCookieEventListener;
 use K911\Swoole\Bridge\Symfony\HttpFoundation\TrustAllProxiesRequestHandler;
-use K911\Swoole\Bridge\Symfony\HttpKernel\DebugHttpKernelRequestHandler;
 use K911\Swoole\Bridge\Symfony\Messenger\SwooleServerTaskTransportFactory;
 use K911\Swoole\Bridge\Symfony\Messenger\SwooleServerTaskTransportHandler;
 use K911\Swoole\Bridge\Upscale\Blackfire\WithProfiler;
@@ -302,16 +301,6 @@ final class SwooleExtension extends Extension implements PrependExtensionInterfa
                 ->setAutoconfigured(true)
                 ->setPublic(false)
                 ->setDecoratedService(RequestHandlerInterface::class, null, -20)
-            ;
-        }
-
-        if ($config['debug_handler'] || (null === $config['debug_handler'] && $this->isDebug($container))) {
-            $container->register(DebugHttpKernelRequestHandler::class)
-                ->addArgument(new Reference(DebugHttpKernelRequestHandler::class.'.inner'))
-                ->setAutowired(true)
-                ->setAutoconfigured(true)
-                ->setPublic(false)
-                ->setDecoratedService(RequestHandlerInterface::class, null, -50)
             ;
         }
 
