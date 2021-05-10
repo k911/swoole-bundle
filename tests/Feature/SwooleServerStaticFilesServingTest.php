@@ -22,12 +22,13 @@ final class SwooleServerStaticFilesServingTest extends ServerTestCase
             '--port=9999',
         ], ['APP_ENV' => 'auto']);
 
-        $serverRun->setTimeout(10);
+        $serverRun->setTimeout(self::coverageEnabled() ? 10 : 5);
         $serverRun->start();
 
         $this->runAsCoroutineAndWait(function (): void {
             $client = HttpClient::fromDomain('localhost', 9999, false);
             $this->assertTrue($client->connect());
+            $this->assertHelloWorldRequestSucceeded($client);
 
             $response = $client->send('/robots.txt')['response'];
 

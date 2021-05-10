@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace K911\Swoole\Tests\Fixtures\Symfony\CoverageBundle\RequestHandler;
 
-use function K911\Swoole\get_object_property;
 use K911\Swoole\Server\RequestHandler\RequestHandlerInterface;
 use K911\Swoole\Tests\Fixtures\Symfony\CoverageBundle\Coverage\CodeCoverageManager;
 use Swoole\Http\Request;
