@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace K911\Swoole\Tests\Fixtures\Symfony\CoverageBundle\Coverage;
 
+use Assert\Assertion;
 use DateTimeImmutable;
 use SebastianBergmann\CodeCoverage\CodeCoverage;
 use SebastianBergmann\CodeCoverage\Report\PHP;
@@ -14,7 +15,7 @@ final class CodeCoverageManager
     /**
      * @var string
      */
-    private $testName;
+    private $currentTestName;
 
     /**
      * @var string
@@ -28,8 +29,6 @@ final class CodeCoverageManager
 
     private $codeCoverage;
     private $writer;
-
-    private $finished = false;
     private $started = false;
 
     public function __construct(ParameterBagInterface $parameterBag, CodeCoverage $codeCoverage, PHP $writer)
@@ -38,13 +37,6 @@ final class CodeCoverageManager
 
         $this->enabled = $parameterBag->get('coverage.enabled');
 
-        $testName = null;
-        if ($parameterBag->has('coverage.test_name')) {
-            $testName = $parameterBag->get('coverage.test_name');
-        }
-
-        $this->testName = $testName ?? $this->generateTestName();
-
         $this->coveragePath = $parameterBag->get('coverage.path');
 
         $this->initalizeCodeCoverage($parameterBag, $codeCoverage);
@@ -52,46 +44,36 @@ final class CodeCoverageManager
         $this->writer = $writer;
     }
 
-    public function start(?string $testName = null): void
+    public function start(string $testName): void
     {
+        Assertion::notEmpty($testName);
+
         if (!$this->enabled || $this->started) {
             return;
         }
 
-        $this->codeCoverage->start($testName ?? $this->testName);
+        $this->codeCoverage->start($this->currentTestName = $testName);
         $this->started = true;
-
-        if ($this->finished) {
-            $this->finished = false;
-        }
-    }
-
-    public function stop(): void
-    {
-        if (!$this->enabled || $this->finished) {
-            return;
-        }
-
-        $this->codeCoverage->stop();
-        $this->started = false;
     }
 
     public function finish(?string $fileName = null, ?string $path = null): void
     {
-        if (!$this->enabled || $this->finished) {
+        if (!$this->enabled || !$this->started) {
             return;
         }
 
+        $this->started = false;
+        $this->codeCoverage->stop();
         $timestamp = (new DateTimeImmutable())->getTimestamp();
-        $fileName = \sprintf('%s_%s.cov', $fileName ?? $this->testName, $timestamp);
+        $fileName = \sprintf('%s_%s.cov', $fileName ?? $this->currentTestName, $timestamp);
 
         $this->writer->process($this->codeCoverage, \sprintf('%s/%s', $path ?? $this->coveragePath, $fileName));
         $this->codeCoverage->clear();
-        $this->finished = true;
+    }
 
-        if ($this->started) {
-            $this->started = false;
-        }
+    public function generateRandomTestName(string $testNamePrefix): string
+    {
+        return \sprintf('%s_%s', $testNamePrefix, \bin2hex(\random_bytes(8)));
     }
 
     private function initalizeCodeCoverage(ParameterBagInterface $parameterBag, CodeCoverage $codeCoverage): void
@@ -101,10 +83,5 @@ final class CodeCoverageManager
             \sprintf('%s/%s', \dirname(__DIR__, 5), 'src');
 
         $codeCoverage->filter()->includeDirectory($coverageDir);
-    }
-
-    private function generateTestName(): string
-    {
-        return \sprintf('cc_test_%s', \bin2hex(\random_bytes(4)));
     }
 }

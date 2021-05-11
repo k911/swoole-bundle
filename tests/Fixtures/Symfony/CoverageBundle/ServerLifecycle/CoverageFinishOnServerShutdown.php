@@ -28,7 +28,6 @@ final class CoverageFinishOnServerShutdown implements ServerShutdownHandlerInter
             $this->decorated->handle($server);
         }
 
-        $this->codeCoverageManager->stop();
         $this->codeCoverageManager->finish('test_server');
     }
 }

@@ -1,6 +1,6 @@
 version: 2.1
 orbs:
-  codecov: codecov/codecov@1.1.0
+  codecov: codecov/codecov@1.2.0
 executors:
   k911-docker-client:
     docker:
@@ -112,6 +112,8 @@ aliases:
           path: phpunit
       - store_artifacts:
           path: phpunit
+      - store_artifacts:
+          path: tests/Fixtures/Symfony/app/var/log
 
 jobs:
   swoole-bundle-composer-74-code-style:
@@ -190,6 +192,7 @@ jobs:
       - run:
           name: Prepare coverage results volume
           command: |-
+            mkdir -p log
             docker-compose up -d coverage-volume-helper
             docker-compose exec coverage-volume-helper chown 1000:1000 cov
       - run:
@@ -198,11 +201,11 @@ jobs:
           when: always
       - run:
           name: Run feature tests with coverage (xdebug) and retry
-          command: docker-compose run --rm coverage-xdebug-feature-with-retry
+          command: docker-compose run coverage-xdebug-feature-with-retry
           when: always
       - run:
           name: Run feature tests with coverage (pcov)
-          command: docker-compose run --rm coverage-pcov feature-code-coverage
+          command: docker-compose run coverage-pcov feature-code-coverage
           when: always
       - run:
           name: Merge code coverage files generated across test suites
@@ -213,11 +216,21 @@ jobs:
           command: docker cp $(docker-compose ps -q coverage-volume-helper):/usr/src/app/cov/clover.xml clover.xml
           when: always
       - run:
+          name: Extract logs from container volume pcov
+          command: docker cp $(docker-compose ps -q -a coverage-pcov):/usr/src/app/tests/Fixtures/Symfony/app/var/log log/pcov
+          when: always
+      - run:
+          name: Extract logs from container volume xdebug
+          command: docker cp $(docker-compose ps -q -a coverage-xdebug-feature-with-retry):/usr/src/app/tests/Fixtures/Symfony/app/var/log log/xdebug
+          when: always
+      - run:
           name: Send Code Coverage report to CodeClimate
           command: ./cc-test-reporter after-build -t clover --exit-code 0 --prefix /usr/src/app
           when: always
       - codecov/upload:
           file: clover.xml
+      - store_artifacts:
+          path: log
 
   releaser-dry-run:
     executor: k911-release-version

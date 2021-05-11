@@ -25,6 +25,11 @@ final class JsonExceptionHandler implements ExceptionHandlerInterface
     {
         $data = $this->exceptionArrayTransformer->transform($exception, $this->verbosity);
 
+        if (\method_exists($response, 'isWritable') && !$response->isWritable()) {
+            echo 'Response is not writable'.\PHP_EOL;
+
+            return;
+        }
         $response->header(Http::HEADER_CONTENT_TYPE, Http::CONTENT_TYPE_APPLICATION_JSON);
         $response->status(500);
         $response->end(\json_encode($data, \JSON_THROW_ON_ERROR));

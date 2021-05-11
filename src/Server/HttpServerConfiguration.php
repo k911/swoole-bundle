@@ -27,12 +27,18 @@ class HttpServerConfiguration
     private const SWOOLE_HTTP_SERVER_CONFIG_PACKAGE_MAX_LENGTH = 'package_max_length';
     private const SWOOLE_HTTP_SERVER_CONFIG_WORKER_MAX_REQUEST = 'worker_max_request';
     private const SWOOLE_HTTP_SERVER_CONFIG_WORKER_MAX_REQUEST_GRACE = 'worker_max_request_grace';
+    private const SWOOLE_HTTP_SERVER_CONFIG_WORKER_RELOAD_ASYNC = 'worker_reload_async';
+    private const SWOOLE_HTTP_SERVER_CONFIG_WORKER_EXIT_TIMEOUT_SECONDS = 'worker_exit_timeout_seconds';
+    private const SWOOLE_HTTP_SERVER_CONFIG_COROUTINE_ENABLED = 'coroutine_enabled';
+    private const SWOOLE_HTTP_SERVER_CONFIG_COROUTINE_HOOKS = 'coroutine_hooks';
 
     /**
      * @todo add more
      *
      * @see https://github.com/swoole/swoole-docs/blob/master/modules/swoole-server/configuration.md
      * @see https://github.com/swoole/swoole-docs/blob/master/modules/swoole-http-server/configuration.md
+     * @see https://wiki.swoole.com/#/server/setting
+     * @see https://wiki.swoole.com/#/http_server?id=%e9%85%8d%e7%bd%ae%e9%80%89%e9%a1%b9
      */
     private const SWOOLE_HTTP_SERVER_CONFIGURATION = [
         self::SWOOLE_HTTP_SERVER_CONFIG_REACTOR_COUNT => 'reactor_num',
@@ -48,6 +54,10 @@ class HttpServerConfiguration
         self::SWOOLE_HTTP_SERVER_CONFIG_TASK_WORKER_COUNT => 'task_worker_num',
         self::SWOOLE_HTTP_SERVER_CONFIG_WORKER_MAX_REQUEST => 'max_request',
         self::SWOOLE_HTTP_SERVER_CONFIG_WORKER_MAX_REQUEST_GRACE => 'max_request_grace',
+        self::SWOOLE_HTTP_SERVER_CONFIG_WORKER_RELOAD_ASYNC => 'reload_async',
+        self::SWOOLE_HTTP_SERVER_CONFIG_WORKER_EXIT_TIMEOUT_SECONDS => 'max_wait_time',
+        self::SWOOLE_HTTP_SERVER_CONFIG_COROUTINE_ENABLED => 'enable_coroutine',
+        self::SWOOLE_HTTP_SERVER_CONFIG_COROUTINE_HOOKS => 'hook_flags',
     ];
 
     private const SWOOLE_SERVE_STATIC = [
@@ -65,17 +75,35 @@ class HttpServerConfiguration
         'error' => \SWOOLE_LOG_ERROR,
     ];
 
-    private $sockets;
-
     /**
-     * @var string
+     * @see https://wiki.swoole.com/#/runtime?id=%e9%80%89%e9%a1%b9
      */
-    private $runningMode;
+    private const SWOOLE_COROUTINE_HOOKS = [
+        'off' => 0,
+        'all' => \SWOOLE_HOOK_ALL,
+        'tcp' => \SWOOLE_HOOK_TCP,
+        'unix' => \SWOOLE_HOOK_UNIX,
+        'udp' => \SWOOLE_HOOK_UDP,
+        'udg' => \SWOOLE_HOOK_UDG,
+        'ssl' => \SWOOLE_HOOK_SSL,
+        'tls' => \SWOOLE_HOOK_TLS,
+        'sleep' => \SWOOLE_HOOK_SLEEP,
+        'file' => \SWOOLE_HOOK_FILE,
+        'stream_function' => \SWOOLE_HOOK_STREAM_FUNCTION,
+        'blocking_function' => \SWOOLE_HOOK_BLOCKING_FUNCTION,
+        'proc' => \SWOOLE_HOOK_PROC,
+        'curl' => \SWOOLE_HOOK_CURL,
+        //        'native_curl' => SWOOLE_HOOK_NATIVE_CURL, // TODO: Swoole >= 4.6.0
+        //        'sockets' => SWOOLE_HOOK_SOCKETS, // TODO: Swoole >= 4.6.0
+    ];
+
+    private Sockets $sockets;
+    private string $runningMode;
 
     /**
      * @var array<string, mixed>
      */
-    private $settings;
+    private array $settings;
 
     /**
      * @param array $settings settings available:
@@ -283,6 +311,19 @@ class HttpServerConfiguration
     /**
      * @see getSwooleSettings()
      */
+    public function getSwooleHookFlags(): int
+    {
+        $flags = 0;
+        foreach ($this->settings[self::SWOOLE_HTTP_SERVER_CONFIG_COROUTINE_HOOKS] as $hookName) {
+            $flags |= self::SWOOLE_COROUTINE_HOOKS[$hookName];
+        }
+
+        return $flags;
+    }
+
+    /**
+     * @see getSwooleSettings()
+     */
     public function getSwooleMaxRequest(): int
     {
         return $this->settings[self::SWOOLE_HTTP_SERVER_CONFIG_WORKER_MAX_REQUEST] ?? 0;
@@ -371,7 +412,9 @@ class HttpServerConfiguration
 
                 break;
             case self::SWOOLE_HTTP_SERVER_CONFIG_DAEMONIZE:
-                Assertion::boolean($value);
+            case self::SWOOLE_HTTP_SERVER_CONFIG_COROUTINE_ENABLED:
+            case self::SWOOLE_HTTP_SERVER_CONFIG_WORKER_RELOAD_ASYNC:
+                Assertion::boolean($value, \sprintf('Setting "%s" must be a boolean.', $key));
 
                 break;
             case self::SWOOLE_HTTP_SERVER_CONFIG_PUBLIC_DIR:
@@ -395,6 +438,7 @@ class HttpServerConfiguration
             case self::SWOOLE_HTTP_SERVER_CONFIG_TASK_WORKER_COUNT:
             case self::SWOOLE_HTTP_SERVER_CONFIG_REACTOR_COUNT:
             case self::SWOOLE_HTTP_SERVER_CONFIG_WORKER_COUNT:
+            case self::SWOOLE_HTTP_SERVER_CONFIG_WORKER_EXIT_TIMEOUT_SECONDS:
                 Assertion::integer($value, \sprintf('Setting "%s" must be an integer.', $key));
                 Assertion::greaterThan($value, 0, 'Count value cannot be negative, "%s" provided.');
 
@@ -409,6 +453,10 @@ class HttpServerConfiguration
                 Assertion::nullOrGreaterOrEqualThan($value, 0, 'Value cannot be negative, "%s" provided.');
 
                 break;
+            case self::SWOOLE_HTTP_SERVER_CONFIG_COROUTINE_HOOKS:
+                Assertion::allChoice($value, \array_keys(self::SWOOLE_COROUTINE_HOOKS), \sprintf('Setting "%s" encountered value "%%s" which is not among expected values: %%s', $key));
+
+                // no break
             default:
                 return;
         }

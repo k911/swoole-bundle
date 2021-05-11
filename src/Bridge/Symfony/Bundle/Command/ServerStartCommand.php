@@ -6,14 +6,10 @@ namespace K911\Swoole\Bridge\Symfony\Bundle\Command;
 
 use K911\Swoole\Bridge\Symfony\Bundle\Exception\CouldNotCreatePidFileException;
 use K911\Swoole\Bridge\Symfony\Bundle\Exception\PidFileNotAccessibleException;
-use function K911\Swoole\get_object_property;
 use K911\Swoole\Server\HttpServer;
 use K911\Swoole\Server\HttpServerConfiguration;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
-use Symfony\Component\Console\Output\ConsoleOutput;
-use Symfony\Component\Console\Output\StreamOutput;
-use Symfony\Component\Console\Style\OutputStyle;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
 final class ServerStartCommand extends AbstractServerStartCommand
@@ -57,37 +53,6 @@ final class ServerStartCommand extends AbstractServerStartCommand
             throw CouldNotCreatePidFileException::forPath($pidFile);
         }
 
-        $this->closeSymfonyStyle($io);
-
         $server->start();
-    }
-
-    private function closeSymfonyStyle(SymfonyStyle $io): void
-    {
-        $output = get_object_property($io, 'output', OutputStyle::class);
-        if ($output instanceof ConsoleOutput) {
-            $this->closeConsoleOutput($output);
-        } elseif ($output instanceof StreamOutput) {
-            $this->closeStreamOutput($output);
-        }
-    }
-
-    /**
-     * Prevents usage of php://stdout or php://stderr while running in background.
-     */
-    private function closeConsoleOutput(ConsoleOutput $output): void
-    {
-        \fclose($output->getStream());
-
-        /** @var StreamOutput $streamOutput */
-        $streamOutput = $output->getErrorOutput();
-
-        $this->closeStreamOutput($streamOutput);
-    }
-
-    private function closeStreamOutput(StreamOutput $output): void
-    {
-        $output->setVerbosity(\PHP_INT_MIN);
-        \fclose($output->getStream());
     }
 }

@@ -18,8 +18,6 @@ final class CoverageFinishOnConsoleTerminate
 
     public function __invoke(ConsoleTerminateEvent $commandEvent): void
     {
-        $this->coverageManager->stop();
-
         $slug = \str_replace(['-', ':'], '_', $commandEvent->getCommand()->getName());
         $this->coverageManager->finish(\sprintf('test_cmd_%s', $slug));
     }

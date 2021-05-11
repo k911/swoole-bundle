@@ -6,6 +6,7 @@ namespace K911\Swoole\Tests\Feature;
 
 use K911\Swoole\Client\HttpClient;
 use K911\Swoole\Tests\Fixtures\Symfony\TestBundle\Test\ServerTestCase;
+use Swoole\Coroutine;
 
 final class SymfonyProfilerTest extends ServerTestCase
 {
@@ -16,7 +17,7 @@ final class SymfonyProfilerTest extends ServerTestCase
         $this->markTestSkippedIfXdebugEnabled();
     }
 
-    public function testAdvancedStaticFilesServerWithAutoRegistration(): void
+    public function testSymfonyProfilerTwigDebugLink(): void
     {
         $serverRun = $this->createConsoleProcess([
             'swoole:server:run',
@@ -24,12 +25,13 @@ final class SymfonyProfilerTest extends ServerTestCase
             '--port=9999',
         ], ['APP_ENV' => 'profiler']);
 
-        $serverRun->setTimeout(10);
+        $serverRun->setTimeout(self::coverageEnabled() ? 10 : 5);
         $serverRun->start();
 
         $this->runAsCoroutineAndWait(function (): void {
             $client = HttpClient::fromDomain('localhost', 9999, false);
             $this->assertTrue($client->connect());
+            $this->assertHelloWorldRequestSucceeded($client);
 
             $response = $client->send('/twig')['response'];
 
@@ -37,9 +39,14 @@ final class SymfonyProfilerTest extends ServerTestCase
             $this->assertNotEmpty($response['headers']['x-debug-token']);
             $debugToken = $response['headers']['x-debug-token'];
 
-            $profilerResponse = $client->send('/_wdt/'.$debugToken)['response'];
+            Coroutine::sleep(2);
 
-            $this->assertStringContainsString('sf-toolbar-block-logger sf-toolbar-status-red', $profilerResponse['body']);
+            $client2 = HttpClient::fromDomain('localhost', 9999, false);
+            $this->assertTrue($client2->connect());
+
+            $profilerResponse = $client2->send('/_profiler/'.$debugToken)['response'];
+            $this->assertSame(200, $profilerResponse['statusCode']);
+            $this->assertStringContainsString('Profiler', $profilerResponse['body']);
         });
 
         $serverRun->stop();

@@ -58,7 +58,31 @@ services:
 
     K911\Swoole\Server\RequestHandler\LimitedRequestHandler:
 
-    K911\Swoole\Server\LifecycleHandler\SigIntHandler:
+    K911\Swoole\Server\Runtime\ServerShutdown\SignalServerShutdownHandlerOnServerStart:
+
+    K911\Swoole\Component\Clock\ClockInterface:
+        class: K911\Swoole\Component\Clock\CoroutineFriendlyClock
+
+    K911\Swoole\Process\Signal\SwooleProcessSignalHandler:
+
+    K911\Swoole\Process\ProcessFactory:
+
+    K911\Swoole\Process\ProcessManagerInterface:
+        class: K911\Swoole\Process\ProcessManager
+
+    K911\Swoole\Process\Signal\SignalHandlerInterface:
+        alias: K911\Swoole\Process\Signal\SwooleProcessSignalHandler
+
+    swoole_bundle.http_server.runtime.server_shutdown.signal_handler_process:
+        class: K911\Swoole\Server\Runtime\ServerShutdown\SignalServerShutdownHandlerAsServerProcess
+
+    swoole_bundle.http_server.runtime.server_shutdown.signal_handler_swoole_process:
+        class: Swoole\Process
+        factory: ['@K911\Swoole\Process\ProcessFactory', make]
+        autowire: false
+        autoconfigure: false
+        arguments:
+            $process: '@swoole_bundle.http_server.runtime.server_shutdown.signal_handler_process'
 
     K911\Swoole\Server\Runtime\CallableBootManagerFactory:
 
@@ -80,6 +104,9 @@ services:
 
     K911\Swoole\Server\WorkerHandler\WorkerStartHandlerInterface:
         class: K911\Swoole\Server\WorkerHandler\NoOpWorkerStartHandler
+
+    K911\Swoole\Server\WorkerHandler\WorkerExitHandlerInterface:
+        class: K911\Swoole\Server\WorkerHandler\NoOpWorkerExitHandler
 
     K911\Swoole\Server\LifecycleHandler\ServerStartHandlerInterface:
         class: K911\Swoole\Server\LifecycleHandler\NoOpServerStartHandler
@@ -128,6 +155,8 @@ services:
 
     K911\Swoole\Server\Configurator\WithWorkerStartHandler:
 
+    K911\Swoole\Server\Configurator\WithWorkerExitHandler:
+
     K911\Swoole\Server\Configurator\WithTaskHandler:
 
     K911\Swoole\Server\Configurator\WithTaskFinishedHandler:
@@ -169,4 +198,9 @@ services:
         class: K911\Swoole\Server\Configurator\WithServerStartHandler
         autoconfigure: false
         arguments:
-            $handler: '@K911\Swoole\Server\LifecycleHandler\SigIntHandler'
+            $handler: '@K911\Swoole\Server\Runtime\ServerShutdown\SignalServerShutdownHandlerOnServerStart'
+
+    K911\Swoole\Bridge\Symfony\Bundle\EventListener\SwooleErrorOnConsoleTerminateEvent:
+        tags:
+            - name: kernel.event_listener
+              event: console.terminate

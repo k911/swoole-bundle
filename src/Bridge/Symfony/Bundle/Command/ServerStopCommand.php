@@ -61,7 +61,8 @@ final class ServerStopCommand extends Command
             $this->server->shutdown();
         } catch (Throwable $ex) {
             $io->error($ex->getMessage());
-            exit(1);
+
+            return 1;
         }
 
         $io->success('Swoole server shutdown successfully');

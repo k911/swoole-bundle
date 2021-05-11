@@ -31,11 +31,7 @@ final class SwooleServerReloadViaHttpApiTest extends ServerTestCase
             '--api-port=9998',
         ]);
 
-        $serverStart->setTimeout(3);
-        $serverStart->disableOutput();
-        $serverStart->run();
-
-        $this->assertProcessSucceeded($serverStart);
+        $this->assertStartServerSucceeded($serverStart);
 
         $this->runAsCoroutineAndWait(function (): void {
             $this->deferServerStop();

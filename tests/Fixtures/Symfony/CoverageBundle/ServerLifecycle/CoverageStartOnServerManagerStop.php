@@ -28,7 +28,6 @@ final class CoverageStartOnServerManagerStop implements ServerManagerStopHandler
             $this->decorated->handle($server);
         }
 
-        $this->codeCoverageManager->stop();
         $this->codeCoverageManager->finish('test_manager');
     }
 }
