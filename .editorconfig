@@ -14,7 +14,7 @@ indent_style = tab
 [*.pid]
 insert_final_newline = false
 
-[*.{yml,yaml,json}]
+[*.{yml,yaml,json,xml}]
 indent_size = 2
 
 [src/Bridge/Symfony/**/*.{yml,yaml}]

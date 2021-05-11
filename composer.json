@@ -109,7 +109,7 @@
             "phpunit tests/Unit --coverage-php cov/unit-tests.cov --colors=always"
         ],
         "feature-code-coverage": [
-            "COVERAGE=1 phpunit tests/Feature --coverage-php cov/feature-tests.cov --colors=always --process-isolation -d memory_limit=512M"
+            "COVERAGE=1 phpunit tests/Feature --coverage-php cov/feature-tests.cov --colors=always --process-isolation"
         ],
         "merge-code-coverage": [
             "phpcov merge cov --clover=cov/clover.xml"
