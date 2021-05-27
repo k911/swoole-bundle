@@ -28,6 +28,7 @@ use K911\Swoole\Server\RequestHandler\ExceptionHandler\JsonExceptionHandler;
 use K911\Swoole\Server\RequestHandler\ExceptionHandler\ProductionExceptionHandler;
 use K911\Swoole\Server\RequestHandler\RequestHandlerInterface;
 use K911\Swoole\Server\Runtime\BootableInterface;
+use K911\Swoole\Server\Runtime\HMR\FsnotifyReloaderHMR;
 use K911\Swoole\Server\Runtime\HMR\HotModuleReloaderInterface;
 use K911\Swoole\Server\Runtime\HMR\InotifyHMR;
 use K911\Swoole\Server\TaskHandler\TaskHandlerInterface;
@@ -215,10 +216,6 @@ final class SwooleExtension extends Extension implements PrependExtensionInterfa
             $settings['log_level'] = $this->isDebug($container) ? 'debug' : 'notice';
         }
 
-        if ('auto' === $hmr) {
-            $hmr = $this->resolveAutoHMR();
-        }
-
         $sockets = $container->getDefinition(Sockets::class)
             ->addArgument(new Definition(Socket::class, [$host, $port, $socketType, $sslEnabled]))
         ;
@@ -236,24 +233,43 @@ final class SwooleExtension extends Extension implements PrependExtensionInterfa
         $this->registerHttpServerHMR($hmr, $container);
     }
 
-    private function registerHttpServerHMR(string $hmr, ContainerBuilder $container): void
+    private function registerHttpServerHMR(array $hmr, ContainerBuilder $container): void
     {
-        if ('off' === $hmr || !$this->isDebug($container)) {
+        if ('auto' === $hmr['type']) {
+            $hmr['type'] = $this->resolveAutoHMR();
+        }
+
+        if (!$hmr['enabled'] || !$this->isDebug($container)) {
             return;
         }
 
-        if ('inotify' === $hmr) {
+        if ('inotify' === $hmr['type']) {
             $container->register(HotModuleReloaderInterface::class, InotifyHMR::class)
                 ->addTag('swoole_bundle.bootable_service')
             ;
+
+            $container->autowire(HMRWorkerStartHandler::class)
+                ->setPublic(false)
+                ->setAutoconfigured(true)
+                ->setArgument('$decorated', new Reference(HMRWorkerStartHandler::class.'.inner'))
+                ->setDecoratedService(WorkerStartHandlerInterface::class)
+            ;
+
+            return;
         }
 
-        $container->autowire(HMRWorkerStartHandler::class)
-            ->setPublic(false)
-            ->setAutoconfigured(true)
-            ->setArgument('$decorated', new Reference(HMRWorkerStartHandler::class.'.inner'))
-            ->setDecoratedService(WorkerStartHandlerInterface::class)
-        ;
+        if ('fsnotify' === $hmr['type']) {
+            $container->register(FsnotifyReloaderHMR::class)
+                ->setPublic(false)
+                ->setAutoconfigured(true)
+                ->setAutowired(true)
+                ->setArguments([
+                    '$watchDir' => $hmr['watch_dir'],
+                    '$tickDuration' => $hmr['tick_duration'],
+                    '$verboseOutput' => $hmr['verbose_output'],
+                ])
+            ;
+        }
     }
 
     private function resolveAutoHMR(): string
