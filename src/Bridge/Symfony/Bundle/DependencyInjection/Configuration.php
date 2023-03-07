@@ -248,6 +248,9 @@ final class Configuration implements ConfigurationInterface
                                 ->scalarNode('worker_max_request_grace')
                                     ->defaultNull()
                                 ->end()
+                                ->booleanNode('cooperative_scheduling')
+                                    ->defaultFalse()
+                                ->end()
                             ->end()
                         ->end() // settings
                     ->end()

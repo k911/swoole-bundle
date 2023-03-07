@@ -4,11 +4,14 @@ declare(strict_types=1);
 
 namespace K911\Swoole\Tests\Fixtures\Symfony;
 
+use Doctrine\Bundle\DoctrineBundle\DoctrineBundle;
+use Doctrine\Bundle\MigrationsBundle\DoctrineMigrationsBundle;
 use Exception;
 use Generator;
 use K911\Swoole\Bridge\Symfony\Bundle\SwooleBundle;
 use K911\Swoole\Tests\Fixtures\Symfony\CoverageBundle\CoverageBundle;
 use K911\Swoole\Tests\Fixtures\Symfony\TestBundle\TestBundle;
+use PixelFederation\DoctrineResettableEmBundle\PixelFederationDoctrineResettableEmBundle;
 use Symfony\Bundle\FrameworkBundle\FrameworkBundle;
 use Symfony\Bundle\FrameworkBundle\Kernel\MicroKernelTrait;
 use Symfony\Bundle\MonologBundle\MonologBundle;
@@ -34,6 +37,8 @@ class TestAppKernel extends Kernel
 
     private $profilerEnabled = false;
 
+    private $doctrineEnabled = false;
+
     public function __construct(string $environment, bool $debug)
     {
         if ('_cov' === \mb_substr($environment, -4, 4)) {
@@ -55,6 +60,14 @@ class TestAppKernel extends Kernel
         }
 
         parent::__construct($environment, $debug);
+    }
+
+    /**
+     * for the coroutines to work properly, the kernel __clone method has to be overriden,
+     * otherwise the container wouldn't be shared between requests.
+     */
+    public function __clone()
+    {
     }
 
     /**
@@ -83,6 +96,9 @@ class TestAppKernel extends Kernel
         yield new MonologBundle();
         yield new SwooleBundle();
         yield new TestBundle();
+        yield new DoctrineBundle();
+        yield new DoctrineMigrationsBundle();
+        yield new PixelFederationDoctrineResettableEmBundle();
 
         if ($this->coverageEnabled) {
             yield new CoverageBundle();

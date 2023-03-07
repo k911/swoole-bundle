@@ -1,3 +1,8 @@
+parameters:
+    swoole_bundle.cooperative_scheduling.enabled: false
+    swoole_bundle.cache_dir: '%kernel.cache_dir%/swoole_bundle'
+    swoole_bundle.service_proxy_cache_dir: '%swoole_bundle.cache_dir%/services'
+
 services:
     _defaults:
         autowire: true
@@ -24,6 +29,9 @@ services:
     K911\Swoole\Bridge\Symfony\HttpFoundation\ResponseProcessorInjector:
         arguments:
             $responseProcessor: '@response_processor.headers_and_cookies.streamed'
+
+    K911\Swoole\Bridge\Symfony\HttpKernel\KernelPoolInterface:
+        class: K911\Swoole\Bridge\Symfony\HttpKernel\SimpleKernelPool
 
     K911\Swoole\Bridge\Symfony\HttpFoundation\RequestFactoryInterface:
         class: K911\Swoole\Bridge\Symfony\HttpFoundation\RequestFactory
@@ -54,7 +62,11 @@ services:
     K911\Swoole\Server\RequestHandler\RequestHandlerInterface:
         alias: K911\Swoole\Server\RequestHandler\ExceptionRequestHandler
 
+    K911\Swoole\Bridge\Symfony\HttpKernel\SimpleKernelPool:
+
     K911\Swoole\Bridge\Symfony\HttpKernel\HttpKernelRequestHandler:
+
+    K911\Swoole\Bridge\Symfony\HttpKernel\CoroutineHttpKernelRequestHandler:
 
     K911\Swoole\Server\RequestHandler\LimitedRequestHandler:
 
@@ -170,3 +182,52 @@ services:
         autoconfigure: false
         arguments:
             $handler: '@K911\Swoole\Server\LifecycleHandler\SigIntHandler'
+
+    K911\Swoole\Bridge\Symfony\Container\Proxy\Instantiator:
+        public: true
+        arguments:
+            $proxyGenerator: '@K911\Swoole\Bridge\Symfony\Container\Proxy\Generator'
+            $fileSystem: '@swoole_bundle.filesystem'
+            $proxyDir: '%swoole_bundle.service_proxy_cache_dir%'
+
+    swoole_bundle.filesystem:
+        class: 'Symfony\Component\Filesystem\Filesystem'
+
+    K911\Swoole\Bridge\Symfony\Container\Proxy\Generator:
+        arguments:
+            $configuration: '@swoole_bundle.service_proxy_configuration'
+
+    swoole_bundle.service_proxy_configuration:
+        class: 'ProxyManager\Configuration'
+        calls:
+            - [ 'setGeneratorStrategy', [ '@swoole_bundle.repository_proxy_file_writer_generator' ] ]
+            - [ 'setProxiesTargetDir', [ '%swoole_bundle.service_proxy_cache_dir%' ] ]
+
+    swoole_bundle.repository_proxy_file_writer_generator:
+        class: 'ProxyManager\GeneratorStrategy\FileWriterGeneratorStrategy'
+        arguments:
+            $fileLocator: '@swoole_bundle.repository_proxy_file_locator'
+
+    swoole_bundle.repository_proxy_file_locator:
+        class: 'ProxyManager\FileLocator\FileLocator'
+        lazy: true # unable to instantiate when directory does not exist
+        arguments:
+            $proxiesDirectory: '%swoole_bundle.service_proxy_cache_dir%'
+
+    K911\Swoole\Bridge\Symfony\Container\CoWrapper:
+
+    K911\Swoole\Bridge\Symfony\Container\ServicePoolContainer:
+        arguments:
+            $pools: []
+            $resetters: []
+        tags:
+            - { name: 'kernel.reset', method: 'reset' }
+
+    K911\Swoole\Bridge\Doctrine\ORM\EntityManagerStabilityChecker:
+
+    K911\Swoole\Bridge\Doctrine\ORM\EntityManagerResetter:
+        abstract: true
+        arguments:
+            $entityManager: ~
+
+    K911\Swoole\Bridge\Symfony\HttpKernel\CoroutineKernelPool:

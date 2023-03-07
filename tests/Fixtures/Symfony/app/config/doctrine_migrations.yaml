@@ -1,0 +1,3 @@
+doctrine_migrations:
+    migrations_paths:
+        TestBundleDoctrineMigrations: '%kernel.project_dir%/../TestBundle/Migrations'

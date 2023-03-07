@@ -1,0 +1,34 @@
+doctrine:
+    dbal:
+        default_connection: default
+        connections:
+#            default:
+#                # configure these for your database server
+#                driver: 'pdo_mysql'
+#                charset: utf8
+#                user: user
+#                password: pass
+#                host: db
+#                port: 3306
+#                dbname: db
+            default:
+                # configure these for your database server
+                driver: 'pdo_sqlite'
+                charset: utf8
+                path: '%kernel.project_dir%/data/sqlite.db'
+    orm:
+        default_entity_manager: default
+        auto_generate_proxy_classes: '%kernel.debug%'
+        entity_managers:
+            default:
+                connection: default
+                naming_strategy: doctrine.orm.naming_strategy.underscore_number_aware
+                auto_mapping: true
+                mappings:
+                    App:
+                        is_bundle: false
+                        type: annotation
+                        # this is fake just for the sake of running the tests independent of doctrine relation
+                        dir: '%kernel.project_dir%/../TestBundle/Resources/mapping'
+                        prefix: 'K911\Swoole\Tests\Fixtures\Symfony\TestBundle\Entity'
+                        alias: TestBundle

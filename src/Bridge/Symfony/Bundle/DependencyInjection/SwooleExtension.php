@@ -14,6 +14,9 @@ use K911\Swoole\Bridge\Symfony\HttpFoundation\CloudFrontRequestFactory;
 use K911\Swoole\Bridge\Symfony\HttpFoundation\RequestFactoryInterface;
 use K911\Swoole\Bridge\Symfony\HttpFoundation\Session\SetSessionCookieEventListener;
 use K911\Swoole\Bridge\Symfony\HttpFoundation\TrustAllProxiesRequestHandler;
+use K911\Swoole\Bridge\Symfony\HttpKernel\CoroutineHttpKernelRequestHandler;
+use K911\Swoole\Bridge\Symfony\HttpKernel\CoroutineKernelPool;
+use K911\Swoole\Bridge\Symfony\HttpKernel\KernelPoolInterface;
 use K911\Swoole\Bridge\Symfony\Messenger\SwooleServerTaskTransportFactory;
 use K911\Swoole\Bridge\Symfony\Messenger\SwooleServerTaskTransportHandler;
 use K911\Swoole\Bridge\Upscale\Blackfire\WithProfiler;
@@ -214,6 +217,19 @@ final class SwooleExtension extends Extension implements PrependExtensionInterfa
         if ('auto' === $settings['log_level']) {
             $settings['log_level'] = $this->isDebug($container) ? 'debug' : 'notice';
         }
+
+        if ($settings['cooperative_scheduling']) {
+            $container->setParameter('swoole_bundle.cooperative_scheduling.enabled', true);
+            $coroutineKernelHandler = $container->findDefinition(CoroutineHttpKernelRequestHandler::class);
+            $coroutineKernelHandler->setArgument(
+                '$requestHandler',
+                new Reference(CoroutineHttpKernelRequestHandler::class.'.inner')
+            );
+            $coroutineKernelHandler->setDecoratedService(RequestHandlerInterface::class, null, -1000);
+
+            $container->setAlias(KernelPoolInterface::class, CoroutineKernelPool::class);
+        }
+        unset($settings['cooperative_scheduling']);
 
         if ('auto' === $hmr) {
             $hmr = $this->resolveAutoHMR();

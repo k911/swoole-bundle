@@ -1,0 +1,8 @@
+parameters:
+    env(WORKER_COUNT): 1
+    env(REACTOR_COUNT): 1
+
+swoole:
+    http_server:
+        settings:
+            cooperative_scheduling: true
